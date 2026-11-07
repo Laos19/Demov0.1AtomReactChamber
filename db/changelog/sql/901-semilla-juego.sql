@@ -325,22 +325,22 @@ INSERT INTO opcion (pregunta_id, orden, texto, es_correcta) VALUES ((SELECT pr.i
 ON CONFLICT (pregunta_id, orden) DO UPDATE SET texto = EXCLUDED.texto, es_correcta = EXCLUDED.es_correcta;
 INSERT INTO nivel (codigo, mision_id, orden, titulo, resumen, objetivo, grado, xp_base, minutos_estim, casilla_simbolo, casilla_fila, casilla_columna, casilla_nota, inicio, controles, especies)
 VALUES ('n05-carbono', (SELECT id FROM mision WHERE codigo = 'combustion'), 5, 'Combustión del carbono', 'Quema carbono y forma dióxido de carbono, el gas que exhalamos.', 'Aplicar la conservación de los átomos en la combustión del carbono.', 3, 180, 10,
-  'C', 2, 14, 'El carbono es la base del carbón, la leña y los combustibles.', '{"parametros":{"T":300,"P":1,"V":14,"UV":0,"lambda":254},"carga":{"C":30,"O2":40}}'::jsonb, ARRAY['T', 'chispa', 'inyectar']::text[], ARRAY['C', 'O2']::text[])
+  'C', 2, 14, 'El carbono es la base del carbón, la leña y los combustibles.', '{"parametros":{"T":300,"P":5,"V":10,"UV":0,"lambda":254},"carga":{"C":30,"O2":40}}'::jsonb, ARRAY['T', 'chispa', 'inyectar']::text[], ARRAY['C', 'O2']::text[])
 ON CONFLICT (codigo) DO UPDATE SET mision_id = EXCLUDED.mision_id, orden = EXCLUDED.orden, titulo = EXCLUDED.titulo, resumen = EXCLUDED.resumen,
   objetivo = EXCLUDED.objetivo, grado = EXCLUDED.grado, xp_base = EXCLUDED.xp_base, minutos_estim = EXCLUDED.minutos_estim,
   casilla_simbolo = EXCLUDED.casilla_simbolo, casilla_fila = EXCLUDED.casilla_fila, casilla_columna = EXCLUDED.casilla_columna,
   casilla_nota = EXCLUDED.casilla_nota, inicio = EXCLUDED.inicio, controles = EXCLUDED.controles, especies = EXCLUDED.especies;
 INSERT INTO paso (nivel_id, orden, titulo, instruccion, concepto, condicion)
-VALUES ((SELECT id FROM nivel WHERE codigo = 'n05-carbono'), 1, 'Calienta el carbono', 'Lleva la cámara a 1200 K o más.', 'El carbón necesita mucha temperatura para empezar a arder.', '{"todas":[{"metrica":"temperatura","op":">=","valor":1150}]}'::jsonb)
+VALUES ((SELECT id FROM nivel WHERE codigo = 'n05-carbono'), 1, 'Calienta el carbón', 'El carbono es un sólido que casi no se mueve. Lleva la cámara a 2400 K o más.', 'El carbono se funde recién a 3800 K. Como está sólido, solo reacciona en su superficie cuando el O₂ lo golpea con mucha energía: por eso hace falta tanta temperatura.', '{"todas":[{"metrica":"temperatura","op":">=","valor":2400}]}'::jsonb)
 ON CONFLICT (nivel_id, orden) DO UPDATE SET titulo = EXCLUDED.titulo, instruccion = EXCLUDED.instruccion, concepto = EXCLUDED.concepto, condicion = EXCLUDED.condicion;
 INSERT INTO pista (paso_id, nivel_ayuda, texto, costo_xp)
-VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 1), 1, 'Sube bastante la temperatura.', 5)
+VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 1), 1, 'Sube mucho la temperatura.', 5)
 ON CONFLICT (paso_id, nivel_ayuda) DO UPDATE SET texto = EXCLUDED.texto, costo_xp = EXCLUDED.costo_xp;
 INSERT INTO pista (paso_id, nivel_ayuda, texto, costo_xp)
-VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 1), 2, 'Más de 1000 K.', 10)
+VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 1), 2, 'Más de 2000 K: el carbón arde al rojo vivo.', 10)
 ON CONFLICT (paso_id, nivel_ayuda) DO UPDATE SET texto = EXCLUDED.texto, costo_xp = EXCLUDED.costo_xp;
 INSERT INTO pista (paso_id, nivel_ayuda, texto, costo_xp)
-VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 1), 3, 'Temperatura 1250 K.', 20)
+VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 1), 3, 'Temperatura 2500 K.', 20)
 ON CONFLICT (paso_id, nivel_ayuda) DO UPDATE SET texto = EXCLUDED.texto, costo_xp = EXCLUDED.costo_xp;
 INSERT INTO paso (nivel_id, orden, titulo, instruccion, concepto, condicion)
 VALUES ((SELECT id FROM nivel WHERE codigo = 'n05-carbono'), 2, 'Inicia la combustión', 'Consigue que se formen 5 moléculas de CO₂.', 'C + O₂ → CO₂: un átomo de carbono se une a dos de oxígeno.', '{"todas":[{"metrica":"reacciones:co2","op":">=","valor":5}]}'::jsonb)
@@ -349,10 +349,10 @@ INSERT INTO pista (paso_id, nivel_ayuda, texto, costo_xp)
 VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 2), 1, 'La chispa ayuda a superar la energía de activación.', 5)
 ON CONFLICT (paso_id, nivel_ayuda) DO UPDATE SET texto = EXCLUDED.texto, costo_xp = EXCLUDED.costo_xp;
 INSERT INTO pista (paso_id, nivel_ayuda, texto, costo_xp)
-VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 2), 2, 'La Eₐ de esta reacción es alta (38 kJ/mol en el modelo).', 10)
+VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 2), 2, 'La Eₐ de esta reacción es alta (38 kJ/mol en el modelo); espera unos segundos.', 10)
 ON CONFLICT (paso_id, nivel_ayuda) DO UPDATE SET texto = EXCLUDED.texto, costo_xp = EXCLUDED.costo_xp;
 INSERT INTO pista (paso_id, nivel_ayuda, texto, costo_xp)
-VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 2), 3, 'Pulsa «Chispa» varias veces.', 20)
+VALUES ((SELECT pa.id FROM paso pa JOIN nivel nv ON nv.id = pa.nivel_id WHERE nv.codigo = 'n05-carbono' AND pa.orden = 2), 3, 'Pulsa «Chispa» y espera; si va lento sube a 2600 K.', 20)
 ON CONFLICT (paso_id, nivel_ayuda) DO UPDATE SET texto = EXCLUDED.texto, costo_xp = EXCLUDED.costo_xp;
 INSERT INTO paso (nivel_id, orden, titulo, instruccion, concepto, condicion)
 VALUES ((SELECT id FROM nivel WHERE codigo = 'n05-carbono'), 3, 'Cuenta los átomos', 'Sigue hasta tener 12 moléculas de CO₂.', 'En una reacción los átomos no se crean ni se destruyen: solo se reorganizan (ley de conservación de la masa).', '{"todas":[{"metrica":"conteo:CO2","op":">=","valor":12}]}'::jsonb)
