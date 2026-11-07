@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const leer = (p) => readFileSync(join(root, p), 'utf8');
 const sqlDir = join(root, 'db', 'changelog', 'sql');
-const sql = readdirSync(sqlDir).filter((f) => /^00\d/.test(f)).map((f) => readFileSync(join(sqlDir, f), 'utf8')).join('\n');
+const sql = readdirSync(sqlDir).filter((f) => /^0\d\d/.test(f)).map((f) => readFileSync(join(sqlDir, f), 'utf8')).join('\n');
 
 const contar = (re, txt) => [...txt.matchAll(re)].length;
 const tablas = [...sql.matchAll(/COMMENT ON TABLE (\w+) IS '((?:[^']|'')*)'/g)].map((m) => [m[1], m[2].replace(/''/g, "'")]);

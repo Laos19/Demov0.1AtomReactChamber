@@ -55,8 +55,8 @@ ayudas y `fn_otorgar_insignias` evalúa los logros. Ver [FD04 — Arquitectura](
 | Vistas / vistas materializadas | 6 / 1 |
 | Funciones PL/pgSQL y SQL | 16 |
 | Triggers | 10 |
-| Índices declarados | 19 |
-| Changesets de Liquibase | 47 |
+| Índices declarados | 30 |
+| Changesets de Liquibase | 48 |
 | Endpoints REST | 21 |
 | Niveles / pasos / preguntas | 9 / 29 / 27 |
 | Pruebas automáticas (API + motor) | 17 + 15 |

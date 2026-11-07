@@ -102,7 +102,7 @@ async function diagramaER() {
     tablas = [...porTabla.values()];
   } else {
     const dir = join(root, 'db', 'changelog', 'sql');
-    const sql = readdirSync(dir).filter((f) => /^00\d/.test(f)).map((f) => readFileSync(join(dir, f), 'utf8')).join('\n');
+    const sql = readdirSync(dir).filter((f) => /^0\d\d/.test(f)).map((f) => readFileSync(join(dir, f), 'utf8')).join('\n');
     for (const bloque of sql.matchAll(/CREATE TABLE (\w+) \(([\s\S]*?)\n\);/g)) {
       const t = { nombre: bloque[1], cols: [], fks: [] };
       for (const linea of bloque[2].split('\n')) {
