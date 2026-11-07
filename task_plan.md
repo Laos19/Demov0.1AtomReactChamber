@@ -44,11 +44,11 @@ Scripts npm (raíz, workspaces `frontend`, `backend`, `extensions/vscode`):
 | # | Fase | Estado |
 |---|---|---|
 | 0 | Skills instaladas, monorepo, planificación | ✅ |
-| 1 | BD (modelo 3FN, Liquibase, funciones, triggers, vistas, semilla) | ⏳ |
-| 2 | API Fastify (auth JWT/roles, catálogo, misiones, intentos, Quimi, aulas, dashboard, eventos) | ⏳ |
-| 3 | Frontend v2: identidad, mapa tabla periódica, niveles guiados, Quimi, perfil, aula, dashboard, lab libre | ⏳ |
-| 4 | Automatizaciones (Terraform+tests+costos, Liquibase, backups, release+deploy, docs README, Pages) | ⏳ |
-| 5 | Integraciones: VS Code, skill Claude Code, MCP, GitHub | ⏳ |
+| 1 | BD (modelo 3FN, Liquibase, funciones, triggers, vistas, semilla) | ✅ |
+| 2 | API Fastify (auth JWT/roles, catálogo, misiones, intentos, Quimi, aulas, dashboard, eventos) | ✅ |
+| 3 | Frontend v2: identidad, mapa tabla periódica, niveles guiados, Quimi, perfil, aula, dashboard, lab libre | ✅ |
+| 4 | Automatizaciones (Terraform+tests+costos, Liquibase, backups, release+deploy, docs README, Pages) | ✅ (falta 1.ª ejecución con secrets) |
+| 5 | Integraciones: VS Code, skill Claude Code, MCP, GitHub | ✅ |
 | 6 | Documentos: problema con fuentes, objetivos SMART, FD01–FD04 corregidos, FD05, diccionario, estándar | ⏳ |
 | 7 | Exposición: reveal.js + PPTX, guion demo, banco de preguntas | ⏳ |
 | 8 | (Último, con permiso) Repo nuevo en Classroom50 | ⏸ |

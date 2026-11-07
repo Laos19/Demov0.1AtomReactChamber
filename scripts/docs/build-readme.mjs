@@ -17,7 +17,7 @@ const contar = (re, txt) => [...txt.matchAll(re)].length;
 const tablas = [...sql.matchAll(/COMMENT ON TABLE (\w+) IS '((?:[^']|'')*)'/g)].map((m) => [m[1], m[2].replace(/''/g, "'")]);
 const rutas = leer('backend/src/routes/index.ts');
 const testsApi = contar(/\bit\(/g, leer('backend/test/api.test.ts'));
-const testsMotor = existsSync(join(root, 'frontend/src/engine/engine.test.ts')) ? contar(/\bit\(/g, leer('frontend/src/engine/engine.test.ts')) : 0;
+const testsMotor = existsSync(join(root, 'frontend/src/engine/engine.test.ts')) ? contar(/\bit\(/g, leer('frontend/src/engine/engine.test.ts')) + JSON.parse(leer('db/data/juego.json')).niveles.length - 1 : 0;
 const juego = JSON.parse(leer('db/data/juego.json'));
 
 const metricas = `| Métrica | Valor |

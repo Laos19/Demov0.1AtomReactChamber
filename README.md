@@ -59,7 +59,7 @@ ayudas y `fn_otorgar_insignias` evalúa los logros. Ver [FD04 — Arquitectura](
 | Changesets de Liquibase | 47 |
 | Endpoints REST | 21 |
 | Niveles / pasos / preguntas | 9 / 29 / 27 |
-| Pruebas automáticas (API + motor) | 17 + 7 |
+| Pruebas automáticas (API + motor) | 17 + 15 |
 <!-- AUTO:metricas:fin -->
 
 ## Base de datos
