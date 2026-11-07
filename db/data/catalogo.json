@@ -1,0 +1,73 @@
+{
+  "$comment": "Catálogo químico de AtomReactChamber. Fuente única de verdad: genera la semilla SQL (Liquibase) y el catálogo offline del frontend. dHf en kJ/mol (estado estándar, NIST/CRC), temperaturas en K a 1 atm. Las Ea son valores de modelo a escala pedagógica.",
+  "elementos": [
+    { "simbolo": "H", "nombre": "Hidrógeno", "numero_atomico": 1, "color": "#e2e8f0", "brillo": "#ffffff", "radio_px": 4 },
+    { "simbolo": "C", "nombre": "Carbono", "numero_atomico": 6, "color": "#94a3b8", "brillo": "#e2e8f0", "radio_px": 6.5 },
+    { "simbolo": "O", "nombre": "Oxígeno", "numero_atomico": 8, "color": "#f87171", "brillo": "#fecaca", "radio_px": 6 },
+    { "simbolo": "Na", "nombre": "Sodio", "numero_atomico": 11, "color": "#a78bfa", "brillo": "#ddd6fe", "radio_px": 8 },
+    { "simbolo": "Cl", "nombre": "Cloro", "numero_atomico": 17, "color": "#4ade80", "brillo": "#bbf7d0", "radio_px": 7 }
+  ],
+  "especies": [
+    { "codigo": "H2", "formula": "H₂", "nombre": "Hidrógeno", "masa_molar": 2.016, "dhf": 0, "pf": 14, "pe": 20.3, "dhvap": 0.9, "cid": 783, "inyectable": true,
+      "atomos": [["H", -3.5, 0], ["H", 3.5, 0]] },
+    { "codigo": "O2", "formula": "O₂", "nombre": "Oxígeno", "masa_molar": 31.998, "dhf": 0, "pf": 54.4, "pe": 90.2, "dhvap": 6.8, "cid": 977, "inyectable": true,
+      "atomos": [["O", -5, 0], ["O", 5, 0]] },
+    { "codigo": "Na", "formula": "Na", "nombre": "Sodio", "masa_molar": 22.99, "dhf": 0, "pf": 370.9, "pe": 1156, "dhvap": 97.4, "cid": 5360545, "inyectable": true,
+      "atomos": [["Na", 0, 0]] },
+    { "codigo": "H2O", "formula": "H₂O", "nombre": "Agua", "masa_molar": 18.015, "dhf": -241.8, "pf": 273.15, "pe": 373.15, "dhvap": 40.7, "cid": 962, "inyectable": true,
+      "atomos": [["O", 0, -1.5], ["H", -6, 3.5], ["H", 6, 3.5]] },
+    { "codigo": "Cl2", "formula": "Cl₂", "nombre": "Cloro", "masa_molar": 70.9, "dhf": 0, "pf": 171.6, "pe": 239.1, "dhvap": 20.4, "cid": 24526, "inyectable": true,
+      "atomos": [["Cl", -6, 0], ["Cl", 6, 0]] },
+    { "codigo": "C", "formula": "C", "nombre": "Carbono (grafito)", "masa_molar": 12.011, "dhf": 0, "pf": 3800, "pe": 4100, "dhvap": 715, "cid": 5462310, "inyectable": true,
+      "atomos": [["C", 0, 0]] },
+    { "codigo": "NaOH", "formula": "NaOH", "nombre": "Hidróxido de sodio", "masa_molar": 39.997, "dhf": -425.8, "pf": 591, "pe": 1661, "dhvap": 175, "cid": 14798,
+      "atomos": [["Na", -6, 0], ["O", 5, 0], ["H", 11, -3]] },
+    { "codigo": "NaCl", "formula": "NaCl", "nombre": "Cloruro de sodio", "masa_molar": 58.44, "dhf": -411.2, "pf": 1074, "pe": 1686, "dhvap": 171, "cid": 5234,
+      "atomos": [["Na", -6, 0], ["Cl", 6, 0]] },
+    { "codigo": "CO2", "formula": "CO₂", "nombre": "Dióxido de carbono", "masa_molar": 44.009, "dhf": -393.5, "pf": 216.6, "pe": 194.7, "dhvap": 25.2, "cid": 280,
+      "sublimacion": { "p_triple_atm": 5.1, "t_triple_k": 216.6, "dhvap_triple": 16.7 },
+      "atomos": [["O", -10, 0], ["C", 0, 0], ["O", 10, 0]] },
+    { "codigo": "HCl", "formula": "HCl", "nombre": "Cloruro de hidrógeno", "masa_molar": 36.46, "dhf": -92.3, "pf": 159, "pe": 188, "dhvap": 16.2, "cid": 313,
+      "atomos": [["H", -6, 0], ["Cl", 3, 0]] },
+    { "codigo": "H", "formula": "H·", "nombre": "Hidrógeno atómico (radical)", "masa_molar": 1.008, "dhf": 218.0, "radical": true, "atomos": [["H", 0, 0]] },
+    { "codigo": "O", "formula": "O·", "nombre": "Oxígeno atómico (radical)", "masa_molar": 15.999, "dhf": 249.2, "radical": true, "atomos": [["O", 0, 0]] },
+    { "codigo": "Cl", "formula": "Cl·", "nombre": "Cloro atómico (radical)", "masa_molar": 35.45, "dhf": 121.3, "radical": true, "atomos": [["Cl", 0, 0]] }
+  ],
+  "reacciones": [
+    { "codigo": "h2o2", "reactivos": ["H2", "O2"], "productos": ["H2O", "O"], "ea": 34, "esterico": 0.6, "enlace": "H–O", "etiqueta": "Iniciación térmica" },
+    { "codigo": "oh2", "reactivos": ["O", "H2"], "productos": ["H2O"], "ea": 10, "esterico": 0.8, "enlace": "H–O", "etiqueta": "Propagación" },
+    { "codigo": "naw", "reactivos": ["Na", "H2O"], "productos": ["NaOH", "H"], "ea": 34, "esterico": 0.8, "enlace": "Na–O", "etiqueta": "Transferencia electrónica" },
+    { "codigo": "hh", "reactivos": ["H", "H"], "productos": ["H2"], "ea": 0, "esterico": 0.3, "enlace": "H–H", "etiqueta": "Recombinación radicalaria" },
+    { "codigo": "oo", "reactivos": ["O", "O"], "productos": ["O2"], "ea": 0, "esterico": 0.25, "enlace": "O=O", "etiqueta": "Recombinación radicalaria" },
+    { "codigo": "nacl2", "reactivos": ["Na", "Cl2"], "productos": ["NaCl", "Cl"], "ea": 6, "esterico": 0.7, "enlace": "Na–Cl", "etiqueta": "Oxidación del metal" },
+    { "codigo": "nacl", "reactivos": ["Na", "Cl"], "productos": ["NaCl"], "ea": 0, "esterico": 0.6, "enlace": "Na–Cl", "etiqueta": "Captura de radical" },
+    { "codigo": "co2", "reactivos": ["C", "O2"], "productos": ["CO2"], "ea": 38, "esterico": 0.5, "enlace": "C=O", "etiqueta": "Combustión del carbono" },
+    { "codigo": "clh2", "reactivos": ["Cl", "H2"], "productos": ["HCl", "H"], "ea": 10, "esterico": 0.6, "enlace": "H–Cl", "etiqueta": "Propagación (cadena)" },
+    { "codigo": "hcl2", "reactivos": ["H", "Cl2"], "productos": ["HCl", "Cl"], "ea": 5, "esterico": 0.7, "enlace": "H–Cl", "etiqueta": "Propagación (cadena)" },
+    { "codigo": "hcl", "reactivos": ["H", "Cl"], "productos": ["HCl"], "ea": 0, "esterico": 0.3, "enlace": "H–Cl", "etiqueta": "Terminación" },
+    { "codigo": "clcl", "reactivos": ["Cl", "Cl"], "productos": ["Cl2"], "ea": 0, "esterico": 0.25, "enlace": "Cl–Cl", "etiqueta": "Terminación" }
+  ],
+  "fotolisis": [
+    { "especie": "O2", "enlace_kj": 498, "seccion_eficaz": 0.0015, "productos": ["O", "O"], "etiqueta": "O=O" },
+    { "especie": "H2", "enlace_kj": 436, "seccion_eficaz": 0.0006, "productos": ["H", "H"], "etiqueta": "H–H" },
+    { "especie": "Cl2", "enlace_kj": 243, "seccion_eficaz": 0.0008, "productos": ["Cl", "Cl"], "etiqueta": "Cl–Cl" }
+  ],
+  "presets": [
+    { "codigo": "combustion", "nombre": "Combustión de hidrógeno", "ecuacion": "2H₂ + O₂ → 2H₂O", "sobre_flecha": "ΔT", "etiqueta": "Exotérmica",
+      "parametros": { "T": 700, "P": 1, "V": 12, "UV": 0, "lambda": 254 }, "carga": { "H2": 70, "O2": 35 },
+      "pasos": [["h2o2", 1], ["oh2", 1]],
+      "pista": "Mezcla estable a 700 K: pulsa «Chispa» para iniciar la ignición en cadena." },
+    { "codigo": "alkali", "nombre": "Reacción álcali–agua", "ecuacion": "2Na + 2H₂O → 2NaOH + H₂↑", "sobre_flecha": "", "etiqueta": "Violenta / exotérmica",
+      "parametros": { "T": 760, "P": 100, "V": 10, "UV": 0, "lambda": 254 }, "carga": { "Na": 30, "H2O": 50 },
+      "pasos": [["naw", 2], ["hh", 1]],
+      "pista": "Sodio fundido bajo vapor de agua denso (100 atm, 760 K): cada H₂ formado libera calor y acelera la reacción." },
+    { "codigo": "uvwater", "nombre": "Síntesis de agua con luz UV", "ecuacion": "2H₂ + O₂ → 2H₂O", "sobre_flecha": "hν, 60 atm", "etiqueta": "Fotoquímica",
+      "parametros": { "T": 350, "P": 60, "V": 12, "UV": 800, "lambda": 185 }, "carga": { "H2": 50, "O2": 25 },
+      "pasos": [["photo:O2", 1], ["oh2", 2]],
+      "pista": "La luz UV-C de 185 nm rompe el enlace O=O (498 kJ/mol); los radicales O· reaccionan con H₂ sin barrera térmica." },
+    { "codigo": "chlor", "nombre": "Cadena fotoquímica H₂ + Cl₂", "ecuacion": "H₂ + Cl₂ → 2HCl", "sobre_flecha": "hν", "etiqueta": "Reacción en cadena",
+      "parametros": { "T": 320, "P": 2, "V": 12, "UV": 700, "lambda": 350 }, "carga": { "H2": 60, "Cl2": 60 },
+      "pasos": [["photo:Cl2", 1], ["clh2", 1], ["hcl2", 1], ["clcl", 1]],
+      "pista": "La luz UV-A (350 nm) basta para romper Cl–Cl; cada radical Cl· propaga una cadena." }
+  ]
+}

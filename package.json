@@ -1,34 +1,39 @@
 {
   "name": "atomreactchamber",
-  "version": "0.1.0",
-  "description": "AtomReactChamber v0.1 — cámara de simulación termodinámica y molecular",
+  "version": "2.0.0",
+  "private": true,
+  "description": "AtomReactChamber v2 — laboratorio virtual de química gamificado para secundaria (UPT · Base de Datos II)",
+  "author": "Adriana Rafaela Laos González",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "extensions/vscode",
+    "integrations/mcp"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:single": "vite build --mode single",
-    "preview": "vite preview"
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "seed:generate": "node db/scripts/generate-seed.mjs",
+    "docs:readme": "node scripts/docs/build-readme.mjs",
+    "docs:diagrams": "node scripts/docs/build-diagrams.mjs",
+    "docs:api": "typedoc",
+    "dev": "npm run dev -w frontend",
+    "dev:api": "npm run dev -w backend"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Laos19/Demov0.1AtomReactChamber.git"
+    "url": "git+https://github.com/laos19/demov0.1atomreactchamber.git"
   },
-  "bugs": {
-    "url": "https://github.com/Laos19/Demov0.1AtomReactChamber/issues"
-  },
-  "homepage": "https://github.com/Laos19/Demov0.1AtomReactChamber#readme",
-  "dependencies": {
-    "lucide-react": "^1.50.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+  "engines": {
+    "node": ">=22"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.7.0",
-    "autoprefixer": "^10.6.1",
-    "postcss": "^8.5.28",
-    "tailwindcss": "^3.4.19",
-    "vite": "^5.4.21",
-    "vite-plugin-singlefile": "^2.3.3"
-  },
-  "private": true,
-  "type": "module"
+    "bcryptjs": "^3.0.3",
+    "typedoc": "^0.28.20",
+    "typescript": "^5.9.3"
+  }
 }

@@ -1,0 +1,17 @@
+# Changelog maestro de AtomReactChamber (Liquibase).
+# Orden: extensiones → seguridad → catálogo químico → juego → progreso → telemetría
+#        → funciones → triggers → vistas → semillas (catálogo y juego) → datos de demostración.
+# Los archivos 9xx-semilla-*.sql se generan con `npm run seed:generate` desde db/data/*.json.
+databaseChangeLog:
+  - include: { file: sql/001-extensiones.sql, relativeToChangelogFile: true }
+  - include: { file: sql/002-seguridad.sql, relativeToChangelogFile: true }
+  - include: { file: sql/003-catalogo.sql, relativeToChangelogFile: true }
+  - include: { file: sql/004-juego.sql, relativeToChangelogFile: true }
+  - include: { file: sql/005-progreso.sql, relativeToChangelogFile: true }
+  - include: { file: sql/006-telemetria.sql, relativeToChangelogFile: true }
+  - include: { file: sql/007-funciones.sql, relativeToChangelogFile: true }
+  - include: { file: sql/008-triggers.sql, relativeToChangelogFile: true }
+  - include: { file: sql/009-vistas.sql, relativeToChangelogFile: true }
+  - include: { file: sql/900-semilla-catalogo.sql, relativeToChangelogFile: true }
+  - include: { file: sql/901-semilla-juego.sql, relativeToChangelogFile: true }
+  - include: { file: sql/902-datos-demo.sql, relativeToChangelogFile: true }

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "changelog-path": "CHANGELOG.md",
+  "pull-request-title-pattern": "chore: release ${version}",
+  "changelog-sections": [
+    { "type": "feat", "section": "✨ Funcionalidades" },
+    { "type": "fix", "section": "🐛 Correcciones" },
+    { "type": "perf", "section": "⚡ Rendimiento" },
+    { "type": "db", "section": "🗄️ Base de datos" },
+    { "type": "docs", "section": "📚 Documentación" },
+    { "type": "refactor", "section": "♻️ Refactorización" },
+    { "type": "test", "section": "🧪 Pruebas" },
+    { "type": "ci", "section": "🔁 Integración continua" },
+    { "type": "build", "section": "📦 Build" },
+    { "type": "chore", "section": "🧹 Mantenimiento", "hidden": true },
+    { "type": "style", "section": "🎨 Estilo", "hidden": true }
+  ],
+  "packages": {
+    ".": {
+      "package-name": "atomreactchamber",
+      "extra-files": [
+        { "type": "json", "path": "frontend/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "backend/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "extensions/vscode/package.json", "jsonpath": "$.version" }
+      ]
+    }
+  }
+}
