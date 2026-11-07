@@ -374,7 +374,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
     </div>
   </div>
   <div class="card tinte-calcio" style="margin-top:16px; padding:10px 16px;">
-    <p class="text-sm" style="margin:0;"><strong>Lo que todavía falta (y lo digo antes que me lo pregunten):</strong> el JWT vive en <code>localStorage</code> (riesgo ante XSS), no hay refresh token ni revocación, y no hay consentimiento parental en el registro.</p>
+    <p class="text-sm" style="margin:0;"><strong>Lo que todavía falta (y lo digo antes que me lo pregunten):</strong> el JWT vive en <code>localStorage</code> (riesgo ante XSS), no hay refresh token ni revocación, y el <strong>consentimiento de padres para menores de 14 años</strong> (D. S. 016-2024-JUS) es trabajo futuro.</p>
   </div>
   <div class="preguntame"><p><b>Pregúntame</b>¿Por qué JWT en localStorage y no cookie httpOnly? ¿Cómo se revoca un token robado?</p></div>
   <aside class="notes">
@@ -586,7 +586,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
         <li><strong>2D y pocas partículas:</strong> discos rígidos + termostato de Berendsen; no es dinámica molecular real.</li>
         <li><strong>La verificación física corre en el cliente:</strong> la BD exige orden y pertenencia de pasos, no repite la simulación.</li>
         <li><strong>Arranque en frío:</strong> la API gratuita tarda ~1 min tras 15 min sin uso.</li>
-        <li><strong>9 de 12 niveles</strong> de la meta OS-1; el piloto con estudiantes aún no se hizo.</li>
+        <li><strong>Esta versión trae 9 niveles</strong>; llegar a ≥ 12 (OS-1) es meta futura. El piloto con estudiantes aún no se hizo.</li>
         <li>Sin índice único parcial para «un intento en curso por nivel»; sin Lighthouse CI todavía.</li>
       </ul>
     </div>
@@ -596,10 +596,12 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
         <li><strong>Quimi con LLM</strong> en la 3.ª unidad, detrás de la misma interfaz <code>QuimiService</code>.</li>
         <li>Laboratorio <strong>3D</strong>, números cuánticos, editor de prácticas para docentes.</li>
         <li>Piloto en un colegio de Tacna: medir Hake ⟨g⟩, SUS y OS-2.</li>
-        <li>Cookie httpOnly + refresh token; consentimiento parental.</li>
+        <li>Ampliar a <strong>≥ 12 niveles</strong> en ≥ 4 temas.</li>
+        <li>Cookie httpOnly + refresh token y revocación.</li>
         <li>Reportes PDF para el docente; monitoreo de disponibilidad (OS-7).</li>
       </ul>
-      <div class="card tinte-sodio" style="margin-top:12px; padding:10px 14px;"><p class="text-sm" style="margin:0;">Complementa al laboratorio físico; <strong>no lo reemplaza</strong> (Li y Liang, 2024).</p></div>
+      <div class="card tinte-calcio" style="margin-top:12px; padding:10px 14px;"><p class="text-sm" style="margin:0;"><strong>Nota visible:</strong> el flujo de <strong>consentimiento de padres o tutores para menores de 14 años</strong> (Ley 29733 y D. S. 016-2024-JUS) es trabajo futuro; hoy el piloto usa cuentas creadas por el docente.</p></div>
+      <p class="fuente" style="margin-top:8px;">Complementa al laboratorio físico; no lo reemplaza (Li y Liang, 2024).</p>
     </div>
   </div>
   <div class="preguntame"><p><b>Pregúntame</b>Si yo fuera su docente de química, ¿por qué debería confiar en lo que muestra el simulador?</p></div>
@@ -607,7 +609,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
     (≈1 min) Cierro con lo que el sistema no hace, porque creo que es tan importante como lo que sí hace.
     Las entalpías son datos reales de NIST, pero las energías de activación están escaladas para que las reacciones se vean en segundos; el pie de página de la app lo dice. Es 2D, con pocas partículas: sirve para intuición, no para predecir.
     La verificación de los pasos corre en el navegador: un estudiante con conocimientos podría enviar pasos sin hacerlos, aunque la BD exige el orden. Para una tarea escolar acepto el riesgo; para un examen no.
-    Tengo 9 de los 12 niveles que me propuse, y el piloto todavía no se hizo. Y en la 3.ª unidad, Quimi pasa de reglas a un modelo de lenguaje sin cambiar la interfaz del servicio.
+    Esta versión trae 9 niveles; llegar a 12 o más es una meta futura, igual que el piloto. Y una nota que quiero dejar visible: el reglamento de la Ley 29733 exige el consentimiento de padres o tutores para tratar datos de menores de 14 años; ese flujo todavía no existe y es trabajo futuro prioritario antes de cualquier piloto real. Y en la 3.ª unidad, Quimi pasa de reglas a un modelo de lenguaje sin cambiar la interfaz del servicio.
   </aside>
 </section>
 
@@ -618,12 +620,12 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
     <h1 style="font-size:52pt; margin-top:8px;">Preguntas</h1>
     <p style="font-size:17pt; max-width:760px;">Elijan una casilla y pregúntenme por ella. Las más difíciles valen tres estrellas.</p>
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:22px; max-width:1100px;">
-      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#7FD6CB; margin-bottom:4px;"><strong>Base de datos</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Reglas en PL/pgSQL o en la API? ¿Qué harían ustedes?</p></div>
-      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#FFB27A; margin-bottom:4px;"><strong>Concurrencia</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">Dos «Finalizar» simultáneos: ¿FOR UPDATE basta?</p></div>
-      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#F28DB2; margin-bottom:4px;"><strong>Seguridad</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Cómo harían trampa en el juego? Atáquenlo.</p></div>
-      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#B9A6FF; margin-bottom:4px;"><strong>Arquitectura</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Qué rompería primero con 10 000 estudiantes?</p></div>
-      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#FFD45C; margin-bottom:4px;"><strong>DevOps</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Qué pasa si Liquibase falla a mitad del despliegue?</p></div>
-      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#7FD6CB; margin-bottom:4px;"><strong>Pedagogía</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Las estrellas motivan o distraen? ¿Ustedes jugarían?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#7FD6CB; margin-bottom:4px;"><strong>Base de datos</strong></p><p style="color:#E6EDF5; margin:0; font-size:16pt;">¿Reglas en PL/pgSQL o en la API? ¿Qué harían ustedes?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#FFB27A; margin-bottom:4px;"><strong>Concurrencia</strong></p><p style="color:#E6EDF5; margin:0; font-size:16pt;">Dos «Finalizar» simultáneos: ¿FOR UPDATE basta?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#F28DB2; margin-bottom:4px;"><strong>Seguridad</strong></p><p style="color:#E6EDF5; margin:0; font-size:16pt;">¿Cómo harían trampa en el juego? Atáquenlo.</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#B9A6FF; margin-bottom:4px;"><strong>Arquitectura</strong></p><p style="color:#E6EDF5; margin:0; font-size:16pt;">¿Qué rompería primero con 10 000 estudiantes?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#FFD45C; margin-bottom:4px;"><strong>DevOps</strong></p><p style="color:#E6EDF5; margin:0; font-size:16pt;">¿Qué pasa si Liquibase falla a mitad del despliegue?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#7FD6CB; margin-bottom:4px;"><strong>Pedagogía</strong></p><p style="color:#E6EDF5; margin:0; font-size:16pt;">¿Las estrellas motivan o distraen? ¿Ustedes jugarían?</p></div>
     </div>
     <p class="muted" style="position:absolute; left:64px; bottom:40px; font-size:13pt;">Repositorio: github.com/Laos19/Demov0.1AtomReactChamber · Adriana Rafaela Laos González · 2023077474</p>
   </div>

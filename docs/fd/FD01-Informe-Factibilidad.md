@@ -9,6 +9,8 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 
 > Lista para revisión de Adriana. Los números entre corchetes remiten a los defectos de `findings.md`.
 
+> **Pendientes de decisión (no resueltos en esta versión):** (a) la meta de ≥ 12 niveles (OS-1/OE-2) se mantiene, pero hoy hay **9 niveles en 4 misiones**; (b) el **flujo de consentimiento de padres** para menores de 14 años (D. S. 016-2024-JUS) aún no está diseñado ni implementado.
+
 1. **[1] Nombre único:** "AtomReactChamber" en todo el documento (antes: Atom React Chamber / Atomic Reactor Chamber / Simulador v2.3).
 2. **[2] Equipo:** una sola integrante (Adriana) con roles rotativos; se eliminó a Antony Solorzano de la portada y la "redistribución entre 3 integrantes" del plan de riesgos.
 3. **[3] Stack real:** React + Vite + TypeScript, Node 22 + Fastify, PostgreSQL (Neon), Liquibase, Terraform, GitHub Actions (antes: Java / Spring Boot / 2.5D).
@@ -78,9 +80,9 @@ en un piloto una tasa de niveles completados ≥ 60 % y una usabilidad SUS ≥ 7
 |---|---|---|---|---|---|
 | OE-1 | Diseñar e implementar la BD en 3FN con migraciones versionadas. | Changesets Liquibase aplicados con *rollback* probado | 100 % de tablas, funciones, *triggers* y vistas versionados | Workflow `db.yml` | S4 |
 | OE-2 | Publicar un catálogo de misiones alineadas al CNEB. | Niveles publicados y validados | ≥ 12 niveles en ≥ 4 temas | Vista de catálogo + checklist científico | S10 |
-| OE-3 | Lograr que los estudiantes terminen las misiones. | Completados / iniciados | ≥ 60 % | Vista `v_metricas_nivel` | S14 |
+| OE-3 | Lograr que los estudiantes terminen las misiones. | Completados / iniciados | ≥ 60 % | Vista `v_estadisticas_nivel` | S14 |
 | OE-4 | Mejorar el desempeño en el cuestionario de cierre. | % de aciertos, 1.er vs. último intento | +15 p. p. | Respuestas en BD | S14 |
-| OE-5 | Que Quimi oriente sin resolver por el estudiante. | % de pasos con pista nivel "solución" | ≤ 30 % | Tabla `uso_pista` | S14 |
+| OE-5 | Que Quimi oriente sin resolver por el estudiante. | % de pasos con pista nivel "solución" | ≤ 30 % | Tabla `pista_usada` | S14 |
 | OE-6 | Garantizar accesibilidad y usabilidad. | Lighthouse *Accessibility*; SUS | ≥ 90; ≥ 70 | Lighthouse CI; cuestionario SUS | S15 |
 | OE-7 | Mantener disponibilidad en horario escolar. | Chequeos `/health` OK / totales | ≥ 99 % (07:00–18:00) | Workflow programado | S16 |
 | OE-8 | Asegurar la calidad del software. | Cobertura backend; workflows en verde | ≥ 70 %; 100 % | Reporte de cobertura; GitHub Actions | S16 |
@@ -145,8 +147,9 @@ desarrollo en el curso y un piloto con al menos un aula de secundaria.
 
 - **Lenguaje y arquitectura:** TypeScript en cliente y servidor; arquitectura cliente-servidor con API REST
   y autenticación JWT por roles.
-- **Persistencia:** PostgreSQL con modelo en 3FN, funciones PL/pgSQL (XP, estrellas, rachas), *triggers*
-  (auditoría, desbloqueo de niveles) y vistas de métricas.
+- **Persistencia:** PostgreSQL con modelo en 3FN, funciones PL/pgSQL (XP, estrellas, rachas, insignias), *triggers*
+  (auditoría, corrección del cuestionario, contadores) y vistas de métricas; el desbloqueo de niveles lo
+  controla la API a partir de `nivel.nivel_previo_id`.
 - **Hardware mínimo del cliente:** navegador moderno y 4 GB de RAM; no requiere GPU dedicada.
 - **Competencias:** la integrante domina React (v0.1 funcional) y PostgreSQL (curso Base de Datos II).
   El riesgo de aprendizaje está en Fastify y Terraform, mitigado con documentación oficial y plantillas.
@@ -244,7 +247,9 @@ costo unitario S/ 0 pero total S/ 150.
 - El docente crea un **aula** y comparte un **código de ingreso**; asigna misiones y ve el avance por
   estudiante y paso, sin trámites administrativos.
 - El estudiante entra desde el navegador del aula de innovación o de su casa; no instala nada.
-- El administrador gestiona usuarios y roles. Los respaldos y despliegues son automáticos (GitHub Actions).
+- Los docentes se registran con un **código de invitación** de la institución; el administrador tiene los
+  permisos del docente sobre todas las aulas y el contenido (misiones, pasos, glosario) se mantiene en
+  `db/data/*.json` y se publica con Liquibase. Los respaldos y despliegues son automáticos (GitHub Actions).
 - El uso previsto es **complementario** al laboratorio físico y a la clase, coherente con la evidencia de
   que las simulaciones funcionan mejor con guía docente (Smetana & Bell, 2012).
 

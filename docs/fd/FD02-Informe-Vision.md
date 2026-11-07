@@ -9,6 +9,8 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 
 > Lista para revisión de Adriana. Los números entre corchetes remiten a los defectos de `findings.md`.
 
+> **Pendientes de decisión (no resueltos en esta versión):** (a) la meta de ≥ 12 niveles (OS-1/OE-2) se mantiene, pero hoy hay **9 niveles en 4 misiones**; (b) el **flujo de consentimiento de padres** para menores de 14 años (D. S. 016-2024-JUS) aún no está diseñado ni implementado.
+
 1. **[1] Nombre:** "AtomReactChamber" en todo el documento (antes: "QUIMI-K", "Quimi-K", "Simulador de laboratorio virtual v2.2"). **Quimi** es el nombre del asistente, no del sistema.
 2. **[2] Equipo:** solo Adriana Rafaela Laos González. Se eliminaron Antony Solorzano (portada), Gabriela Cohaila, Vincenzo Llanos y Edison Meneses (perfil del equipo) y la mención al curso "Programación III".
 3. **[3] Stack real:** React + Vite + TypeScript, Node 22 + Fastify, PostgreSQL (Neon), Liquibase, Terraform, GitHub Actions; simulador **2D molecular** (se elimina "2D isométrico").
@@ -71,10 +73,10 @@ PostgreSQL, logrando en un piloto una tasa de niveles completados ≥ 60 % y una
 | ID | Objetivo | Indicador | Línea base | Meta | Instrumento | Plazo |
 |---|---|---|---|---|---|---|
 | OS-1 | Catálogo de misiones alineadas al CNEB | Niveles publicados y validados | v0.1: 0 niveles guiados | ≥ 12 niveles en ≥ 4 temas | Vista de catálogo + checklist | S10 |
-| OS-2 | Finalización de misiones | Completados / iniciados | Sistema nuevo | ≥ 60 % | `v_metricas_nivel` | S14 |
+| OS-2 | Finalización de misiones | Completados / iniciados | Sistema nuevo | ≥ 60 % | `v_estadisticas_nivel` | S14 |
 | OS-3 | Desempeño en cuestionario | % aciertos 1.er vs. último intento | 1.er intento del piloto | +15 p. p. | Respuestas en BD | S14 |
 | OS-4 | Duración de pasos | Mediana de tiempo por paso | Sistema nuevo | ≤ 3 min | `intento_paso` | S14 |
-| OS-5 | Quimi orienta sin resolver | % de pasos con pista "solución" | Sistema nuevo | ≤ 30 % | `uso_pista` | S14 |
+| OS-5 | Quimi orienta sin resolver | % de pasos con pista "solución" | Sistema nuevo | ≤ 30 % | `pista_usada` | S14 |
 | OS-6 | Accesibilidad | Lighthouse *Accessibility* | No medido | ≥ 90 en 5 vistas | Lighthouse CI | S12 |
 | OS-7 | Disponibilidad | Chequeos `/health` OK / total | Sistema nuevo | ≥ 99 % (07:00–18:00) | Workflow programado | S16 |
 | OS-8 | Calidad del software | Cobertura backend; workflows en verde | 0 pruebas | ≥ 70 %; 100 % | Reporte de cobertura | S16 |
@@ -95,7 +97,7 @@ PostgreSQL, logrando en un piloto una tasa de niveles completados ≥ 60 % y una
 | Paso | Unidad de una misión; se valida con una condición del simulador (p. ej., "T ≥ 500 K y se formó H₂O"). |
 | Quimi | Asistente basado en reglas que entrega pistas escalonadas y consulta el glosario. |
 | XP | Puntos de experiencia; se ganan al completar pasos y se gastan en pistas. |
-| Racha | Días consecutivos con al menos un paso completado. |
+| Racha | Días consecutivos (zona America/Lima) con al menos un nivel completado. |
 | Aula | Grupo creado por un docente; los estudiantes ingresan con un código. |
 | JWT | *JSON Web Token*, credencial firmada para autenticar solicitudes. |
 | FTS | *Full-Text Search*, búsqueda de texto completo de PostgreSQL. |
@@ -168,7 +170,8 @@ retroalimentación inmediata y obtiene de 1 a 3 estrellas, XP e insignias; su ra
 ranking del aula se actualizan mediante funciones y *triggers* de la BD.
 
 El **docente** crea un aula, comparte el código, asigna misiones y revisa un panel con el avance. El
-**administrador** gestiona usuarios y contenido. Todo se despliega automáticamente con GitHub Actions en
+**administrador** tiene los permisos del docente sobre todas las aulas; el contenido se mantiene en
+`db/data/*.json` y se publica mediante migraciones Liquibase. Todo se despliega automáticamente con GitHub Actions en
 Neon (BD), Render (API y sitio) y GitHub Pages (documentación y demo).
 
 # 5. Descripción de los interesados y usuarios
@@ -191,7 +194,7 @@ Neon (BD), Render (API y sitio) y GitHub Pages (documentación y demo).
 |---|---|---|---|
 | Estudiante | Resuelve misiones, usa a Quimi, responde cuestionarios, compite en el ranking. | Alta durante clases y tareas | Aprender química experimentando. |
 | Docente | Crea aulas, asigna misiones, revisa el panel de progreso. | Alta durante sesiones | Guiar y evaluar con datos. |
-| Administrador | Gestiona usuarios, roles, catálogo y glosario. | Media | Mantener la plataforma ordenada y segura. |
+| Administrador | Supervisa todas las aulas y el tablero; publica contenido (catálogo, misiones, glosario) mediante `db/data` + Liquibase. | Media | Mantener la plataforma ordenada y segura. |
 
 ## 5.3 Entorno de usuario
 
@@ -373,7 +376,7 @@ análisis financiero en el FD01 v2.0).
 
 Aplicación web de acceso por navegador; no requiere instalación en los equipos. El código se publica en
 GitHub con licencia de código abierto (por definir: MIT propuesta). El despliegue es automático mediante
-Terraform y GitHub Actions; las cuentas de docentes las crea el administrador y los estudiantes se unen
+Terraform y GitHub Actions; los docentes se registran con un código de invitación de la institución y los estudiantes se unen
 con el código del aula.
 
 # 7. Características del producto
@@ -469,7 +472,7 @@ con el código del aula.
 
 | Código | Estándar |
 |---|---|
-| ECS-01 | Autenticación JWT con expiración y contraseñas con *hash* (bcrypt/argon2). |
+| ECS-01 | Autenticación JWT (HS256, vigencia de 7 días) y contraseñas con *hash* bcrypt. Limitación conocida: el estado `activo` de la cuenta se verifica solo al iniciar sesión, por lo que un token emitido sigue vigente hasta su expiración. |
 | ECS-02 | Control de acceso por rol en cada endpoint. |
 | ECS-03 | Consultas parametrizadas; validación de entradas con esquemas. |
 | ECS-04 | HTTPS obligatorio; CORS restringido al dominio del frontend. |
