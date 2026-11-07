@@ -38,7 +38,7 @@ No hay que instalar nada.
 
 ## 1.2 Partes de la pantalla
 
-![Portada de AtomReactChamber](img/1-inicio.png){width=15cm}
+![](img/1-inicio.png){width=15cm}
 
 *Figura 1. Portada: el laboratorio en vivo y los botones para empezar.*
 
@@ -79,7 +79,7 @@ como docente** (cuentas de demostración; contraseña `quimica2026`).
 
 ## 3.2 El mapa de misiones
 
-![Mapa de misiones](img/2-mapa.png){width=15cm}
+![](img/2-mapa.png){width=15cm}
 
 *Figura 2. Mapa de misiones con forma de tabla periódica.*
 
@@ -94,7 +94,7 @@ como docente** (cuentas de demostración; contraseña `quimica2026`).
 
 ## 3.3 Jugar un nivel
 
-![Pantalla de un nivel](img/3-nivel.png){width=15cm}
+![](img/3-nivel.png){width=15cm}
 
 *Figura 3. Un nivel: pasos a la izquierda, simulador al centro, Quimi a la derecha y controles abajo.*
 
@@ -157,9 +157,9 @@ ocurren.
 
 ## 3.8 Uso en celular
 
-![Vista en celular](img/6-movil.png){width=5cm}
+![](img/6-movil-pantalla.png){width=5cm}
 
-*Figura 4. La aplicación se adapta a pantallas pequeñas; el menú se abre con el botón ☰.*
+*Figura 4. La aplicación se adapta a pantallas pequeñas (primera pantalla en un celular); el menú se abre con el botón ☰.*
 
 # 4. Guía para docentes
 
@@ -176,7 +176,7 @@ ocurren.
 
 ## 4.2 Seguir el progreso del aula
 
-![Página Aulas del docente](img/4-aula.png){width=15cm}
+![](img/4-aula.png){width=15cm}
 
 *Figura 5. Ranking y matriz de progreso por estudiante y nivel.*
 
@@ -192,7 +192,7 @@ ocurren.
 
 ## 4.3 Dashboard de uso
 
-![Dashboard de uso](img/5-dashboard.png){width=15cm}
+![](img/5-dashboard.png){width=12cm}
 
 *Figura 6. Dashboard: indicadores, uso diario y análisis por nivel.*
 
