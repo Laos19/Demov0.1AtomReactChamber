@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="es-PE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AtomReactChamber v2</title>
+  <meta name="description" content="Sustentación de AtomReactChamber v2 · Base de Datos II · UPT · Adriana Rafaela Laos González">
+  <!-- reveal.js 5.1.0 desde CDN (versión fijada); si no hay internet, usa la copia local de vendor/ -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" onerror="this.onerror=null;this.href='vendor/reveal.js-5.1.0/dist/reset.css'">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" onerror="this.onerror=null;this.href='vendor/reveal.js-5.1.0/dist/reveal.css'">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- 1 · PORTADA -->
+<section id="portada" class="portada" data-background-color="#0E1A2B">
+  <div class="pizarra-bg">
+    <p class="eyebrow" style="color:#9DB0C7; max-width:640px;">Universidad Privada de Tacna · Facultad de Ingeniería<br>Escuela Profesional de Ingeniería de Sistemas · Base de Datos II</p>
+    <h1 style="font-size:46pt; margin-top:70px; max-width:640px;">AtomReactChamber</h1>
+    <p style="font-size:21pt; max-width:600px; line-height:1.3;">Laboratorio virtual gamificado de química para estudiantes de secundaria del Perú</p>
+    <p class="muted" style="font-size:15pt; margin-top:46px;">Expone: <strong style="color:#E6EDF5">Adriana Rafaela Laos González</strong> · 2023077474</p>
+    <p class="muted" style="font-size:15pt;">Docente: Ing. Patrick Cuadros Quiroga · Tacna, noviembre de 2026</p>
+    <div class="tablero" aria-hidden="true">
+      <div class="t" style="background:#0F8C7E"><p class="z">1</p><p>H</p></div>
+      <div class="t vacia"></div><div class="t vacia"></div>
+      <div class="t" style="background:#7048E8"><p class="z">18</p><p>Ar</p></div>
+      <div class="t vacia"></div>
+      <div class="t" style="background:#E8590C"><p class="z">6</p><p>C</p></div>
+      <div class="t" style="background:#E8590C"><p class="z">8</p><p>O</p></div>
+      <div class="t vacia"></div>
+      <div class="t" style="background:#C2255C"><p class="z">11</p><p>Na</p></div>
+      <div class="t vacia"></div>
+      <div class="t" style="background:#C2255C"><p class="z">17</p><p>Cl</p></div>
+      <div class="t" style="background:#F2B705"><p class="z">★</p><p style="color:#13233A">v2</p></div>
+    </div>
+    <p class="muted" style="position:absolute; right:80px; bottom:48px; font-size:13pt; text-align:right;">Esta exposición está hecha para que me interrumpan.<br>Busquen la franja amarilla en cada diapositiva.</p>
+  </div>
+  <aside class="notes">
+    (≈45 s) Buenos días, profesor y compañeros. Soy Adriana Laos y presento AtomReactChamber versión 2: un laboratorio virtual de química, gamificado, para estudiantes de primero a quinto de secundaria, con PostgreSQL como centro del sistema.
+    Antes de empezar, una invitación: en cada diapositiva hay una franja amarilla que dice «Pregúntame». No es decoración: son las partes del sistema donde tomé decisiones discutibles. Si algo no les convence, interrúmpanme ahí mismo; prefiero una exposición con preguntas que un monólogo.
+    Las casillas que ven a la derecha son el mapa del juego: cada una es un nivel. Ese mismo motivo los va a acompañar en todas las diapositivas.
+  </aside>
+</section>
+
+<!-- 2 · EL PROBLEMA -->
+<section id="problema">
+  <div class="casilla" style="--c:var(--calcio)"><p class="z">2</p><p class="s">Pr</p><p class="n">problema</p></div>
+  <p class="eyebrow">El problema</p>
+  <h2>Aprendemos química sin poder experimentar, y se nota en los resultados</h2>
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:18px;">
+    <div class="card"><p class="cifra" style="color:var(--calcio-osc)">408</p><p class="text-sm">puntos del Perú en Ciencia, PISA 2022 (promedio OCDE: 485)</p><p class="fuente">Minedu (2023); Expreso (2023)</p></div>
+    <div class="card"><p class="cifra" style="color:var(--calcio-osc)">47<small>&nbsp;%</small></p><p class="text-sm">llega al nivel 2 o más en ciencias (OCDE: 76 %); solo 1&nbsp;% a los niveles 5–6</p><p class="fuente">OECD (2023), nota país Perú</p></div>
+    <div class="card"><p class="cifra" style="color:var(--litio)">21,8<small>&nbsp;%</small></p><p class="text-sm">en zona rural alcanza el nivel 2 o más en ciencias</p><p class="fuente">Defensoría del Pueblo en Gestión (s. f.) · fuente secundaria</p></div>
+    <div class="card"><p class="cifra" style="color:var(--potasio)">18,6<small>&nbsp;%</small></p><p class="text-sm">en Tacna, la región líder, logra nivel satisfactorio en CyT (ECE 2019, 2.º sec.)</p><p class="fuente">Andina (2020) · fuente secundaria</p></div>
+  </div>
+  <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:22px; margin-top:20px; align-items:start;">
+    <div>
+      <h3>Causas que sí podemos atacar con software</h3>
+      <ul class="text-sm">
+        <li>Reactivos peligrosos o caros (sodio, cloro, hidrógeno): no se hacen en el aula.</li>
+        <li>Simuladores en inglés, genéricos o caros (Labster: contratos «desde US$ 5 000/año»).</li>
+        <li>El docente no tiene datos de avance por estudiante y por paso.</li>
+      </ul>
+    </div>
+    <div class="card tinte-cobre">
+      <h3>Por qué una solución web ligera</h3>
+      <p class="text-sm">71 % de las IE públicas de secundaria tenía internet en 2022 (Edudatos 45): alcanza para una web, pero no para depender de ella. Por eso hay <strong>modo sin servidor</strong>.</p>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Cuántos colegios tienen laboratorio? No hay cifra publicada: es mi objetivo OI-1.</p></div>
+  <aside class="notes">
+    (≈1 min) Empiezo por el problema, con cifras con fuente. En PISA 2022 el Perú sacó 408 en Ciencia frente a 485 del promedio OCDE; solo el 47 % llega al nivel mínimo de competencia. En zona rural cae a 21,8 %. Y aquí en Tacna, que lidera las evaluaciones nacionales, solo el 18,6 % alcanzó el nivel satisfactorio en Ciencia y Tecnología en la ECE 2019.
+    Quiero ser honesta con las fuentes: las marcadas como secundarias son notas de prensa que citan al dato oficial; están señaladas así en docs/investigacion/problema-y-objetivos.md.
+    De las causas, elegí las que el software puede atacar: prácticas peligrosas o costosas, simuladores ajenos al currículo, y que el docente no tiene datos.
+    Dato que falta: el porcentaje de colegios con laboratorio. No lo inventé; lo dejé como objetivo de investigación OI-1, calculado desde el Censo Educativo. Si alguien conoce la cifra, me encantaría que la compartan.
+  </aside>
+</section>
+
+<!-- 3 · OBJETIVOS SMART -->
+<section id="objetivos">
+  <div class="casilla" style="--c:var(--cobre)"><p class="z">3</p><p class="s">Ob</p><p class="n">objetivos</p></div>
+  <p class="eyebrow">Objetivos medibles</p>
+  <h2>Cada objetivo tiene indicador, meta, instrumento… y una consulta SQL</h2>
+  <div class="card tinte-cobre" style="margin:10px 0 14px 0; padding:10px 16px;">
+    <p class="text-sm" style="margin:0;"><strong>General:</strong> en 16 semanas, implementar AtomReactChamber con PostgreSQL para prácticas guiadas verificadas por un simulador 2D y seguimiento docente; en un piloto, <strong>≥ 60 % de niveles completados</strong> y <strong>SUS ≥ 70</strong>.</p>
+  </div>
+  <table class="grande">
+    <thead><tr><th>ID</th><th>Indicador</th><th>Meta</th><th>Cómo se mide</th></tr></thead>
+    <tbody>
+      <tr><td><strong>OS-2</strong></td><td>Tasa de niveles completados (completados / iniciados)</td><td>≥ 60 %</td><td>vista <code>v_estadisticas_nivel</code></td></tr>
+      <tr><td><strong>OI-2</strong></td><td>Ganancia normalizada de Hake ⟨g⟩ pre/post</td><td>≥ 0,30 con n ≥ 30</td><td>cuestionario en la BD</td></tr>
+      <tr><td><strong>OS-5</strong></td><td>% de pasos donde se pidió la «solución» de Quimi</td><td>≤ 30 %</td><td><code>pista_usada</code> ⋈ <code>pista</code></td></tr>
+      <tr><td><strong>OS-4</strong></td><td>Mediana de tiempo por paso</td><td>≤ 3 min</td><td>vista <code>v_tiempo_por_paso</code> (percentile_cont)</td></tr>
+      <tr><td><strong>OS-8</strong></td><td>Workflows en verde en <code>main</code> · cobertura backend</td><td>100 % · ≥ 70 %</td><td>GitHub Actions</td></tr>
+      <tr><td><strong>OS-10</strong></td><td>Costo mensual de infraestructura</td><td>S/ 0</td><td>reporte de costos de <code>infra.yml</code></td></tr>
+    </tbody>
+  </table>
+  <p class="fuente" style="margin-top:8px;">Lista completa (OI-1…OI-4, OS-1…OS-10) en docs/investigacion/problema-y-objetivos.md y FD01 §1.4. Línea base SUS ≈ 68 (Bangor et al., 2009).</p>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Por qué el dashboard puede medir sus propios objetivos? (el modelo de datos se diseñó desde los indicadores)</p></div>
+  <aside class="notes">
+    (≈1 min) La versión 0.1 tenía objetivos que no se podían medir. En la v2 cada objetivo tiene indicador, línea base, meta, instrumento y plazo.
+    Lo interesante para este curso: diseñé las tablas a partir de los indicadores. Por ejemplo, para medir el tiempo por paso guardo intento_paso con los segundos, y la vista v_tiempo_por_paso calcula la mediana con percentile_cont. Para medir si Quimi resuelve por el estudiante, guardo cada pista usada con su nivel de ayuda.
+    Un matiz honesto: los objetivos del piloto, como la ganancia de Hake y el SUS, todavía no están medidos porque el piloto con estudiantes reales aún no se hizo. Lo que sí está es la instrumentación lista para medirlos.
+  </aside>
+</section>
+
+<!-- 4 · LA SOLUCIÓN -->
+<section id="solucion">
+  <div class="casilla" style="--c:var(--cobre)"><p class="z">4</p><p class="s">So</p><p class="n">solución</p></div>
+  <p class="eyebrow">La solución</p>
+  <h2>La tabla periódica es el tablero de juego</h2>
+  <div style="display:grid; grid-template-columns:1.55fr 1fr; gap:26px; margin-top:6px;">
+    <img class="captura" src="img/mapa-recorte.png" alt="Mapa de misiones con forma de tabla periódica; la casilla del hidrógeno está encendida como nivel 1">
+    <div>
+      <p class="text-lg" style="margin-bottom:14px;"><strong>9 niveles</strong> en <strong>4 misiones</strong> del área Ciencia y Tecnología (CNEB):</p>
+      <p style="margin-bottom:8px;"><span class="chip" style="--c:var(--cobre)">Estados de la materia</span></p>
+      <p style="margin-bottom:8px;"><span class="chip" style="--c:var(--calcio)">Combustión</span></p>
+      <p style="margin-bottom:8px;"><span class="chip" style="--c:var(--litio)">Familias de la tabla</span></p>
+      <p style="margin-bottom:14px;"><span class="chip" style="--c:var(--potasio)">La luz también reacciona</span></p>
+      <p class="text-sm">Los colores vienen del <strong>ensayo a la llama</strong>: cobre, calcio, litio, potasio y sodio.</p>
+      <p class="text-sm">Roles: <strong>estudiante</strong> (juega), <strong>docente</strong> (aulas, ranking, dashboard) y <strong>admin</strong>.</p>
+      <div class="card tinte-sodio" style="margin-top:12px; padding:10px 14px;"><p class="text-sm" style="margin:0;"><strong>Demo en vivo ahora:</strong> estudiante@demo.arc.pe · quimica2026</p></div>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Qué pasa si el servidor gratuito está dormido justo ahora? (spoiler: lo van a ver)</p></div>
+  <aside class="notes">
+    (≈1 min + DEMO 4 min, ver guion-demo.md) La solución: un juego donde la tabla periódica es el mapa. Cada casilla encendida es una práctica guiada; al completarla, se desbloquea la siguiente. Hay 9 niveles en 4 misiones alineadas a la competencia «Indaga mediante métodos científicos» del CNEB.
+    Los colores no son al azar: son los colores de la llama de cada metal, una práctica real de laboratorio escolar.
+    Ahora paso a la demo. [Cambiar a la app: guion-demo.md, minutos 3 a 7.] Si el servidor de Render está dormido, la app ofrece «Usar modo demostración»: es una decisión de diseño, no un parche.
+  </aside>
+</section>
+
+<!-- 5 · CÓMO SE JUEGA -->
+<section id="juego">
+  <div class="casilla" style="--c:var(--calcio)"><p class="z">5</p><p class="s">Ju</p><p class="n">juego</p></div>
+  <p class="eyebrow">Cómo se juega</p>
+  <h2>Un nivel = pasos que el simulador verifica, no que el estudiante marca</h2>
+  <div class="pasos" style="margin-top:10px;">
+    <div class="card paso" style="--c:var(--cobre)"><p class="num">1</p><h3>Elige casilla</h3><p class="text-sm">Se desbloquea si completaste el nivel previo (<code>nivel_previo_id</code>).</p></div>
+    <div class="card paso" style="--c:var(--calcio)"><p class="num">2</p><h3>Experimenta</h3><p class="text-sm">Temperatura, presión, UV, inyector, chispa. El motor simula partículas 2D.</p></div>
+    <div class="card paso" style="--c:var(--litio)"><p class="num">3</p><h3>Paso cumplido</h3><p class="text-sm">Una regla JSON lo verifica: <code>conteo:H2 ≥ 50</code>, sostenido «durante» 2 s.</p></div>
+    <div class="card paso" style="--c:var(--potasio)"><p class="num">4</p><h3>Quimi ayuda</h3><p class="text-sm">Pista → explicación → solución: 5, 10 y 20 XP. En orden obligatorio.</p></div>
+    <div class="card paso" style="--c:#9a7300"><p class="num">5</p><h3>Cuestionario</h3><p class="text-sm">La BD corrige. Estrellas 1–3, XP, racha e insignias.</p></div>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:18px;">
+    <pre class="sql"><span class="c">-- paso.condicion (jsonb) del nivel 1, paso 2</span>
+{ <span class="s">"todas"</span>: [ { <span class="s">"metrica"</span>: <span class="s">"temperatura"</span>,
+               <span class="s">"op"</span>: <span class="s">"&gt;="</span>, <span class="s">"valor"</span>: 600 } ],
+  <span class="s">"durante"</span>: 2 }
+<span class="c">-- se evalúa en frontend/src/engine/conditions.ts</span>
+<span class="c">-- (SeguidorDePaso, 60 veces por segundo)</span></pre>
+    <div>
+      <h3>Regla de estrellas (<code>fn_calcular_estrellas</code>)</h3>
+      <ul class="text-sm">
+        <li>Empiezas con ★★★</li>
+        <li>−1 si abriste la <strong>explicación</strong>; −1 más si pediste la <strong>solución</strong></li>
+        <li>−1 si aciertas menos de 2/3 del cuestionario · mínimo ★</li>
+        <li>Repetir un nivel ya completado da solo <strong>25 % de XP</strong> (anti-farming)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Qué impide que alguien marque los pasos desde la consola del navegador?</p></div>
+  <aside class="notes">
+    (≈1 min) Lo que acaban de ver, en cinco pasos. Lo central: el estudiante no marca «listo»; cada paso tiene una condición en JSON guardada en la columna paso.condicion, que el motor evalúa en cada fotograma. Es un pequeño lenguaje: métricas como temperatura, conteo de una especie, fase, razón entre especies, con operadores y una duración sostenida.
+    Las ayudas de Quimi son escalonadas y cuestan XP; la función fn_usar_pista exige abrir la 1 antes de la 2.
+    Las estrellas las calcula PostgreSQL con fn_calcular_estrellas. Y para que nadie repita el nivel 1 cien veces para subir en el ranking, las repeticiones dan el 25 % de la experiencia.
+    Pregunta para ustedes: ¿qué impide hacer trampa marcando los pasos desde la consola? Respuesta corta: la BD exige orden secuencial, pero la verificación física sí ocurre en el cliente. Es un trade-off que explico en limitaciones.
+  </aside>
+</section>
+
+<!-- 6 · ARQUITECTURA -->
+<section id="arquitectura">
+  <div class="casilla" style="--c:var(--potasio)"><p class="z">6</p><p class="s">Ar</p><p class="n">arquitectura</p></div>
+  <p class="eyebrow">Arquitectura</p>
+  <h2>Una API, cuatro clientes y PostgreSQL como fuente de verdad</h2>
+  <svg viewBox="0 0 1160 470" width="1160" height="470" role="img" aria-label="Diagrama de arquitectura: clientes web, VS Code, MCP y Claude Code llaman a la API Fastify en Render, que usa PostgreSQL 16 en Neon; GitHub Actions despliega y publica GitHub Pages" style="display:block; margin-top:2px;">
+    <defs>
+      <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#13233A"/></marker>
+    </defs>
+    <style>
+      .bx{fill:#fff;stroke:#13233A;stroke-width:2.5}
+      .tt{font-family:Unbounded,sans-serif;font-weight:700;font-size:15px;fill:#13233A}
+      .tx{font-family:'Atkinson Hyperlegible Next',sans-serif;font-size:13.5px;fill:#13233A}
+      .mx{font-family:'Atkinson Hyperlegible Mono',monospace;font-size:12px;fill:#4A5B73}
+      .ln{stroke:#13233A;stroke-width:2;fill:none}
+      .ds{stroke-dasharray:6 5}
+    </style>
+    <!-- clientes -->
+    <text x="0" y="16" class="mx">CLIENTES (todos envían origen a /api/eventos)</text>
+    <rect x="0" y="28" width="250" height="76" rx="10" class="bx" style="fill:#E3F3F1"/>
+    <text x="16" y="56" class="tt">Web React 18</text><text x="16" y="78" class="tx">Vite · Canvas 2D · motor propio</text><text x="16" y="96" class="mx">origen=web</text>
+    <rect x="0" y="116" width="250" height="62" rx="10" class="bx"/>
+    <text x="16" y="142" class="tt">Extensión VS Code</text><text x="16" y="164" class="mx">origen=vscode · .vsix</text>
+    <rect x="0" y="190" width="250" height="62" rx="10" class="bx"/>
+    <text x="16" y="216" class="tt">Servidor MCP</text><text x="16" y="238" class="mx">origen=mcp · stdio</text>
+    <rect x="0" y="264" width="250" height="62" rx="10" class="bx"/>
+    <text x="16" y="290" class="tt">Skill Claude Code</text><text x="16" y="312" class="mx">origen=claude · curl</text>
+    <!-- API -->
+    <rect x="360" y="70" width="330" height="214" rx="12" class="bx" style="fill:#ECE7FD"/>
+    <text x="380" y="100" class="tt">API Fastify 5 · Node 22</text>
+    <text x="380" y="122" class="mx">Render Web Service (free)</text>
+    <text x="380" y="150" class="tx">routes/index.ts → 21 rutas /api/*</text>
+    <text x="380" y="172" class="tx">JWT + roles · zod → Ajv + OpenAPI</text>
+    <text x="380" y="194" class="tx">Services: Intento, Quimi, Aula</text>
+    <text x="380" y="216" class="tx">Repos: Catálogo, Juego, Dashboard</text>
+    <text x="380" y="238" class="tx">helmet · CORS · rate-limit</text>
+    <text x="380" y="266" class="mx">Swagger UI en /api/docs</text>
+    <!-- BD -->
+    <rect x="800" y="40" width="360" height="274" rx="12" class="bx" style="fill:#FDF3CF"/>
+    <text x="820" y="70" class="tt">PostgreSQL 16 · Neon</text>
+    <text x="820" y="92" class="mx">serverless free · PITR 6 h</text>
+    <text x="820" y="122" class="tx">29 tablas en 3FN · 47 changesets</text>
+    <text x="820" y="144" class="tx">16 funciones PL/pgSQL · 10 triggers</text>
+    <text x="820" y="166" class="tx">6 vistas + 1 vista materializada</text>
+    <text x="820" y="188" class="tx">FTS español sin tildes (GIN)</text>
+    <text x="820" y="210" class="tx">auditoría JSONB · BRIN en eventos</text>
+    <text x="820" y="240" class="tt" style="font-size:13px">Reglas de negocio aquí:</text>
+    <text x="820" y="262" class="mx">fn_finalizar_intento · fn_usar_pista</text>
+    <text x="820" y="282" class="mx">fn_registrar_paso · tg_respuesta_*</text>
+    <!-- flechas cliente→api -->
+    <path d="M250 66 L355 130" class="ln" marker-end="url(#fl)"/>
+    <path d="M250 147 L355 160" class="ln" marker-end="url(#fl)"/>
+    <path d="M250 221 L355 196" class="ln" marker-end="url(#fl)"/>
+    <path d="M250 295 L355 232" class="ln" marker-end="url(#fl)"/>
+    <text x="268" y="62" class="mx">HTTPS/JSON</text>
+    <path d="M690 177 L795 177" class="ln" marker-end="url(#fl)"/>
+    <text x="702" y="168" class="mx">pg · TLS</text><text x="702" y="196" class="mx">pool max 5</text>
+    <!-- modo demo -->
+    <rect x="0" y="352" width="250" height="100" rx="10" class="bx ds" style="fill:#F4F7FB"/>
+    <text x="16" y="378" class="tt" style="font-size:13.5px">Modo demo (web)</text>
+    <text x="16" y="400" class="tx">Si la API no responde: FuenteDemo</text>
+    <text x="16" y="418" class="tx">replica estrellas/XP en el navegador</text>
+    <text x="16" y="440" class="mx">data/fuente.ts</text>
+    <!-- GitHub -->
+    <rect x="360" y="340" width="800" height="112" rx="12" class="bx" style="fill:#13233A"/>
+    <text x="380" y="370" class="tt" style="fill:#F2B705">GitHub</text>
+    <text x="470" y="370" class="tx" style="fill:#E6EDF5">8 workflows: infra · db · backup · release · docs · pages · ci · codeql</text>
+    <text x="380" y="396" class="tx" style="fill:#E6EDF5">Terraform (Neon + Render, estado en HCP) → Liquibase update → deploy hooks → smoke test /api/health</text>
+    <text x="380" y="420" class="tx" style="fill:#E6EDF5">pg_dump diario cifrado · release-please (.vsix, zips) · Pages: TypeDoc, ER, reportes, demo /app/</text>
+    <text x="380" y="442" class="mx" style="fill:#9DB0C7">Secrets solo en GitHub Secrets · sin ellos, los pasos de nube se omiten y el workflow sigue en verde</text>
+    <path d="M520 340 L520 290" class="ln ds" marker-end="url(#fl)"/>
+    <path d="M980 340 L980 320" class="ln ds" marker-end="url(#fl)"/>
+  </svg>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Por qué un monolito modular y no microservicios? ¿Por qué Fastify y no Spring Boot como decía la v0.1?</p></div>
+  <aside class="notes">
+    (≈1 min) La arquitectura es un monolito modular en tres capas. Cuatro clientes: la web en React, una extensión de VS Code, un servidor MCP para agentes de IA y una skill de Claude Code. Todos consumen la misma API REST en Fastify con TypeScript, desplegada en Render.
+    La API es delgada a propósito: rutas, servicios y repositorios, con inyección de dependencias manual en app.ts. Las reglas de negocio importantes viven en PostgreSQL, en Neon: funciones PL/pgSQL y triggers.
+    Abajo, GitHub orquesta todo: Terraform crea Neon y Render, Liquibase migra, y solo después se despliega la API, para que nunca arranque con un esquema viejo.
+    Y la caja punteada: si la API no responde, el frontend cambia a FuenteDemo, que replica las reglas en el navegador. Eso me permite presentar aunque falle internet en el servidor.
+    ¿Por qué no microservicios? Una persona, un dominio pequeño, un plan gratuito con 512 MB: microservicios serían complejidad sin beneficio.
+  </aside>
+</section>
+
+<!-- 7 · MODELO DE DATOS -->
+<section id="modelo">
+  <div class="casilla" style="--c:var(--sodio)"><p class="z">7</p><p class="s" style="color:#13233A">Bd</p><p class="n" style="color:#13233A">datos</p></div>
+  <p class="eyebrow">Modelo de datos</p>
+  <h2>29 tablas, 5 dominios, tercera forma normal</h2>
+  <div class="dominios" style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-top:8px;">
+    <div class="card tinte-litio"><h3>Seguridad</h3><p class="text-sm mono">rol<br>usuario<br>auditoria</p></div>
+    <div class="card tinte-cobre"><h3>Catálogo</h3><p class="text-sm mono">elemento<br>especie<br>especie_atomo<br>reaccion<br>reaccion_<br>&nbsp;participante<br>fotolisis<br>preset<br>preset_carga</p></div>
+    <div class="card tinte-calcio"><h3>Juego</h3><p class="text-sm mono">mision<br>nivel<br>paso<br>pista<br>pregunta<br>opcion<br>insignia<br>glosario</p></div>
+    <div class="card tinte-potasio"><h3>Progreso</h3><p class="text-sm mono">aula<br>matricula<br>aula_nivel<br><strong>intento</strong><br>intento_paso<br>pista_usada<br>respuesta<br>logro_usuario</p></div>
+    <div class="card tinte-sodio"><h3>Telemetría</h3><p class="text-sm mono">sesion<br>evento</p><p class="text-xs muted">alimentan el dashboard y miden las integraciones</p></div>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:16px;">
+    <div>
+      <h3>Decisiones de normalización</h3>
+      <ul class="text-sm">
+        <li><strong>ΔH no se guarda:</strong> se deriva de ΔHf° en <code>v_reaccion_entalpia</code> (evita dependencia transitiva).</li>
+        <li><strong>N:M explícitas:</strong> <code>especie_atomo</code>, <code>reaccion_participante</code>, <code>matricula</code>.</li>
+        <li><strong>Correo único sin mayúsculas:</strong> índice <code>ux_usuario_email</code> sobre <code>lower(email)</code>.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Desnormalización consciente</h3>
+      <ul class="text-sm">
+        <li><code>usuario.xp</code> e <code>intento.aciertos</code> son contadores mantenidos por funciones y triggers: el ranking no suma millones de filas.</li>
+        <li><code>paso.condicion</code> y <code>nivel.inicio</code> son <strong>jsonb</strong> validado con CHECK: el DSL cambia sin migrar.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Guardar <code>usuario.xp</code> rompe la 3FN? ¿Y usar jsonb en una BD relacional?</p></div>
+  <aside class="notes">
+    (≈1 min) El modelo tiene 29 tablas en cinco dominios, migradas con 47 changesets de Liquibase, cada uno con su rollback. El diccionario de datos lo genera tbls desde los COMMENT ON de cada tabla y columna.
+    Dos decisiones que espero que me discutan. Primera: la entalpía de reacción no se guarda; se calcula en una vista a partir de las entalpías de formación. Si se guardara, al corregir un ΔHf quedaría inconsistente.
+    Segunda, al revés: usuario.xp sí es un dato derivado que guardo. Es desnormalización consciente: el ranking del aula se consulta muchísimo y la XP solo la escribe una función transaccional, fn_finalizar_intento. Y uso jsonb para la condición de cada paso, porque es un lenguaje que evoluciona; la BD solo valida su forma con un CHECK.
+    ¿Rompe la 3FN? Técnicamente xp es derivable del historial; la pregunta es si el costo de consistencia vale el rendimiento. Me encantaría escuchar su opinión.
+  </aside>
+</section>
+
+<!-- 8 · REGLAS EN LA BD -->
+<section id="reglas-bd">
+  <div class="casilla" style="--c:var(--sodio)"><p class="z">8</p><p class="s" style="color:#13233A">Pg</p><p class="n" style="color:#13233A">PL/pgSQL</p></div>
+  <p class="eyebrow">Base de datos II, en serio</p>
+  <h2>Las reglas de negocio viven en PostgreSQL</h2>
+  <div style="display:grid; grid-template-columns:1.12fr 1fr; gap:22px; margin-top:4px;">
+    <pre class="sql"><span class="c">-- 007-funciones.sql · cierre transaccional</span>
+<span class="k">SELECT</span> * <span class="k">INTO</span> v_i <span class="k">FROM</span> intento
+ <span class="k">WHERE</span> id = p_intento <span class="k">FOR UPDATE</span>;  <span class="c">-- bloqueo de fila</span>
+<span class="k">IF</span> v_i.estado &lt;&gt; <span class="s">'en_curso'</span> <span class="k">THEN RAISE</span> ...
+<span class="k">IF</span> v_i.pasos_completados &lt; v_total_pasos <span class="k">THEN</span>
+  <span class="k">RAISE EXCEPTION</span> <span class="s">'faltan pasos'</span>; <span class="c">-- → HTTP 409</span>
+v_estrellas := fn_calcular_estrellas(v_max_ayuda,
+                 v_i.aciertos, v_total_preg);
+v_xp := round(v_xp_base * v_estrellas / 3.0)
+        + 10 * v_i.aciertos - v_i.xp_pistas;
+<span class="k">IF</span> v_rep <span class="k">THEN</span> v_xp := round(v_xp * 0.25); <span class="k">END IF</span>;
+<span class="k">UPDATE</span> usuario <span class="k">SET</span> xp = xp + v_xp ...;
+v_racha := fn_actualizar_racha(v_i.usuario_id);
+<span class="k">RETURN QUERY SELECT</span> ..., fn_otorgar_insignias(...);</pre>
+    <div>
+      <table class="compacta">
+        <thead><tr><th>Objeto</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td><code>tg_respuesta_validar</code></td><td>la BD decide si la respuesta es correcta; ignora al cliente</td></tr>
+          <tr><td><code>tg_pista_usada_contar</code></td><td>suma pistas y XP gastada en el intento</td></tr>
+          <tr><td><code>fn_auditar()</code></td><td>auditoría JSONB antes/después, sin <code>password_hash</code></td></tr>
+          <tr><td>índice <strong>parcial</strong></td><td><code>ux_opcion_una_correcta … WHERE es_correcta</code>: máx. 1 correcta</td></tr>
+          <tr><td>índice <strong>GIN</strong></td><td>glosario de Quimi: <code>tsvector</code> generado, español sin tildes</td></tr>
+          <tr><td>índice <strong>BRIN</strong></td><td><code>evento.creado_en</code>, <code>sesion.iniciada_en</code>: append-only</td></tr>
+          <tr><td><code>mv_uso_diario</code></td><td>vista materializada, <code>REFRESH … CONCURRENTLY</code></td></tr>
+          <tr><td><code>v_ranking_aula</code></td><td><code>RANK() OVER (PARTITION BY aula_id …)</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Qué pasa si el mismo estudiante pulsa «Finalizar» dos veces a la vez? ¿Por qué BRIN y no B-tree?</p></div>
+  <aside class="notes">
+    (≈1,5 min — es el corazón del curso) Esta es la diapositiva de Base de Datos II. fn_finalizar_intento cierra un intento en una sola transacción: bloquea la fila con FOR UPDATE, verifica que estén todos los pasos, calcula estrellas y XP, aplica el 25 % si es repetición, suma la XP al usuario, actualiza la racha y otorga insignias. Si dos peticiones llegan a la vez, la segunda espera el bloqueo y luego ve que el estado ya no es en_curso: recibe un 409. No hay doble XP.
+    El trigger de respuesta es mi favorito: aunque el cliente envíe «es_correcta = true», el trigger lo sobrescribe con el valor de la tabla opcion. El cliente no es de confianza.
+    Índices: parcial para garantizar como máximo una alternativa correcta; GIN para la búsqueda de texto completo de Quimi; BRIN para eventos, que son una tabla grande que solo crece en orden temporal, donde un BRIN ocupa una fracción de un B-tree.
+    Y el dashboard lee una vista materializada que se refresca de forma concurrente, sin bloquear lecturas.
+  </aside>
+</section>
+
+<!-- 9 · SEGURIDAD -->
+<section id="seguridad">
+  <div class="casilla" style="--c:var(--litio)"><p class="z">9</p><p class="s">Se</p><p class="n">seguridad</p></div>
+  <p class="eyebrow">Seguridad y datos de menores</p>
+  <h2>Los usuarios tienen entre 12 y 17 años: la seguridad no es opcional</h2>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:10px;">
+    <div class="card">
+      <h3>Identidad</h3>
+      <ul class="text-sm">
+        <li>bcrypt costo 10 (<code>AuthService</code>)</li>
+        <li>JWT firmado, 7 días; secreto ≥ 32 caracteres validado con zod al iniciar</li>
+        <li>Roles <code>requiereRol('docente','admin')</code></li>
+        <li>Docente se registra solo con código de invitación</li>
+        <li>Login con mensaje genérico (no revela si el correo existe)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>API</h3>
+      <ul class="text-sm">
+        <li>SQL 100 % parametrizado (<code>$1, $2…</code>)</li>
+        <li>Validación zod → Ajv; <code>removeAdditional</code></li>
+        <li>Rate limit: 300/min global; 10/min en login y registro</li>
+        <li>helmet + CORS con lista de orígenes</li>
+        <li>Logs con <code>authorization</code> y <code>password</code> redactados</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Datos</h3>
+      <ul class="text-sm">
+        <li>Ley 29733 y su reglamento (DS 016-2024-JUS)</li>
+        <li>Telemetría anónima con UUID de cliente</li>
+        <li>Respaldos cifrados AES-256 antes de subirse</li>
+        <li>Auditoría sin hashes · TLS hacia Neon</li>
+        <li>CodeQL semanal + Dependabot</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card tinte-calcio" style="margin-top:16px; padding:10px 16px;">
+    <p class="text-sm" style="margin:0;"><strong>Lo que todavía falta (y lo digo antes que me lo pregunten):</strong> el JWT vive en <code>localStorage</code> (riesgo ante XSS), no hay refresh token ni revocación, y no hay consentimiento parental en el registro.</p>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Por qué JWT en localStorage y no cookie httpOnly? ¿Cómo se revoca un token robado?</p></div>
+  <aside class="notes">
+    (≈1 min) Como los usuarios son menores de edad, la seguridad pesa más. En identidad: contraseñas con bcrypt, JWT firmado con un secreto que la API se niega a aceptar si tiene menos de 32 caracteres, y autorización por rol.
+    En la API, todas las consultas son parametrizadas, así que la inyección SQL no aplica; además Fastify valida cada cuerpo con el mismo esquema zod que genera la documentación OpenAPI. Hay límite de 10 intentos de login por minuto.
+    En datos: Ley 29733. La telemetría puede ser anónima, y los respaldos de producción se cifran antes de salir.
+    Y lo honesto: el token está en localStorage. Una cookie httpOnly sería más segura frente a XSS, pero complica CORS entre dominios de Render. No hay revocación de tokens ni consentimiento parental. Está en trabajo futuro.
+  </aside>
+</section>
+
+<!-- 10 · AUTOMATIZACIONES -->
+<section id="automatizaciones">
+  <div class="casilla" style="--c:#9a7300"><p class="z">10</p><p class="s">Au</p><p class="n">CI/CD</p></div>
+  <p class="eyebrow">Automatizaciones · rúbrica → workflow → reporte</p>
+  <h2>Cada fila de la rúbrica: un workflow y un reporte</h2>
+  <table class="grande" style="margin-top:6px;">
+    <thead><tr><th>Fila de la rúbrica</th><th>Workflow</th><th>Reporte que produce</th></tr></thead>
+    <tbody>
+      <tr><td>Terraform + pruebas + costos</td><td><code>infra.yml</code></td><td>fmt/validate/tflint/checkov · tabla de pruebas superadas (JUnit) · costos USD 0 vs. AWS/Azure (Infracost)</td></tr>
+      <tr><td>Base de datos (Liquibase)</td><td><code>db.yml</code></td><td>validate · status · <code>update-sql</code> · update · <strong>update-testing-rollback</strong> · history · inventario</td></tr>
+      <tr><td>Copias de seguridad</td><td><code>backup.yml</code></td><td>diario 03:17 Lima · <code>pg_dump</code> → restaura y compara filas por tabla · SHA-256 · GFS 7/4/3</td></tr>
+      <tr><td>Release y despliegue</td><td><code>release.yml</code></td><td>release-please + CHANGELOG · zips + <code>.vsix</code> + SHA256SUMS · Liquibase → Render → smoke test</td></tr>
+      <tr><td>Docs en README</td><td><code>docs.yml</code></td><td>tbls (ER + diccionario) · diagramas Mermaid · secciones del README (commit del bot)</td></tr>
+      <tr><td>Docs técnicas (Pages)</td><td><code>pages.yml</code></td><td>TypeDoc · BD · diagramas · <code>/reportes/</code> · demo offline en <code>/app/</code></td></tr>
+      <tr><td>Calidad continua</td><td><code>ci.yml</code> · <code>codeql.yml</code></td><td>lint · typecheck · actionlint · pruebas · alertas de seguridad</td></tr>
+    </tbody>
+  </table>
+  <p class="text-sm" style="margin-top:10px;">Todos escriben en el <strong>Job summary</strong> y suben un <strong>artefacto</strong>. Sin secrets, los pasos de nube se omiten con <code>omitido: falta secret X</code> y el workflow queda en verde.</p>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Cómo sé que un respaldo sirve? ¿Qué pasa si el despliegue falla a la mitad?</p></div>
+  <aside class="notes">
+    (≈1 min + mostrar Actions en vivo 1 min) Esta tabla es el mapa de la rúbrica. Cada fila tiene un workflow y un reporte visible en el resumen de la ejecución.
+    Tres detalles que me importan. Liquibase: en cada cambio se aplica, se revierte y se vuelve a aplicar todo en una base limpia; así demuestro que cada rollback funciona. Backups: un respaldo que no se restaura no es un respaldo; el workflow lo restaura en un PostgreSQL limpio y compara el conteo de filas de cada tabla; si una difiere, falla. Despliegue: primero migraciones, luego API, luego web, y al final un smoke test a /api/health con reintentos porque Render tarda en despertar.
+    [Mostrar una ejecución en GitHub Actions y su Summary.]
+  </aside>
+</section>
+
+<!-- 11 · INFRA Y COSTOS -->
+<section id="costos">
+  <div class="casilla" style="--c:var(--cobre)"><p class="z">11</p><p class="s">In</p><p class="n">infra y costos</p></div>
+  <p class="eyebrow">Infraestructura como código y costos</p>
+  <h2>Producción a USD 0 hoy, migrable a AWS o Azure mañana</h2>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:10px;">
+    <div class="card tinte-cobre"><p class="eyebrow">Producción actual</p><p class="cifra" style="color:var(--cobre)">USD 0<small>/mes</small></p><p class="text-sm">Neon Free + Render Free + GitHub Pages + HCP Terraform Free</p></div>
+    <div class="card"><p class="eyebrow">Referencia AWS</p><p class="cifra">≈ 38<small> USD/mes</small></p><p class="text-sm">RDS t4g.micro + ECS Fargate + ALB + S3/CloudFront</p></div>
+    <div class="card"><p class="eyebrow">Referencia Azure</p><p class="cifra">≈ 38<small> USD/mes</small></p><p class="text-sm">Flexible Server B1ms + App Service B1 + Static Web Apps</p></div>
+  </div>
+  <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:22px; margin-top:16px;">
+    <div>
+      <h3>Terraform modular</h3>
+      <ul class="text-sm">
+        <li><code>modules/database-neon</code> y <code>modules/app-render</code>, compuestos en <code>envs/prod</code></li>
+        <li>Contrato de salidas estable: <code>connection_uri</code>, <code>jdbc_url</code>, <code>api_url</code>, <code>web_url</code></li>
+        <li>Estado remoto cifrado y con bloqueo en HCP (alternativa: backend <code>pg</code>)</li>
+        <li><code>cost-reference/aws|azure</code>: solo para Infracost, nunca se aplica</li>
+      </ul>
+    </div>
+    <div class="card tinte-sodio">
+      <h3>FD01 · factibilidad económica</h3>
+      <p class="text-sm">Desarrollo: <strong>S/ 4 253,98</strong> (antes S/ 35 155,16 por errores de la v0.1). Escenario base: VAN 10&nbsp;% <strong>S/ 4 514,41</strong>, B/C <strong>1,727</strong>, TIR 64,14&nbsp;%. El pesimista <strong>no es viable</strong>: lo dejé visible.</p>
+    </div>
+  </div>
+  <p class="fuente" style="margin-top:6px;">Cifras AWS/Azure aproximadas (precios de lista on-demand); se recalculan con Infracost en cada <code>infra.yml</code>. infra/README.md §6.</p>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Cuál es el costo oculto del plan gratuito? (pista: el primer estudiante de la mañana espera ~1 min)</p></div>
+  <aside class="notes">
+    (≈1 min) En infraestructura: hoy todo corre en planes gratuitos, costo cero. Pero no quise quedarme atada: Terraform está en módulos con un contrato de salidas estable, así que migrar a Azure o AWS es escribir otro módulo con las mismas salidas. Para dimensionar esa migración, hay una arquitectura de referencia que solo se usa para estimar costos con Infracost: unos 38 dólares al mes en cualquiera de las dos.
+    En el FD01 corregí los costos de la v0.1, que contaba cinco laptops como gasto y un alquiler de oficina: el costo real es 4 253 soles. El análisis financiero usa como beneficio el costo evitado de una licencia comercial, en tres escenarios. El pesimista sale negativo y lo dejé así, porque es la verdad.
+    El costo oculto del plan gratuito: Render apaga la API tras 15 minutos sin tráfico y tarda alrededor de un minuto en despertar.
+  </aside>
+</section>
+
+<!-- 12 · INTEGRACIONES -->
+<section id="integraciones">
+  <div class="casilla" style="--c:var(--potasio)"><p class="z">12</p><p class="s">I</p><p class="n">integraciones</p></div>
+  <p class="eyebrow">Reto de integraciones</p>
+  <h2>El laboratorio fuera del navegador: editor, agentes de IA y GitHub</h2>
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:10px;">
+    <div class="card tinte-cobre"><h3>VS Code</h3><p class="text-sm">Árboles de misiones y catálogo, «Preguntar a Quimi», ficha con enlace a PubChem, perfil de energía en SVG. JWT en <code>SecretStorage</code>; webviews con CSP estricta.</p><p class="text-xs muted">extensions/vscode · .vsix · 19 pruebas</p></div>
+    <div class="card tinte-potasio"><h3>Servidor MCP</h3><p class="text-sm">5 herramientas (<code>buscar_especie</code>, <code>explicar_reaccion</code>, <code>listar_niveles</code>, <code>preguntar_quimi</code>, <code>resumen_dashboard</code>) + recurso <code>arc://catalogo</code>.</p><p class="text-xs muted">integrations/mcp · stdio · 12 pruebas</p></div>
+    <div class="card tinte-calcio"><h3>Claude Code</h3><p class="text-sm">Skill <code>atomreactchamber</code> (curl + Node) y subagente <code>tutor-quimi</code>: explica en 3 capas y no revela respuestas del cuestionario.</p><p class="text-xs muted">.claude/skills · .claude/agents</p></div>
+    <div class="card tinte-sodio"><h3>GitHub</h3><p class="text-sm">CI de todos los workspaces, Release con el <code>.vsix</code> adjunto y Pages con la documentación y la demo.</p><p class="text-xs muted">.github/workflows</p></div>
+  </div>
+  <div class="card" style="margin-top:16px; display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:center;">
+    <p class="text-sm" style="margin:0;"><strong>Clientes delgados:</strong> ninguno duplica datos ni reglas. Todos envían eventos con su <code>origen</code>, y la BD lo restringe con <code>CHECK (origen IN ('web','vscode','claude','mcp'))</code>. Así el dashboard mide qué canal se usa de verdad.</p>
+    <pre class="sql" style="font-size:11pt;"><span class="k">SELECT</span> origen, count(*) <span class="k">AS</span> sesiones
+  <span class="k">FROM</span> sesion <span class="k">GROUP BY</span> origen
+ <span class="k">ORDER BY</span> 2 <span class="k">DESC</span>;</pre>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Qué es MCP y en qué se diferencia de llamar a la API con curl?</p></div>
+  <aside class="notes">
+    (≈1 min + 30 s de demo opcional) El reto de integraciones. La extensión de VS Code muestra las misiones y el catálogo dentro del editor, guarda el token en el almacenamiento seguro de VS Code y sus vistas web tienen una política de seguridad que no permite ejecutar scripts.
+    El servidor MCP, Model Context Protocol, expone la API como herramientas que un agente de IA puede llamar: por ejemplo, «explícame la combustión del carbono con su perfil de energía». La skill de Claude Code hace lo mismo con curl, y el subagente tutor-quimi está instruido para no revelar respuestas.
+    La clave de diseño: todos son clientes delgados de la misma API y todos registran su origen. Por eso el dashboard puede decir qué porcentaje de sesiones viene de cada canal.
+  </aside>
+</section>
+
+<!-- 13 · DASHBOARD -->
+<section id="dashboard">
+  <div class="casilla" style="--c:var(--cobre)"><p class="z">13</p><p class="s">Dy</p><p class="n">dashboard</p></div>
+  <p class="eyebrow">Dashboard de uso</p>
+  <h2>El docente ve dónde se traban sus estudiantes</h2>
+  <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:24px; margin-top:4px;">
+    <img class="captura" src="img/dashboard-recorte.png" alt="Dashboard de uso con KPIs, uso diario, embudo por nivel, preguntas con más errores y pasos más lentos" style="max-height:440px; object-fit:cover; object-position:top;">
+    <div>
+      <table class="compacta">
+        <thead><tr><th>Bloque</th><th>Fuente en la BD</th></tr></thead>
+        <tbody>
+          <tr><td>KPIs</td><td>consulta en <code>DashboardRepository</code></td></tr>
+          <tr><td>Uso diario (30 días)</td><td><code>mv_uso_diario</code></td></tr>
+          <tr><td>Embudo por nivel</td><td><code>v_estadisticas_nivel</code></td></tr>
+          <tr><td>Pasos más lentos</td><td><code>v_tiempo_por_paso</code></td></tr>
+          <tr><td>Preguntas con más errores</td><td><code>v_preguntas_dificiles</code></td></tr>
+          <tr><td>Origen y dispositivo</td><td><code>sesion</code></td></tr>
+          <tr><td>Ranking del aula</td><td><code>v_ranking_aula</code> (RANK)</td></tr>
+        </tbody>
+      </table>
+      <p class="text-sm" style="margin-top:12px;">En los datos de demostración, «Formación de la sal» cae a <strong>57 %</strong> de completado y «El CO₂ es un gas que…» tiene <strong>67 %</strong> de error: información accionable para el docente.</p>
+      <p class="fuente">Datos semilla de 902-datos-demo.sql (aula QUIM3A, 13 estudiantes ficticios).</p>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Por qué una vista materializada para el uso diario y vistas normales para lo demás?</p></div>
+  <aside class="notes">
+    (≈1 min) El dashboard de uso es para el docente y el administrador. Todo se calcula en PostgreSQL: el endpoint solo lee vistas.
+    El embudo por nivel muestra dónde abandonan; los pasos más lentos y las preguntas con más errores dicen qué reforzar en clase. En los datos de demostración, el nivel de la sal de mesa baja a 57 % de completado: eso es una señal para el docente.
+    Uso una vista materializada solo para el uso diario porque genera 30 días con subconsultas sobre las tablas que más crecen, sesion y evento; las demás son baratas y deben estar al día. Ojo: los números son datos semilla ficticios, no de un piloto real.
+  </aside>
+</section>
+
+<!-- 14 · CALIDAD -->
+<section id="calidad">
+  <div class="casilla" style="--c:var(--litio)"><p class="z">14</p><p class="s">Qa</p><p class="n">calidad</p></div>
+  <p class="eyebrow">Calidad</p>
+  <h2>63 pruebas automáticas, y una que juega los 9 niveles</h2>
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:10px;">
+    <div class="card"><p class="cifra" style="color:var(--potasio)">17</p><h3>API · integración</h3><p class="text-sm">Contra PostgreSQL real migrado con Liquibase: bloqueo, orden de pasos, ayudas, 25 %, aulas, telemetría.</p><p class="text-xs muted">backend/test/api.test.ts</p></div>
+    <div class="card"><p class="cifra" style="color:var(--cobre)">15</p><h3>Motor</h3><p class="text-sm">ΔH, Clausius-Clapeyron, fases, fotón, DSL… y <strong>9 pruebas que resuelven cada nivel</strong>.</p><p class="text-xs muted">frontend/src/engine/engine.test.ts</p></div>
+    <div class="card"><p class="cifra" style="color:var(--calcio-osc)">19</p><h3>Extensión</h3><p class="text-sm">Formato, SVG del perfil de energía, CSP y escape de las vistas.</p><p class="text-xs muted">extensions/vscode/test</p></div>
+    <div class="card"><p class="cifra" style="color:var(--litio)">12</p><h3>MCP</h3><p class="text-sm">Herramientas y servidor MCP en memoria con fetch simulado.</p><p class="text-xs muted">integrations/mcp/test</p></div>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:16px;">
+    <div>
+      <h3>El «solucionador» de niveles</h3>
+      <p class="text-sm">Para cada nivel aplica su solución, simula hasta 90 s por paso con un PRNG determinista (mulberry32) y exige que el <code>SeguidorDePaso</code> se cumpla. Si cambio un dato del catálogo y un nivel se vuelve imposible, la CI falla.</p>
+    </div>
+    <div>
+      <h3>Además</h3>
+      <ul class="text-sm">
+        <li>Playwright e2e sobre el build en modo demo</li>
+        <li>JUnit → «Reporte de pruebas superadas» en <code>infra.yml</code></li>
+        <li>Rollback de Liquibase probado en cada cambio de <code>db/**</code></li>
+      </ul>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Por qué pruebas de integración con BD real y no mocks? ¿Qué no cubren estas pruebas?</p></div>
+  <aside class="notes">
+    (≈1 min) Calidad: 63 pruebas automáticas. Las 17 de la API corren contra un PostgreSQL real migrado con Liquibase, no contra mocks, porque las reglas están en la BD: si mockeara la BD, no estaría probando nada importante.
+    La prueba de la que estoy más orgullosa: un solucionador que juega los 9 niveles. Aplica la solución de cada paso, simula hasta 90 segundos con un generador aleatorio determinista y verifica que el paso se cumple. Así, si alguien cambia una energía de activación y el nivel se vuelve imposible, la integración continua lo detecta antes que un estudiante.
+    Lo que no cubren: no hay pruebas de carga ni de concurrencia real, y la cobertura del 70 % es una meta que todavía tengo que reportar.
+  </aside>
+</section>
+
+<!-- 15 · EVIDENCIAS DE LA RÚBRICA -->
+<section id="evidencias">
+  <div class="casilla" style="--c:var(--calcio)"><p class="z">15</p><p class="s">Ev</p><p class="n">evidencias</p></div>
+  <p class="eyebrow">Dónde está cada cosa</p>
+  <h2>Mapa de evidencias para la evaluación</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:6px;">
+    <table class="compacta">
+      <thead><tr><th>Rúbrica</th><th>Evidencia</th></tr></thead>
+      <tbody>
+        <tr><td>Problemática y objetivos</td><td>diap. 2–3 · docs/investigacion</td></tr>
+        <tr><td>FD01–FD04</td><td>docs/fd (FD01/02 en .md, .docx y .pdf)</td></tr>
+        <tr><td>Código y BD en GitHub</td><td>repo · db/changelog (47 changesets)</td></tr>
+        <tr><td>Contribuciones</td><td>commits Conventional (<code>feat(db)</code>, <code>ci:</code>…) → CHANGELOG</td></tr>
+        <tr><td>Terraform + tests + costos</td><td>diap. 10–11 · <code>infra.yml</code></td></tr>
+        <tr><td>Liquibase + reporte</td><td><code>db.yml</code> · Pages /reportes/liquibase</td></tr>
+        <tr><td>Backups + reporte</td><td><code>backup.yml</code> · Pages /reportes/backup</td></tr>
+      </tbody>
+    </table>
+    <table class="compacta">
+      <thead><tr><th>Rúbrica</th><th>Evidencia</th></tr></thead>
+      <tbody>
+        <tr><td>Release + despliegue</td><td><code>release.yml</code> · página Releases</td></tr>
+        <tr><td>README: diccionario, ER, clases, componentes, despliegue</td><td><code>docs.yml</code> (tbls + Mermaid) · docs/database</td></tr>
+        <tr><td>GitHub Pages</td><td>/api (TypeDoc) · /db · /diagramas · /reportes · /app</td></tr>
+        <tr><td>Dashboard de uso</td><td>diap. 13 · demo como docente</td></tr>
+        <tr><td>Integraciones</td><td>diap. 12 · docs/integraciones.md</td></tr>
+        <tr><td>Presentación</td><td>docs/presentacion (HTML, PDF, PPTX)</td></tr>
+        <tr><td>Preguntas</td><td>ahora mismo · banco-de-preguntas.md</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>¿Qué genera el README automáticamente y qué escribí a mano?</p></div>
+  <aside class="notes">
+    (≈30 s) Esta diapositiva es para facilitar la evaluación: cada fila de la rúbrica con su evidencia. No la leo entera; la dejo para cuando el profesor quiera ubicar algo.
+    Sobre contribuciones: los commits siguen Conventional Commits, y release-please los convierte en el CHANGELOG y en la versión semántica. Sobre el README: el diccionario, el diagrama ER y los diagramas de clases, componentes y despliegue los regenera docs.yml en cada push a main.
+  </aside>
+</section>
+
+<!-- 16 · LIMITACIONES -->
+<section id="limitaciones">
+  <div class="casilla" style="--c:var(--litio)"><p class="z">16</p><p class="s">Li</p><p class="n">limitaciones</p></div>
+  <p class="eyebrow">Limitaciones honestas y trabajo futuro</p>
+  <h2>Lo que el sistema NO hace (todavía)</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:8px;">
+    <div>
+      <h3>Límites conocidos</h3>
+      <ul class="lista-check text-sm" style="--c:var(--litio)">
+        <li><strong>Eₐ pedagógicas:</strong> ΔHf° son datos NIST, pero las energías de activación están escaladas para que se vea en segundos.</li>
+        <li><strong>2D y pocas partículas:</strong> discos rígidos + termostato de Berendsen; no es dinámica molecular real.</li>
+        <li><strong>La verificación física corre en el cliente:</strong> la BD exige orden y pertenencia de pasos, no repite la simulación.</li>
+        <li><strong>Arranque en frío:</strong> la API gratuita tarda ~1 min tras 15 min sin uso.</li>
+        <li><strong>9 de 12 niveles</strong> de la meta OS-1; el piloto con estudiantes aún no se hizo.</li>
+        <li>Sin índice único parcial para «un intento en curso por nivel»; sin Lighthouse CI todavía.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Trabajo futuro</h3>
+      <ul class="lista-check text-sm" style="--c:var(--potasio)">
+        <li><strong>Quimi con LLM</strong> en la 3.ª unidad, detrás de la misma interfaz <code>QuimiService</code>.</li>
+        <li>Laboratorio <strong>3D</strong>, números cuánticos, editor de prácticas para docentes.</li>
+        <li>Piloto en un colegio de Tacna: medir Hake ⟨g⟩, SUS y OS-2.</li>
+        <li>Cookie httpOnly + refresh token; consentimiento parental.</li>
+        <li>Reportes PDF para el docente; monitoreo de disponibilidad (OS-7).</li>
+      </ul>
+      <div class="card tinte-sodio" style="margin-top:12px; padding:10px 14px;"><p class="text-sm" style="margin:0;">Complementa al laboratorio físico; <strong>no lo reemplaza</strong> (Li y Liang, 2024).</p></div>
+    </div>
+  </div>
+  <div class="preguntame"><p><b>Pregúntame</b>Si yo fuera su docente de química, ¿por qué debería confiar en lo que muestra el simulador?</p></div>
+  <aside class="notes">
+    (≈1 min) Cierro con lo que el sistema no hace, porque creo que es tan importante como lo que sí hace.
+    Las entalpías son datos reales de NIST, pero las energías de activación están escaladas para que las reacciones se vean en segundos; el pie de página de la app lo dice. Es 2D, con pocas partículas: sirve para intuición, no para predecir.
+    La verificación de los pasos corre en el navegador: un estudiante con conocimientos podría enviar pasos sin hacerlos, aunque la BD exige el orden. Para una tarea escolar acepto el riesgo; para un examen no.
+    Tengo 9 de los 12 niveles que me propuse, y el piloto todavía no se hizo. Y en la 3.ª unidad, Quimi pasa de reglas a un modelo de lenguaje sin cambiar la interfaz del servicio.
+  </aside>
+</section>
+
+<!-- 17 · PREGUNTAS -->
+<section id="preguntas" class="cierre" data-background-color="#0E1A2B">
+  <div class="pizarra-bg">
+    <p class="eyebrow" style="color:#9DB0C7">Ahora les toca a ustedes</p>
+    <h1 style="font-size:52pt; margin-top:8px;">Preguntas</h1>
+    <p style="font-size:17pt; max-width:760px;">Elijan una casilla y pregúntenme por ella. Las más difíciles valen tres estrellas.</p>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:22px; max-width:1100px;">
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#7FD6CB; margin-bottom:4px;"><strong>Base de datos</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Reglas en PL/pgSQL o en la API? ¿Qué harían ustedes?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#FFB27A; margin-bottom:4px;"><strong>Concurrencia</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">Dos «Finalizar» simultáneos: ¿FOR UPDATE basta?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#F28DB2; margin-bottom:4px;"><strong>Seguridad</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Cómo harían trampa en el juego? Atáquenlo.</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#B9A6FF; margin-bottom:4px;"><strong>Arquitectura</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Qué rompería primero con 10 000 estudiantes?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#FFD45C; margin-bottom:4px;"><strong>DevOps</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Qué pasa si Liquibase falla a mitad del despliegue?</p></div>
+      <div class="card" style="background:#15253B; border-color:#E6EDF5;"><p class="text-sm" style="color:#7FD6CB; margin-bottom:4px;"><strong>Pedagogía</strong></p><p class="text-sm" style="color:#E6EDF5; margin:0;">¿Las estrellas motivan o distraen? ¿Ustedes jugarían?</p></div>
+    </div>
+    <p class="muted" style="position:absolute; left:64px; bottom:40px; font-size:13pt;">Repositorio: github.com/Laos19/Demov0.1AtomReactChamber · Adriana Rafaela Laos González · 2023077474</p>
+  </div>
+  <aside class="notes">
+    Gracias. Ahora les toca a ustedes. Si nadie se anima en los primeros segundos, lanzo una de estas seis preguntas al público (ver «Preguntas para lanzar al público» en banco-de-preguntas.md). Sugerencia: empezar por «¿cómo harían trampa en el juego?», que siempre genera participación.
+    Para cada pregunta: 1) repetir la pregunta en voz alta, 2) responder en 30–45 s con el archivo o la función concreta, 3) si aplica, abrir el código o la BD en vivo, 4) agradecer y preguntar «¿te respondí?».
+    Si no sé algo: «No lo medí todavía; lo anoto como trabajo futuro». Nunca inventar una cifra.
+  </aside>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>window.Reveal || document.write('<script src="vendor/reveal.js-5.1.0/dist/reveal.js"><\/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>window.RevealNotes || document.write('<script src="vendor/reveal.js-5.1.0/plugin/notes/notes.js"><\/script>');</script>
+<script>
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.02,
+    controls: false,
+    progress: true,
+    slideNumber: 'c/t',
+    hash: true,
+    center: false,
+    transition: 'fade',
+    transitionSpeed: 'fast',
+    pdfSeparateFragments: false,
+    showNotes: false,
+    plugins: [RevealNotes]
+  });
+</script>
+</body>
+</html>
