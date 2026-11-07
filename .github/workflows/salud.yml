@@ -1,0 +1,33 @@
+name: Monitoreo de disponibilidad
+
+# Comprueba /api/health cada 6 horas (indicador de disponibilidad, objetivo OS-7).
+# También mantiene "despierto" el servicio gratuito antes de las clases.
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    env:
+      API_URL: ${{ vars.API_URL }}
+    steps:
+      - name: Consultar /api/health
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "omitido: falta la variable API_URL" >> "$GITHUB_STEP_SUMMARY"; exit 0
+          fi
+          inicio=$(date +%s%3N)
+          codigo=$(curl -s -o salud.json -w '%{http_code}' --max-time 90 --retry 3 --retry-delay 20 "$API_URL/api/health" || echo 000)
+          ms=$(( $(date +%s%3N) - inicio ))
+          {
+            echo "### Disponibilidad de la API"
+            echo "| URL | HTTP | Tiempo | Respuesta |"
+            echo "|---|---|---|---|"
+            echo "| $API_URL/api/health | $codigo | ${ms} ms | \`$(cat salud.json 2>/dev/null | head -c 200)\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ "$codigo" = "200" ]
