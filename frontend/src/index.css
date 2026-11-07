@@ -1,7 +1,116 @@
+@import '@fontsource/unbounded/500.css';
+@import '@fontsource/unbounded/700.css';
+@import '@fontsource/atkinson-hyperlegible-next/400.css';
+@import '@fontsource/atkinson-hyperlegible-next/700.css';
+@import '@fontsource/atkinson-hyperlegible-mono/400.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root { height: 100%; }
-body { background: #020617; color: #e2e8f0; }
-input[type='range'] { accent-color: #22d3ee; }
+/* ---------- Tokens: paleta del ensayo a la llama (valores RGB para alfa en Tailwind) ---------- */
+:root {
+  --tinta: 19 35 58;          /* #13233A */
+  --tinta-suave: 74 90 115;   /* #4A5A73 */
+  --papel: 244 247 251;       /* #F4F7FB */
+  --superficie: 255 255 255;
+  --linea: 220 229 240;       /* #DCE5F0 */
+  --cobre: 10 114 102;        /* #0A7266 (AA: 5.8:1 con blanco) */
+  --calcio: 181 67 9;         /* #B54309 (AA sobre papel) */
+  --litio: 194 37 92;         /* #C2255C */
+  --potasio: 112 72 232;      /* #7048E8 */
+  --sodio: 242 183 5;         /* #F2B705 */
+  --visor: 11 21 36;          /* #0B1524 */
+  --exito: 21 128 61;
+  --peligro: 185 28 28;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --tinta: 230 237 245;
+  --tinta-suave: 160 176 198;
+  --papel: 14 26 43;          /* pizarra #0E1A2B */
+  --superficie: 21 37 59;     /* #15253B */
+  --linea: 38 58 86;
+  --cobre: 45 196 176;
+  --calcio: 255 135 64;
+  --litio: 247 98 150;
+  --potasio: 160 132 255;
+  --sodio: 255 205 60;
+  --exito: 74 222 128;
+  --peligro: 248 113 113;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --tinta: 230 237 245;
+    --tinta-suave: 160 176 198;
+    --papel: 14 26 43;
+    --superficie: 21 37 59;
+    --linea: 38 58 86;
+    --cobre: 45 196 176;
+    --calcio: 255 135 64;
+    --litio: 247 98 150;
+    --potasio: 160 132 255;
+    --sodio: 255 205 60;
+    --exito: 74 222 128;
+    --peligro: 248 113 113;
+    color-scheme: dark;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-papel font-sans text-tinta antialiased;
+    font-size: 17px;
+    line-height: 1.55;
+    /* Papel cuadriculado: el recurso de fondo de toda la app. */
+    background-image:
+      linear-gradient(rgb(var(--linea) / 0.55) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--linea) / 0.55) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  h1, h2, h3 {
+    @apply font-display text-tinta;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  p { text-wrap: pretty; }
+  :focus-visible {
+    outline: 3px solid rgb(var(--cobre));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection { background: rgb(var(--sodio) / 0.45); }
+}
+
+@layer components {
+  /* Botón con aspecto de ficha física que se presiona. */
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-ficha border-2 border-tinta px-4 py-2
+      font-sans font-bold text-tinta transition-[transform,box-shadow] duration-100 disabled:cursor-not-allowed disabled:opacity-50;
+    box-shadow: 0 3px 0 0 rgb(var(--tinta) / 0.85);
+  }
+  .btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 0 rgb(var(--tinta) / 0.85); }
+  .btn-primario { @apply bg-cobre text-white; }
+  :root[data-theme='dark'] .btn-primario { @apply text-papel; }
+  .btn-secundario { @apply bg-superficie; }
+  .btn-sodio { @apply bg-sodio text-[#13233A]; }
+  .panel { @apply rounded-ficha border-2 border-tinta/80 bg-superficie; }
+  .campo {
+    @apply min-h-[44px] w-full rounded-lg border-2 border-linea bg-superficie px-3 py-2 text-tinta
+      placeholder:text-tinta-suave focus:border-cobre focus:outline-none;
+  }
+  .etiqueta { @apply text-sm font-bold text-tinta-suave; }
+  .lectura { @apply font-mono tabular-nums; }
+}
+
+input[type='range'] { accent-color: rgb(var(--cobre)); min-height: 28px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

@@ -2,8 +2,10 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
-// `npm run build:single` produces a self-contained dist/index.html
+// base relativa: el mismo build funciona en Render static y en GitHub Pages (/repo/app/).
+// `npm run build:single` genera un dist/index.html autocontenido.
 export default defineConfig(({ mode }) => ({
   plugins: [react(), ...(mode === 'single' ? [viteSingleFile()] : [])],
   base: './',
+  build: { chunkSizeWarningLimit: 700 },
 }));
