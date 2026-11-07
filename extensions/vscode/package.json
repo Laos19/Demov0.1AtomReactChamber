@@ -1,1 +1,103 @@
-{"name":"atomreactchamber-vscode","version":"0.0.0","private":true}
+{
+  "name": "atomreactchamber-vscode",
+  "displayName": "AtomReactChamber",
+  "description": "Misiones, catálogo químico y el asistente Quimi de AtomReactChamber dentro de VS Code.",
+  "version": "2.0.0",
+  "publisher": "adriana-laos",
+  "author": "Adriana Rafaela Laos González",
+  "license": "MIT",
+  "private": true,
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laos19/demov0.1atomreactchamber.git",
+    "directory": "extensions/vscode"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": ["Education", "Other"],
+  "keywords": ["química", "chemistry", "educación", "secundaria", "gamificación"],
+  "main": "./dist/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "atomreactchamber",
+          "title": "AtomReactChamber",
+          "icon": "media/atom.svg"
+        }
+      ]
+    },
+    "views": {
+      "atomreactchamber": [
+        { "id": "atomreactchamber.misiones", "name": "Misiones", "icon": "media/atom.svg" },
+        { "id": "atomreactchamber.catalogo", "name": "Catálogo", "icon": "media/atom.svg" }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "atomreactchamber.misiones",
+        "contents": "No se pudo cargar el contenido desde la API de AtomReactChamber.\n[Reintentar](command:atomreactchamber.refrescar)\n[Configurar URL de la API](command:workbench.action.openSettings?%22atomreactchamber.apiUrl%22)"
+      }
+    ],
+    "commands": [
+      { "command": "atomreactchamber.preguntarQuimi", "title": "Preguntar a Quimi", "category": "AtomReactChamber", "icon": "$(comment-discussion)" },
+      { "command": "atomreactchamber.verEspecie", "title": "Ver ficha de especie", "category": "AtomReactChamber", "icon": "$(symbol-constant)" },
+      { "command": "atomreactchamber.explicarReaccion", "title": "Explicar reacción", "category": "AtomReactChamber", "icon": "$(flame)" },
+      { "command": "atomreactchamber.iniciarSesion", "title": "Iniciar sesión", "category": "AtomReactChamber", "icon": "$(account)" },
+      { "command": "atomreactchamber.cerrarSesion", "title": "Cerrar sesión", "category": "AtomReactChamber" },
+      { "command": "atomreactchamber.miProgreso", "title": "Mi progreso", "category": "AtomReactChamber", "icon": "$(star-full)" },
+      { "command": "atomreactchamber.abrirLaboratorio", "title": "Abrir laboratorio", "category": "AtomReactChamber", "icon": "$(link-external)" },
+      { "command": "atomreactchamber.refrescar", "title": "Refrescar", "category": "AtomReactChamber", "icon": "$(refresh)" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "atomreactchamber.refrescar", "when": "view == atomreactchamber.misiones || view == atomreactchamber.catalogo", "group": "navigation@9" },
+        { "command": "atomreactchamber.preguntarQuimi", "when": "view == atomreactchamber.misiones || view == atomreactchamber.catalogo", "group": "navigation@1" },
+        { "command": "atomreactchamber.miProgreso", "when": "view == atomreactchamber.misiones", "group": "navigation@2" },
+        { "command": "atomreactchamber.abrirLaboratorio", "when": "view == atomreactchamber.misiones", "group": "navigation@3" }
+      ],
+      "view/item/context": [
+        { "command": "atomreactchamber.verEspecie", "when": "view == atomreactchamber.catalogo && viewItem == especie", "group": "inline" },
+        { "command": "atomreactchamber.explicarReaccion", "when": "view == atomreactchamber.catalogo && viewItem == reaccion", "group": "inline" }
+      ]
+    },
+    "configuration": {
+      "title": "AtomReactChamber",
+      "properties": {
+        "atomreactchamber.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "markdownDescription": "URL base de la API de AtomReactChamber (sin `/api`). Ejemplo: `https://atomreactchamber-api.onrender.com`."
+        },
+        "atomreactchamber.webUrl": {
+          "type": "string",
+          "default": "https://laos19.github.io/demov0.1atomreactchamber/",
+          "description": "URL del laboratorio web que abre el comando «Abrir laboratorio»."
+        },
+        "atomreactchamber.telemetria": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enviar eventos de uso anónimos (origen `vscode`) al dashboard docente. También se respeta la opción global de telemetría de VS Code."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node20 --external:vscode --outfile=dist/extension.js --sourcemap",
+    "vscode:prepublish": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "package": "npx --yes @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/vscode": "1.90.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

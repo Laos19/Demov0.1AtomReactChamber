@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "atomreactchamber": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["integrations/mcp/dist/index.js"],
+      "env": {
+        "ARC_API_URL": "${ARC_API_URL:-http://localhost:8080}",
+        "ARC_TOKEN": "${ARC_TOKEN:-}"
+      }
+    }
+  }
+}
