@@ -1,0 +1,452 @@
+name: "Infraestructura (Terraform) + pruebas + costos"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Acción de Terraform sobre producción"
+        type: choice
+        options: [plan, apply, destroy]
+        default: plan
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TF_VERSION: "~1.17.0"
+  NODE_VERSION: "22"
+  REPORTS: ${{ github.workspace }}/reports
+
+jobs:
+  # ───────────────────────── 1. Calidad del código Terraform ─────────────────────────
+  terraform-quality:
+    name: Terraform fmt · validate · tflint · checkov
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: terraform fmt -check
+        id: fmt
+        run: |
+          mkdir -p "$REPORTS"
+          if terraform fmt -check -recursive -diff > "$REPORTS/fmt.txt"; then
+            echo "result=✅" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=❌" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: terraform init -backend=false && validate (cada módulo y raíz)
+        id: validate
+        run: |
+          {
+            echo "| Directorio | init | validate |"
+            echo "|---|---|---|"
+          } > "$REPORTS/validate.md"
+          status=0
+          for dir in modules/* envs/* cost-reference/*; do
+            [ -d "$dir" ] || continue
+            init="✅"; val="✅"
+            if ! terraform -chdir="$dir" init -backend=false -no-color > "$REPORTS/init-${dir//\//_}.log" 2>&1; then
+              init="❌"; val="—"; status=1
+            elif ! terraform -chdir="$dir" validate -no-color > "$REPORTS/validate-${dir//\//_}.log" 2>&1; then
+              val="❌"; status=1
+            fi
+            echo "| \`$dir\` | $init | $val |" >> "$REPORTS/validate.md"
+          done
+          cat "$REPORTS/validate.md"
+          exit $status
+
+      - name: tflint
+        id: tflint
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          tflint --init --config "$PWD/.tflint.hcl"
+          if tflint --recursive --config "$PWD/.tflint.hcl" --format compact > "$REPORTS/tflint.txt" 2>&1; then
+            echo "result=✅" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=⚠️" >> "$GITHUB_OUTPUT"
+          fi
+          cat "$REPORTS/tflint.txt"
+
+      - name: Checkov (escaneo de seguridad IaC, informativo)
+        id: checkov
+        run: |
+          pipx run checkov --directory . --framework terraform --quiet --compact \
+            --skip-path cost-reference --soft-fail > "$REPORTS/checkov.txt" 2>&1 || true
+          tail -n 40 "$REPORTS/checkov.txt"
+
+      - name: Reporte de calidad IaC
+        if: always()
+        run: |
+          {
+            echo "## 🏗️ Calidad de Infraestructura como Código"
+            echo ""
+            echo "| Verificación | Resultado |"
+            echo "|---|---|"
+            echo "| \`terraform fmt -check\` | ${{ steps.fmt.outputs.result || '❌' }} |"
+            echo "| \`terraform validate\` | ${{ steps.validate.outcome == 'success' && '✅' || '❌' }} |"
+            echo "| \`tflint\` | ${{ steps.tflint.outputs.result || '—' }} |"
+            echo "| \`checkov\` (soft-fail) | ver artefacto |"
+            echo ""
+            echo "### Validación por directorio"
+            cat "$REPORTS/validate.md" 2>/dev/null || echo "_sin datos_"
+          } | tee "$REPORTS/terraform-calidad.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fallar si fmt no pasa
+        if: steps.fmt.outputs.result == '❌'
+        run: |
+          cat "$REPORTS/fmt.txt"
+          exit 1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-terraform-calidad
+          path: reports/
+          retention-days: 30
+
+  # ───────────────────────── 2. Pruebas (unitarias, integración, e2e) ─────────────────────────
+  tests:
+    name: Pruebas (Liquibase + backend + frontend + e2e)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: atomreactchamber
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://localhost:5432/atomreactchamber
+      LIQUIBASE_COMMAND_USERNAME: postgres
+      LIQUIBASE_COMMAND_PASSWORD: postgres
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/atomreactchamber
+      JWT_SECRET: ci-only-not-a-secret
+      CORS_ORIGIN: http://localhost:4173
+      PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/reports/junit/e2e.xml
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Migrar BD efímera con Liquibase
+        run: |
+          mkdir -p "$REPORTS/junit"
+          .github/scripts/liquibase.sh update
+          .github/scripts/liquibase.sh history | tee "$REPORTS/liquibase-history.txt"
+
+      - name: Pruebas backend (unitarias + integración, JUnit)
+        id: backend
+        continue-on-error: true
+        run: npm run test -w backend -- --reporter=default --reporter=junit --outputFile.junit="$REPORTS/junit/backend.xml"
+
+      - name: Pruebas frontend (unitarias, JUnit)
+        id: frontend
+        continue-on-error: true
+        run: npm run test -w frontend -- --reporter=default --reporter=junit --outputFile.junit="$REPORTS/junit/frontend.xml"
+
+      - name: Instalar navegador Playwright
+        run: npm exec -w frontend -- playwright install --with-deps chromium
+
+      - name: Pruebas e2e (Playwright, modo demo)
+        id: e2e
+        continue-on-error: true
+        env:
+          VITE_API_URL: ""
+          CI: "true"
+        run: npm run e2e -w frontend -- --reporter=list,junit
+
+      - name: Anotaciones JUnit
+        if: always()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: reports/junit/*.xml
+          check_name: Reporte de pruebas superadas
+          annotate_only: true
+          include_passed: true
+          detailed_summary: true
+          job_summary: true
+          require_tests: false
+
+      - name: Reporte de pruebas superadas (Markdown)
+        if: always()
+        run: |
+          node .github/scripts/junit-summary.mjs "$REPORTS/reporte-pruebas.md" \
+            "Backend (Vitest)=$REPORTS/junit/backend.xml" \
+            "Frontend (Vitest)=$REPORTS/junit/frontend.xml" \
+            "E2E (Playwright)=$REPORTS/junit/e2e.xml" >> "$GITHUB_STEP_SUMMARY"
+          cp -r frontend/playwright-report "$REPORTS/playwright-report" 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-pruebas
+          path: reports/
+          retention-days: 30
+
+      - name: Resultado final
+        if: steps.backend.outcome == 'failure' || steps.frontend.outcome == 'failure' || steps.e2e.outcome == 'failure'
+        run: |
+          echo "::error::Fallaron pruebas: backend=${{ steps.backend.outcome }} frontend=${{ steps.frontend.outcome }} e2e=${{ steps.e2e.outcome }}"
+          exit 1
+
+  # ───────────────────────── 3. Costos ─────────────────────────
+  costs:
+    name: Reporte de costos (Infracost)
+    runs-on: ubuntu-latest
+    env:
+      INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tabla de costos de la arquitectura gratuita (siempre)
+        run: |
+          mkdir -p "$REPORTS"
+          cp infra/terraform/cost-reference/README.md "$REPORTS/costos-referencia.md"
+
+      - name: Instalar Infracost
+        if: env.INFRACOST_API_KEY != ''
+        uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Infracost breakdown (AWS y Azure de referencia)
+        if: env.INFRACOST_API_KEY != ''
+        run: |
+          for cloud in aws azure; do
+            dir="infra/terraform/cost-reference/$cloud"
+            usage=()
+            [ -f "$dir/infracost-usage.yml" ] && usage=(--usage-file "$dir/infracost-usage.yml")
+            infracost breakdown --path "$dir" "${usage[@]}" --format json --out-file "$REPORTS/infracost-$cloud.json"
+            infracost output --path "$REPORTS/infracost-$cloud.json" --format table --out-file "$REPORTS/infracost-$cloud.txt"
+            infracost output --path "$REPORTS/infracost-$cloud.json" --format html --out-file "$REPORTS/infracost-$cloud.html"
+          done
+
+      - name: Reporte de costos
+        if: always()
+        run: |
+          {
+            echo "## 💰 Reporte de costos"
+            echo ""
+            echo "### Arquitectura desplegada (capa gratuita)"
+            echo ""
+            echo "| Componente | Servicio | Plan | Costo mensual |"
+            echo "|---|---|---|---:|"
+            echo "| Base de datos PostgreSQL 16 | Neon | Free | USD 0.00 |"
+            echo "| API Fastify (Node 22) | Render Web Service | Free | USD 0.00 |"
+            echo "| Frontend estático | Render Static Site | Free | USD 0.00 |"
+            echo "| Documentación + demo | GitHub Pages | Gratis (repo público) | USD 0.00 |"
+            echo "| Estado de Terraform | HCP Terraform | Free | USD 0.00 |"
+            echo "| CI/CD | GitHub Actions | Gratis (repo público) | USD 0.00 |"
+            echo "| **Total** | | | **USD 0.00** |"
+            echo ""
+            echo "### Arquitectura equivalente de pago (solo estimación, nunca se aplica)"
+            echo ""
+            if [ -z "$INFRACOST_API_KEY" ]; then
+              echo "> omitido: falta secret INFRACOST_API_KEY — se muestran precios de referencia documentados."
+              echo ""
+              sed -n '/<!-- precios:inicio -->/,/<!-- precios:fin -->/p' infra/terraform/cost-reference/README.md | sed '1d;$d'
+            else
+              for cloud in aws azure; do
+                f="$REPORTS/infracost-$cloud.json"
+                [ -f "$f" ] || continue
+                total=$(jq -r '.totalMonthlyCost // "0"' "$f")
+                echo "#### ${cloud^^} — total estimado: USD $(printf '%.2f' "$total")/mes"
+                echo ""
+                echo "| Recurso | Costo mensual (USD) |"
+                echo "|---|---:|"
+                jq -r '.projects[].breakdown.resources[] | "| `\(.name)` | \((.monthlyCost // "0") | tonumber | . * 100 | round / 100) |"' "$f"
+                echo ""
+              done
+              echo "_Precios obtenidos en vivo por Infracost ($(date -u +%F)). Supuestos de uso en \`infracost-usage.yml\`._"
+            fi
+          } | tee "$REPORTS/reporte-costos.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-costos
+          path: reports/
+          retention-days: 30
+
+  # ───────────────────────── 4. Plan / Apply en producción ─────────────────────────
+  deploy-infra:
+    name: Terraform plan/apply (producción)
+    needs: [terraform-quality]
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: terraform-prod
+      cancel-in-progress: false
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/terraform/envs/prod
+    env:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      RENDER_OWNER_ID: ${{ secrets.RENDER_OWNER_ID }}
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      TF_WORKSPACE: ${{ vars.TF_WORKSPACE || 'atomreactchamber-prod' }}
+      PG_CONN_STR: ${{ secrets.TF_STATE_PG_CONN_STR }}
+      ACTION: ${{ github.event_name == 'workflow_dispatch' && inputs.action || 'apply' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Comprobar secrets
+        id: check
+        run: |
+          mkdir -p "$REPORTS"
+          missing=()
+          [ -n "$NEON_API_KEY" ] || missing+=(NEON_API_KEY)
+          [ -n "$RENDER_API_KEY" ] || missing+=(RENDER_API_KEY)
+          [ -n "$RENDER_OWNER_ID" ] || missing+=(RENDER_OWNER_ID)
+          backend=""
+          if [ -n "$TF_API_TOKEN" ] && [ -n "$TF_CLOUD_ORGANIZATION" ]; then
+            backend="hcp"
+          elif [ -n "$PG_CONN_STR" ]; then
+            backend="pg"
+          else
+            missing+=("TF_API_TOKEN + variable TF_CLOUD_ORGANIZATION (o TF_STATE_PG_CONN_STR)")
+          fi
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## ☁️ Terraform producción"
+              echo ""
+              for m in "${missing[@]}"; do echo "- omitido: falta secret $m"; done
+              echo ""
+              echo "El plan/apply se ejecutará automáticamente cuando se configuren (ver \`infra/README.md\`)."
+            } | tee "$REPORTS/terraform-prod.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: hashicorp/setup-terraform@v3
+        if: steps.check.outputs.ready == 'true'
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Backend alternativo PostgreSQL (sin HCP)
+        if: steps.check.outputs.ready == 'true' && steps.check.outputs.backend == 'pg'
+        run: |
+          cat > backend_override.tf <<'HCL'
+          terraform {
+            backend "pg" {
+              schema_name = "terraform_state"
+            }
+          }
+          HCL
+
+      - name: terraform init
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
+          terraform init -no-color
+
+      - name: terraform plan
+        id: plan
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
+          flags=()
+          [ "$ACTION" = "destroy" ] && flags+=(-destroy)
+          set +e
+          terraform plan -no-color -detailed-exitcode "${flags[@]}" -out=tfplan > "$REPORTS/plan.txt" 2>&1
+          code=$?
+          set -e
+          cat "$REPORTS/plan.txt"
+          echo "exitcode=$code" >> "$GITHUB_OUTPUT"
+          [ $code -eq 1 ] && exit 1
+          terraform show -no-color tfplan > "$REPORTS/plan-detalle.txt"
+          exit 0
+
+      - name: terraform apply
+        id: apply
+        if: >-
+          steps.check.outputs.ready == 'true' && steps.plan.outputs.exitcode == '2' &&
+          ((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+           (github.event_name == 'workflow_dispatch' && (inputs.action == 'apply' || inputs.action == 'destroy')))
+        run: |
+          if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
+          terraform apply -no-color -auto-approve tfplan | tee "$REPORTS/apply.txt"
+
+      - name: Reporte de despliegue de infraestructura
+        if: always() && steps.check.outputs.ready == 'true'
+        run: |
+          if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
+          summary_line=$(grep -E '^(Plan:|No changes\.)' "$REPORTS/plan.txt" | head -1 || true)
+          {
+            echo "## ☁️ Terraform producción — acción: \`$ACTION\`"
+            echo ""
+            echo "| Dato | Valor |"
+            echo "|---|---|"
+            echo "| Backend de estado | ${{ steps.check.outputs.backend }} |"
+            echo "| Plan | ${summary_line:-—} |"
+            echo "| Apply | ${{ steps.apply.outcome }} |"
+            if [ "$ACTION" != "destroy" ] && terraform output -json > "$REPORTS/outputs.json" 2>/dev/null; then
+              for k in api_url web_url database_host database_name neon_project_id; do
+                v=$(jq -r --arg k "$k" '.[$k].value // empty' "$REPORTS/outputs.json")
+                [ -n "$v" ] && echo "| \`$k\` | $v |"
+              done
+              echo "| \`database_connection_string\` | _(sensible, oculto)_ |"
+              # Nunca subir valores sensibles como artefacto.
+              jq 'with_entries(select(.value.sensitive == false))' "$REPORTS/outputs.json" > "$REPORTS/outputs-publicos.json"
+              rm -f "$REPORTS/outputs.json"
+            fi
+          } | tee "$REPORTS/terraform-prod.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-terraform-produccion
+          path: reports/
+          retention-days: 30

@@ -1,0 +1,42 @@
+# Configuración de tbls (https://github.com/k1LoW/tbls) — documentación de la BD.
+# La conexión NO se guarda aquí: se pasa con la variable de entorno TBLS_DSN, p. ej.
+#   TBLS_DSN="postgres://postgres:postgres@localhost:5432/atomreactchamber?sslmode=disable" tbls doc --force
+name: AtomReactChamber
+desc: Base de datos del laboratorio virtual de química gamificado AtomReactChamber (PostgreSQL 16).
+docPath: docs/database
+
+format:
+  adjust: true
+  hideColumnsWithoutValues:
+    - Parents
+    - Children
+
+er:
+  # svg: diagrama embebido en Markdown/GitHub Pages. El diagrama Mermaid se genera
+  # aparte con: tbls out -t mermaid -o docs/database/er.mmd
+  format: svg
+  comment: true
+  distance: 2
+
+# Tablas internas de Liquibase fuera del diccionario de datos.
+exclude:
+  - databasechangelog
+  - databasechangeloglock
+  - public.databasechangelog
+  - public.databasechangeloglock
+
+lint:
+  requireTableComment:
+    enabled: true
+  requireColumnComment:
+    enabled: true
+    exclude:
+      - id
+      - created_at
+      - updated_at
+  unrelatedTable:
+    enabled: true
+  duplicateRelations:
+    enabled: true
+  requireForeignKeyIndex:
+    enabled: true

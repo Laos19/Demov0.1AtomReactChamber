@@ -1,0 +1,244 @@
+name: "Release y despliegue"
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NODE_VERSION: "22"
+  REPORTS: ${{ github.workspace }}/reports
+
+jobs:
+  # ───────── Versionado semántico + CHANGELOG (Conventional Commits → release-please) ─────────
+  release-please:
+    name: Versión semántica y changelog
+    if: github.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write # etiquetas "autorelease: pending"
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+      version: ${{ steps.rp.outputs.version }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: rp
+        continue-on-error: true
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Resumen de versionado
+        if: always()
+        run: |
+          {
+            echo "## 🏷️ Versionado semántico (release-please)"
+            echo ""
+            if [ "${{ steps.rp.outcome }}" != "success" ]; then
+              echo "> ⚠️ release-please no pudo ejecutarse. Habilite *Settings → Actions → General → Allow GitHub Actions to create and approve pull requests*."
+            elif [ "${{ steps.rp.outputs.release_created }}" = "true" ]; then
+              echo "✅ Release creado: **${{ steps.rp.outputs.tag_name }}**"
+            else
+              echo "Sin release nuevo en este push. release-please mantiene abierto el PR \"chore: release …\" con el CHANGELOG propuesto; al fusionarlo se crea la versión."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ───────── Build de artefactos ─────────
+  build:
+    name: Build (frontend, backend, extensión VS Code)
+    needs: [release-please]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # subir assets al Release
+    env:
+      VITE_API_URL: ${{ vars.API_URL }}
+      TAG: ${{ needs.release-please.outputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build frontend y backend
+        run: |
+          npm run build -w frontend
+          npm run build -w backend
+
+      - name: Empaquetar
+        id: pkg
+        run: |
+          mkdir -p dist-release "$REPORTS"
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          (cd frontend/dist && zip -qr "$GITHUB_WORKSPACE/dist-release/atomreactchamber-frontend-$version.zip" .)
+          zip -qr "dist-release/atomreactchamber-backend-$version.zip" backend/dist backend/package.json package.json package-lock.json
+          if [ -f extensions/vscode/package.json ]; then
+            (cd extensions/vscode && npx --yes @vscode/vsce package --no-dependencies --skip-license \
+              --allow-missing-repository --out "$GITHUB_WORKSPACE/dist-release/atomreactchamber-vscode-$version.vsix")
+          else
+            echo "::warning::extensions/vscode/package.json no existe; se omite el .vsix"
+          fi
+          (cd dist-release && sha256sum * > SHA256SUMS.txt)
+          ls -la dist-release
+
+      - name: Publicar assets en el GitHub Release
+        if: env.TAG != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            gh release create "$TAG" --title "AtomReactChamber $TAG" --generate-notes --verify-tag
+          fi
+          gh release upload "$TAG" dist-release/* --clobber
+
+      - name: Reporte de build
+        if: always()
+        run: |
+          {
+            echo "## 📦 Artefactos de la versión ${{ steps.pkg.outputs.version }}"
+            echo ""
+            echo "| Archivo | Tamaño | SHA-256 |"
+            echo "|---|---:|---|"
+            for f in dist-release/*; do
+              [ -f "$f" ] || continue
+              [ "$(basename "$f")" = "SHA256SUMS.txt" ] && continue
+              echo "| \`$(basename "$f")\` | $(numfmt --to=iec-i --suffix=B "$(stat -c%s "$f")") | \`$(sha256sum "$f" | cut -c1-16)…\` |"
+            done
+            echo ""
+            if [ -n "$TAG" ]; then
+              echo "Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
+            else
+              echo "_Sin tag nuevo: artefactos disponibles solo como artefacto del workflow._"
+            fi
+            [ -n "$VITE_API_URL" ] || echo "> VITE_API_URL vacío (variable API_URL no definida): el frontend se construyó en modo demo."
+          } | tee "$REPORTS/reporte-build.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.pkg.outputs.version }}
+          path: |
+            dist-release/
+            reports/
+          retention-days: 30
+
+  # ───────── Despliegue: migraciones → Render → smoke test ─────────
+  deploy:
+    name: Despliegue en Render
+    needs: [build]
+    if: ${{ !cancelled() && needs.build.result == 'success' && (github.ref == 'refs/heads/main' || github.ref_type == 'tag') }}
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    env:
+      LIQUIBASE_COMMAND_URL: ${{ secrets.LIQUIBASE_URL }}
+      LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USER }}
+      LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
+      HOOK_API: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+      HOOK_WEB: ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      API_URL: ${{ vars.API_URL }}
+      WEB_URL: ${{ vars.WEB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar reporte
+        run: |
+          mkdir -p "$REPORTS"
+          echo "## 🚀 Despliegue en producción" > "$REPORTS/reporte-deploy.md"
+          echo "" >> "$REPORTS/reporte-deploy.md"
+
+      - name: 1) Migraciones Liquibase en producción
+        id: migrate
+        run: |
+          if [ -z "$LIQUIBASE_COMMAND_URL" ] || [ -z "$LIQUIBASE_COMMAND_USERNAME" ] || [ -z "$LIQUIBASE_COMMAND_PASSWORD" ]; then
+            echo "- omitido: falta secret LIQUIBASE_URL / LIQUIBASE_USER / LIQUIBASE_PASSWORD (migraciones)" >> "$REPORTS/reporte-deploy.md"
+            echo "result=omitido" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          .github/scripts/liquibase.sh update 2>&1 | tee "$REPORTS/liquibase-update.txt"
+          echo "- ✅ Liquibase \`update\` aplicado en producción" >> "$REPORTS/reporte-deploy.md"
+          echo "result=ok" >> "$GITHUB_OUTPUT"
+
+      - name: 2) Deploy de la API (Render)
+        id: api
+        run: |
+          if [ -z "$HOOK_API" ]; then
+            echo "- omitido: falta secret RENDER_DEPLOY_HOOK_API" >> "$REPORTS/reporte-deploy.md"
+            exit 0
+          fi
+          .github/scripts/render-deploy.sh api "$HOOK_API" 900
+          echo "- ✅ Deploy de la API disparado/completado" >> "$REPORTS/reporte-deploy.md"
+
+      - name: 3) Deploy del frontend (Render Static Site)
+        id: web
+        run: |
+          if [ -z "$HOOK_WEB" ]; then
+            echo "- omitido: falta secret RENDER_DEPLOY_HOOK_WEB" >> "$REPORTS/reporte-deploy.md"
+            exit 0
+          fi
+          .github/scripts/render-deploy.sh web "$HOOK_WEB" 600
+          echo "- ✅ Deploy del frontend disparado/completado" >> "$REPORTS/reporte-deploy.md"
+
+      - name: 4) Smoke test GET /api/health
+        id: smoke
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "- omitido: falta variable API_URL (smoke test)" >> "$REPORTS/reporte-deploy.md"
+            exit 0
+          fi
+          # El plan Free de Render "despierta" el servicio en ~1 min: reintentos hasta 5 min.
+          for i in $(seq 1 30); do
+            code=$(curl -s -o "$REPORTS/health.json" -w '%{http_code}' --max-time 20 "${API_URL%/}/api/health" || true)
+            echo "Intento $i: HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "- ✅ Smoke test \`GET ${API_URL%/}/api/health\` → 200 \`$(head -c 200 "$REPORTS/health.json")\`" >> "$REPORTS/reporte-deploy.md"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "- ❌ Smoke test falló (último HTTP $code)" >> "$REPORTS/reporte-deploy.md"
+          exit 1
+
+      - name: Reporte de despliegue
+        if: always()
+        run: |
+          {
+            echo ""
+            echo "| Servicio | URL |"
+            echo "|---|---|"
+            echo "| API | ${API_URL:-_(definir variable API_URL)_} |"
+            echo "| Frontend (Render) | ${WEB_URL:-_(definir variable WEB_URL)_} |"
+            echo "| Demo + documentación (GitHub Pages) | https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ |"
+            echo ""
+            echo "Commit desplegado: \`${GITHUB_SHA::7}\` · Migraciones: ${{ steps.migrate.outputs.result || '—' }} · API: ${{ steps.api.outputs.api_status || steps.api.outcome }} · Web: ${{ steps.web.outputs.web_status || steps.web.outcome }} · Smoke: ${{ steps.smoke.outcome }}"
+          } >> "$REPORTS/reporte-deploy.md"
+          cat "$REPORTS/reporte-deploy.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-despliegue
+          path: reports/
+          retention-days: 30

@@ -1,0 +1,24 @@
+# Supuestos de uso para Infracost (proyecto escolar: ~200 estudiantes, uso en horario de clase).
+version: 0.1
+resource_usage:
+  aws_db_instance.main:
+    additional_backup_storage_gb: 0
+  aws_lb.api:
+    new_connections: 2
+    active_connections: 5
+    processed_bytes_gb: 5
+    rule_evaluations: 10
+  aws_s3_bucket.web:
+    standard:
+      storage_gb: 1
+      monthly_tier_1_requests: 10000
+      monthly_tier_2_requests: 100000
+  aws_cloudfront_distribution.web:
+    monthly_data_transfer_to_internet_gb:
+      us: 5
+      south_america: 15
+    monthly_https_requests:
+      us: 100000
+      south_america: 300000
+  aws_secretsmanager_secret.jwt:
+    monthly_requests: 10000

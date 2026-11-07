@@ -1,0 +1,150 @@
+name: "CI"
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  lint:
+    name: Lint + typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        id: lint
+        run: npm run lint --if-present
+
+      - name: Typecheck
+        id: typecheck
+        run: npm run typecheck --if-present
+
+      - name: Validar workflows (actionlint)
+        id: actionlint
+        run: |
+          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) latest "$RUNNER_TEMP"
+          "$RUNNER_TEMP/actionlint" -color -shellcheck= -pyflakes=
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: terraform fmt -check
+        id: tffmt
+        run: terraform fmt -check -recursive infra/terraform
+
+      - name: Resumen
+        if: always()
+        run: |
+          icon() { case "$1" in success) echo "✅";; failure) echo "❌";; skipped) echo "⏭️";; *) echo "—";; esac; }
+          {
+            echo "## 🔍 CI — calidad estática"
+            echo ""
+            echo "| Verificación | Resultado |"
+            echo "|---|---|"
+            echo "| ESLint | $(icon '${{ steps.lint.outcome }}') |"
+            echo "| TypeScript (tsc --noEmit) | $(icon '${{ steps.typecheck.outcome }}') |"
+            echo "| actionlint (workflows) | $(icon '${{ steps.actionlint.outcome }}') |"
+            echo "| terraform fmt | $(icon '${{ steps.tffmt.outcome }}') |"
+          } | tee "$RUNNER_TEMP/reporte-ci-lint.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-ci-lint
+          path: ${{ runner.temp }}/reporte-ci-lint.md
+          retention-days: 14
+
+  unit:
+    name: Pruebas unitarias e integración
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: atomreactchamber
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://localhost:5432/atomreactchamber
+      LIQUIBASE_COMMAND_USERNAME: postgres
+      LIQUIBASE_COMMAND_PASSWORD: postgres
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/atomreactchamber
+      JWT_SECRET: ci-only-not-a-secret
+      REPORTS: ${{ github.workspace }}/reports
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Migrar BD efímera
+        run: |
+          mkdir -p "$REPORTS/junit"
+          .github/scripts/liquibase.sh update
+
+      - name: Backend
+        id: backend
+        continue-on-error: true
+        run: npm run test -w backend -- --reporter=default --reporter=junit --outputFile.junit="$REPORTS/junit/backend.xml"
+
+      - name: Frontend
+        id: frontend
+        continue-on-error: true
+        run: npm run test -w frontend -- --reporter=default --reporter=junit --outputFile.junit="$REPORTS/junit/frontend.xml"
+
+      - name: Build
+        id: build
+        run: npm run build -w frontend && npm run build -w backend
+
+      - name: Reporte de pruebas
+        if: always()
+        run: |
+          node .github/scripts/junit-summary.mjs "$REPORTS/reporte-pruebas.md" \
+            "Backend (Vitest)=$REPORTS/junit/backend.xml" \
+            "Frontend (Vitest)=$REPORTS/junit/frontend.xml" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-ci-pruebas
+          path: reports/
+          retention-days: 14
+
+      - name: Resultado
+        if: steps.backend.outcome == 'failure' || steps.frontend.outcome == 'failure'
+        run: |
+          echo "::error::Pruebas fallidas (backend=${{ steps.backend.outcome }}, frontend=${{ steps.frontend.outcome }})"
+          exit 1

@@ -1,0 +1,8 @@
+# Copie a terraform.tfvars (ignorado por git) si necesita cambiar valores por defecto.
+project_name       = "atomreactchamber"
+repo_url           = "https://github.com/laos19/demov0.1atomreactchamber"
+branch             = "main"
+neon_region        = "aws-us-east-1"
+render_region      = "virginia"
+extra_cors_origins = ["https://laos19.github.io"]
+# neon_org_id      = "org-xxxxxxxx"

@@ -1,0 +1,226 @@
+name: "Documentación técnica (GitHub Pages)"
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_run:
+    # Republica cuando terminan los workflows que producen reportes.
+    workflows:
+      - "Infraestructura (Terraform) + pruebas + costos"
+      - "Copias de seguridad"
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  build:
+    name: Construir sitio (TypeDoc + tbls + diagramas + reportes + demo)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read # descargar artefactos de otros workflows
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: atomreactchamber
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://localhost:5432/atomreactchamber
+      LIQUIBASE_COMMAND_USERNAME: postgres
+      LIQUIBASE_COMMAND_PASSWORD: postgres
+      TBLS_DSN: postgres://postgres:postgres@localhost:5432/atomreactchamber?sslmode=disable
+      SITE: ${{ github.workspace }}/site
+      RAW: ${{ github.workspace }}/.site-raw
+      SITE_DEPTH: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Instalar renderizador Markdown (fuera del árbol de workspaces)
+        run: |
+          npm install --prefix "$RUNNER_TEMP/md" --no-audit --no-fund marked@15
+          echo "MARKED_MODULE=$RUNNER_TEMP/md/node_modules/marked/lib/marked.esm.js" >> "$GITHUB_ENV"
+          mkdir -p "$SITE" "$RAW"
+
+      - name: API (TypeDoc → site/api)
+        id: typedoc
+        continue-on-error: true
+        run: npm run docs:api
+
+      - name: Base de datos (Liquibase + tbls → site/db)
+        id: tbls
+        continue-on-error: true
+        run: .github/scripts/liquibase.sh update
+
+      - uses: k1low/setup-tbls@v1
+        if: steps.tbls.outcome == 'success'
+
+      - name: tbls doc
+        id: tblsdoc
+        if: steps.tbls.outcome == 'success'
+        continue-on-error: true
+        run: |
+          tbls doc --force "$TBLS_DSN" "$RAW/db"
+          tbls out -t mermaid -o "$RAW/db/er.mmd"
+          { echo '# Diagrama ER (Mermaid)'; echo; echo '```mermaid'; cat "$RAW/db/er.mmd"; echo '```'; } > "$RAW/db/er-mermaid.md"
+
+      - name: Usar docs/database del repositorio si tbls falló
+        if: steps.tblsdoc.outcome != 'success'
+        run: |
+          [ -d docs/database ] && cp -r docs/database "$RAW/db" || true
+
+      - name: Reportes de la última ejecución de cada workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RAW/reportes"
+          fetch() { # workflow artefacto carpeta
+            local id
+            id=$(gh run list -R "$GITHUB_REPOSITORY" -w "$1" -b main -s success -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)
+            if [ -n "$id" ] && gh run download "$id" -R "$GITHUB_REPOSITORY" -n "$2" -D "$RAW/reportes/$3" 2>/dev/null; then
+              echo "✔ $3 (run $id)"
+            else
+              echo "– $3 no disponible todavía"
+            fi
+          }
+          fetch infra.yml reporte-pruebas pruebas
+          fetch infra.yml reporte-costos costos
+          fetch infra.yml reporte-terraform-calidad terraform
+          fetch db.yml reporte-liquibase-efimera liquibase
+          fetch docs.yml reporte-documentacion documentacion
+          # Los reportes de backup tienen sufijo de fecha: se toma el más reciente.
+          id=$(gh run list -R "$GITHUB_REPOSITORY" -w backup.yml -s success -L 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)
+          if [ -n "$id" ]; then
+            gh run download "$id" -R "$GITHUB_REPOSITORY" -p 'reporte-backup-*' -D "$RAW/reportes/backup-tmp" 2>/dev/null || true
+            mkdir -p "$RAW/reportes/backup"
+            find "$RAW/reportes/backup-tmp" -type f -name '*.md' -exec cp {} "$RAW/reportes/backup/" \; 2>/dev/null || true
+            rm -rf "$RAW/reportes/backup-tmp"
+          fi
+          # Nunca publicar volcados ni registros crudos.
+          find "$RAW/reportes" -type f \( -name '*.dump' -o -name '*.gpg' -o -name '*.log' -o -name '*.csv' \) -delete
+          find "$RAW/reportes" -type d -empty -delete
+          # Si no hay reportes aún, deja la tabla de costos de referencia.
+          if [ ! -d "$RAW/reportes/costos" ]; then
+            mkdir -p "$RAW/reportes/costos"
+            cp infra/terraform/cost-reference/README.md "$RAW/reportes/costos/README.md"
+          fi
+
+      - name: Renderizar Markdown → HTML
+        run: |
+          node scripts/pages/render-markdown.mjs "$RAW/db" "$SITE/db" "Base de datos"
+          node scripts/pages/render-markdown.mjs docs/diagramas "$SITE/diagramas" "Diagramas"
+          node scripts/pages/render-markdown.mjs "$RAW/reportes" "$SITE/reportes" "Reportes de automatizaciones"
+          # Documentos Markdown del proyecto (sin las carpetas ya publicadas aparte).
+          mkdir -p "$RAW/docs"
+          rsync -a --exclude 'database/' --exclude 'diagramas/' --include '*/' --include '*.md' --include '*.svg' --include '*.png' --exclude '*' docs/ "$RAW/docs/" 2>/dev/null || true
+          cp infra/README.md "$RAW/docs/infraestructura.md" 2>/dev/null || true
+          node scripts/pages/render-markdown.mjs "$RAW/docs" "$SITE/docs" "Documentos del proyecto"
+          # Reporte HTML de Playwright, si vino en el artefacto.
+          if [ -d "$SITE/reportes/pruebas/playwright-report" ]; then echo "Playwright report incluido"; fi
+
+      - name: Demo del frontend (modo offline → site/app)
+        id: app
+        env:
+          VITE_API_URL: ""
+        run: |
+          npm run build -w frontend -- --base="/${{ github.event.repository.name }}/app/"
+          rm -rf "$SITE/app"
+          cp -r frontend/dist "$SITE/app"
+
+      - name: Portada (scripts/pages/build-index.mjs)
+        run: node scripts/pages/build-index.mjs "$SITE"
+
+      - name: Reporte del sitio
+        if: always()
+        run: |
+          icon() { case "$1" in success) echo "✅";; failure) echo "❌";; skipped) echo "⏭️";; *) echo "—";; esac; }
+          base="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          {
+            echo "## 🌐 Documentación técnica — GitHub Pages"
+            echo ""
+            echo "| Sección | Estado | Enlace |"
+            echo "|---|---|---|"
+            echo "| Portada | ✅ | $base/ |"
+            echo "| API (TypeDoc) | $(icon '${{ steps.typedoc.outcome }}') | $base/api/ |"
+            echo "| Base de datos (tbls) | $(icon '${{ steps.tblsdoc.outcome }}') | $base/db/ |"
+            echo "| Diagramas | $([ -d "$SITE/diagramas" ] && echo ✅ || echo —) | $base/diagramas/ |"
+            echo "| Reportes | $([ -d "$SITE/reportes" ] && echo ✅ || echo —) | $base/reportes/ |"
+            echo "| Demo (modo offline) | $(icon '${{ steps.app.outcome }}') | $base/app/ |"
+            echo ""
+            echo "Archivos en el sitio: $(find "$SITE" -type f | wc -l) · Tamaño: $(du -sh "$SITE" | cut -f1)"
+          } | tee "$RUNNER_TEMP/reporte-pages.md" >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p "$SITE/reportes" && cp "$RUNNER_TEMP/reporte-pages.md" "$SITE/reportes/reporte-pages.md"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-pages
+          path: ${{ runner.temp }}/reporte-pages.md
+          retention-days: 30
+
+      - uses: actions/configure-pages@v5
+        id: pages
+        continue-on-error: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Publicar en GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Comprobar que Pages está habilitado
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" > /dev/null 2>&1; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "- omitido: GitHub Pages no está habilitado (Settings → Pages → Source: GitHub Actions)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/deploy-pages@v4
+        id: deployment
+        if: steps.check.outputs.enabled == 'true'
+
+      - name: URL publicada
+        if: steps.check.outputs.enabled == 'true'
+        run: echo "🌐 Publicado en ${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,131 @@
+name: "Documentación en README"
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/database/**"
+      - "docs/diagramas/**"
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  NODE_VERSION: "22"
+  REPORTS: ${{ github.workspace }}/reports
+
+jobs:
+  generate:
+    name: Generar documentación (tbls + diagramas + README)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # commit de la documentación generada
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: atomreactchamber
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://localhost:5432/atomreactchamber
+      LIQUIBASE_COMMAND_USERNAME: postgres
+      LIQUIBASE_COMMAND_PASSWORD: postgres
+      TBLS_DSN: postgres://postgres:postgres@localhost:5432/atomreactchamber?sslmode=disable
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/atomreactchamber
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: Migrar BD efímera (Liquibase update)
+        run: |
+          mkdir -p "$REPORTS"
+          .github/scripts/liquibase.sh update
+
+      - uses: k1low/setup-tbls@v1
+
+      - name: tbls doc (diagrama ER + diccionario de datos → docs/database)
+        id: tbls
+        run: |
+          tbls doc --force
+          tbls out -t mermaid -o docs/database/er.mmd
+          tbls lint > "$REPORTS/tbls-lint.txt" 2>&1 && echo "lint=✅" >> "$GITHUB_OUTPUT" || echo "lint=⚠️" >> "$GITHUB_OUTPUT"
+
+      - name: Diagramas Mermaid (clases, componentes, despliegue → docs/diagramas)
+        id: diagrams
+        run: npm run docs:diagrams
+
+      - name: Regenerar secciones del README
+        id: readme
+        run: npm run docs:readme
+
+      - name: Commit de la documentación generada
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A docs/database docs/diagramas README.md
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Sin cambios en la documentación generada."
+          else
+            git diff --cached --stat | tee "$REPORTS/cambios.txt"
+            git commit -m "docs: actualizar documentación generada [skip ci]"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reporte de documentación
+        if: always()
+        run: |
+          icon() { case "$1" in success) echo "✅";; failure) echo "❌";; skipped) echo "⏭️";; *) echo "—";; esac; }
+          tables=$(ls docs/database/*.md 2>/dev/null | grep -vc 'README.md' || true)
+          {
+            echo "## 📚 Documentación generada en el repositorio"
+            echo ""
+            echo "| Paso | Resultado | Salida |"
+            echo "|---|---|---|"
+            echo "| tbls doc (ER + diccionario) | $(icon '${{ steps.tbls.outcome }}') | [docs/database](${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}/docs/database) · ${tables} tablas |"
+            echo "| tbls lint (comentarios, FK indexadas) | ${{ steps.tbls.outputs.lint || '—' }} | artefacto \`tbls-lint.txt\` |"
+            echo "| Diagramas Mermaid | $(icon '${{ steps.diagrams.outcome }}') | [docs/diagramas](${{ github.server_url }}/${{ github.repository }}/tree/${{ github.ref_name }}/docs/diagramas) |"
+            echo "| README (secciones generadas) | $(icon '${{ steps.readme.outcome }}') | [README.md](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/README.md) |"
+            echo "| Commit automático | ${{ steps.commit.outputs.changed == 'true' && format('✅ {0}', steps.commit.outputs.sha) || 'sin cambios' }} | \`docs: actualizar documentación generada [skip ci]\` |"
+            echo ""
+            if [ -s "$REPORTS/cambios.txt" ]; then
+              echo '```'; cat "$REPORTS/cambios.txt"; echo '```'
+            fi
+          } | tee "$REPORTS/reporte-documentacion.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-documentacion
+          path: |
+            reports/
+            docs/database/
+            docs/diagramas/
+          retention-days: 30

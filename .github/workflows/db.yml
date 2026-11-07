@@ -1,0 +1,243 @@
+name: "Base de datos (Liquibase)"
+
+on:
+  push:
+    paths:
+      - "db/**"
+      - ".github/workflows/db.yml"
+      - ".github/scripts/liquibase.sh"
+  pull_request:
+    paths:
+      - "db/**"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Dónde ejecutar las migraciones"
+        type: choice
+        options: [efimera, efimera-y-produccion]
+        default: efimera-y-produccion
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  REPORTS: ${{ github.workspace }}/reports
+
+jobs:
+  # Siempre: prueba las migraciones en una BD PostgreSQL 16 efímera.
+  ephemeral:
+    name: Migraciones en BD efímera (PostgreSQL 16)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: atomreactchamber
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://localhost:5432/atomreactchamber
+      LIQUIBASE_COMMAND_USERNAME: postgres
+      LIQUIBASE_COMMAND_PASSWORD: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar carpeta de reportes
+        run: mkdir -p "$REPORTS"
+
+      - name: liquibase validate
+        id: validate
+        run: .github/scripts/liquibase.sh validate 2>&1 | tee "$REPORTS/01-validate.txt"
+
+      - name: liquibase status --verbose (antes)
+        id: status
+        run: .github/scripts/liquibase.sh status --verbose 2>&1 | tee "$REPORTS/02-status.txt"
+
+      - name: liquibase update-sql (SQL que se aplicará)
+        id: updatesql
+        run: .github/scripts/liquibase.sh update-sql > "$REPORTS/03-update.sql"
+
+      - name: liquibase update
+        id: update
+        run: .github/scripts/liquibase.sh update 2>&1 | tee "$REPORTS/04-update.txt"
+
+      - name: Reporte de operación de Liquibase (si la edición lo soporta)
+        id: oprep
+        continue-on-error: true
+        run: |
+          .github/scripts/liquibase.sh update --report-enabled=true --report-path=reports \
+            --report-name=liquibase-update-report.html 2>&1 | tee "$REPORTS/04b-operation-report.txt"
+          test -f "$REPORTS/liquibase-update-report.html"
+
+      - name: Probar rollback (update-testing-rollback en BD limpia)
+        id: rollback
+        continue-on-error: true
+        run: |
+          psql -h localhost -U postgres -c "CREATE DATABASE rollback_test" postgres
+          LIQUIBASE_COMMAND_URL=jdbc:postgresql://localhost:5432/rollback_test \
+            .github/scripts/liquibase.sh update-testing-rollback 2>&1 | tee "$REPORTS/05-rollback-test.txt"
+
+      - name: liquibase history
+        id: history
+        run: .github/scripts/liquibase.sh history 2>&1 | tee "$REPORTS/06-history.txt"
+
+      - name: Inventario del esquema
+        run: |
+          psql -h localhost -U postgres -d atomreactchamber -At -F',' -f .github/scripts/row-counts.sql > "$REPORTS/row-counts.csv"
+          psql -h localhost -U postgres -d atomreactchamber -At -c "
+            SELECT 'Tablas', count(*) FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'
+            UNION ALL SELECT 'Vistas', count(*) FROM information_schema.views WHERE table_schema='public'
+            UNION ALL SELECT 'Funciones', count(*) FROM information_schema.routines WHERE routine_schema='public'
+            UNION ALL SELECT 'Triggers', count(DISTINCT trigger_name) FROM information_schema.triggers WHERE trigger_schema='public'
+            UNION ALL SELECT 'Changesets aplicados', count(*) FROM databasechangelog;" -F',' > "$REPORTS/inventario.csv"
+
+      - name: Reporte de migraciones
+        if: always()
+        run: |
+          icon() { case "$1" in success) echo "✅";; failure) echo "❌";; skipped) echo "⏭️";; *) echo "—";; esac; }
+          {
+            echo "## 🗄️ Liquibase — BD efímera PostgreSQL 16"
+            echo ""
+            echo "| Paso | Resultado |"
+            echo "|---|---|"
+            echo "| validate | $(icon '${{ steps.validate.outcome }}') |"
+            echo "| status --verbose | $(icon '${{ steps.status.outcome }}') |"
+            echo "| update-sql (artefacto \`03-update.sql\`) | $(icon '${{ steps.updatesql.outcome }}') |"
+            echo "| update | $(icon '${{ steps.update.outcome }}') |"
+            echo "| reporte de operación HTML | $(icon '${{ steps.oprep.outcome }}') ${{ steps.oprep.outcome == 'failure' && '(no disponible en esta edición)' || '' }} |"
+            echo "| update-testing-rollback | $(icon '${{ steps.rollback.outcome }}') |"
+            echo "| history | $(icon '${{ steps.history.outcome }}') |"
+            echo ""
+            if [ -s "$REPORTS/inventario.csv" ]; then
+              echo "### Inventario del esquema"
+              echo ""
+              echo "| Objeto | Cantidad |"
+              echo "|---|---:|"
+              sed 's/^\(.*\),\(.*\)$/| \1 | \2 |/' "$REPORTS/inventario.csv"
+              echo ""
+            fi
+            if [ -s "$REPORTS/row-counts.csv" ]; then
+              echo "<details><summary>Filas por tabla tras la semilla</summary>"
+              echo ""
+              echo "| Tabla | Filas |"
+              echo "|---|---:|"
+              sed 's/^\(.*\),\(.*\)$/| `\1` | \2 |/' "$REPORTS/row-counts.csv"
+              echo ""
+              echo "</details>"
+              echo ""
+            fi
+            echo "<details><summary>Historial (liquibase history)</summary>"
+            echo ""
+            echo '```'
+            tail -n 60 "$REPORTS/06-history.txt" 2>/dev/null || true
+            echo '```'
+            echo "</details>"
+          } | tee "$REPORTS/reporte-liquibase.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-liquibase-efimera
+          path: reports/
+          retention-days: 30
+
+  # Solo en main (push o manual) y si existen los secrets: aplica en Neon.
+  production:
+    name: Migraciones en producción (Neon)
+    needs: ephemeral
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.target == 'efimera-y-produccion'))
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: liquibase-prod
+      cancel-in-progress: false
+    env:
+      LIQUIBASE_COMMAND_URL: ${{ secrets.LIQUIBASE_URL }}
+      LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USER }}
+      LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Comprobar secrets
+        id: check
+        run: |
+          mkdir -p "$REPORTS"
+          missing=()
+          [ -n "$LIQUIBASE_COMMAND_URL" ] || missing+=(LIQUIBASE_URL)
+          [ -n "$LIQUIBASE_COMMAND_USERNAME" ] || missing+=(LIQUIBASE_USER)
+          [ -n "$LIQUIBASE_COMMAND_PASSWORD" ] || missing+=(LIQUIBASE_PASSWORD)
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "## 🗄️ Liquibase — producción (Neon)"
+              echo ""
+              for m in "${missing[@]}"; do echo "- omitido: falta secret $m"; done
+            } | tee "$REPORTS/reporte-liquibase-prod.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: validate + status
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          .github/scripts/liquibase.sh validate 2>&1 | tee "$REPORTS/01-validate.txt"
+          .github/scripts/liquibase.sh status --verbose 2>&1 | tee "$REPORTS/02-status.txt"
+
+      - name: update-sql (vista previa)
+        if: steps.check.outputs.ready == 'true'
+        run: .github/scripts/liquibase.sh update-sql > "$REPORTS/03-update.sql"
+
+      - name: update
+        id: update
+        if: steps.check.outputs.ready == 'true'
+        run: .github/scripts/liquibase.sh update 2>&1 | tee "$REPORTS/04-update.txt"
+
+      - name: history
+        if: steps.check.outputs.ready == 'true'
+        run: .github/scripts/liquibase.sh history 2>&1 | tee "$REPORTS/05-history.txt"
+
+      - name: Reporte de producción
+        if: always() && steps.check.outputs.ready == 'true'
+        run: |
+          pending=$(grep -c '::' "$REPORTS/02-status.txt" || true)
+          {
+            echo "## 🗄️ Liquibase — producción (Neon)"
+            echo ""
+            echo "| Dato | Valor |"
+            echo "|---|---|"
+            echo "| Changesets pendientes antes de \`update\` | ${pending} |"
+            echo "| Resultado de \`update\` | ${{ steps.update.outcome }} |"
+            echo "| SQL aplicado | artefacto \`03-update.sql\` |"
+            echo ""
+            echo "<details><summary>Historial</summary>"
+            echo ""
+            echo '```'
+            tail -n 60 "$REPORTS/05-history.txt" 2>/dev/null || true
+            echo '```'
+            echo "</details>"
+          } | tee "$REPORTS/reporte-liquibase-prod.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-liquibase-produccion
+          path: reports/
+          retention-days: 30

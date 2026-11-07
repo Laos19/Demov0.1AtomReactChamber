@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Lima
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+      prod-dependencies:
+        dependency-type: production
+        update-types: [patch]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Lima
+    commit-message:
+      prefix: "ci(deps)"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: terraform
+    directories:
+      - "/infra/terraform/envs/prod"
+      - "/infra/terraform/modules/database-neon"
+      - "/infra/terraform/modules/app-render"
+      - "/infra/terraform/cost-reference/aws"
+      - "/infra/terraform/cost-reference/azure"
+    schedule:
+      interval: monthly
+      timezone: America/Lima
+    commit-message:
+      prefix: "build(terraform)"
+    groups:
+      providers:
+        patterns: ["*"]
