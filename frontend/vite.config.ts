@@ -7,5 +7,9 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 export default defineConfig(({ mode }) => ({
   plugins: [react(), ...(mode === 'single' ? [viteSingleFile()] : [])],
   base: './',
-  build: { chunkSizeWarningLimit: 700 },
+  build: {
+    chunkSizeWarningLimit: 700,
+    // En modo single todo (incluidas las páginas diferidas) va dentro de un único index.html.
+    ...(mode === 'single' ? { rollupOptions: { output: { inlineDynamicImports: true } }, assetsInlineLimit: 100_000_000 } : {}),
+  },
 }));
