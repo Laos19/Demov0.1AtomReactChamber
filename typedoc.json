@@ -1,0 +1,19 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "AtomReactChamber — documentación técnica",
+  "entryPoints": ["backend/src", "frontend/src/engine", "frontend/src/data/fuente.ts", "integrations/mcp/src"],
+  "entryPointStrategy": "expand",
+  "exclude": ["**/*.test.ts", "**/scripts/**", "**/node_modules/**"],
+  "tsconfig": "tsconfig.typedoc.json",
+  "out": "site/api",
+  "readme": "docs/api/README-typedoc.md",
+  "excludePrivate": false,
+  "excludeInternal": true,
+  "categorizeByGroup": true,
+  "searchInComments": true,
+  "skipErrorChecking": true,
+  "navigationLinks": {
+    "Repositorio": "https://github.com/laos19/demov0.1atomreactchamber",
+    "Diagramas": "../diagramas/"
+  }
+}
