@@ -218,6 +218,11 @@ arquitectura de referencia estimada con Infracost (`infra/terraform/cost-referen
 
 # 12. Limitaciones
 
+> **⚠ NOTA IMPORTANTE — Consentimiento de padres (trabajo futuro).** La versión actual no incluye el flujo de
+> consentimiento de quienes ejercen la patria potestad para estudiantes menores de 14 años (Ley 29733 y
+> D. S. 016-2024-JUS). Hasta implementarlo, la IE debe recoger ese consentimiento fuera de la aplicación antes de
+> que estudiantes de 1.º y 2.º de secundaria creen su cuenta.
+
 - **⚠ Consentimiento de padres (Ley 29733, D. S. 016-2024-JUS):** la aplicación **no implementa** el flujo de
   consentimiento para estudiantes menores de 14 años. Hasta implementarlo, el consentimiento debe recogerse
   fuera de la aplicación (formulario de la IE) antes de cualquier piloto con 1.º y 2.º de secundaria.

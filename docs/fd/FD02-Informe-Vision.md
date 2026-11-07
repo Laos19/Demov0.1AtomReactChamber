@@ -415,6 +415,11 @@ con el código del aula.
 | RES-09 | Las misiones deben ser validadas antes de publicarse. |
 | RES-10 | El alcance se limita a lo definido en FD01–FD05. |
 
+> **⚠ NOTA IMPORTANTE — Consentimiento de padres (trabajo futuro).** La versión actual no incluye el flujo de
+> consentimiento de quienes ejercen la patria potestad para estudiantes menores de 14 años (Ley 29733 y
+> D. S. 016-2024-JUS). Hasta implementarlo, la IE debe recoger ese consentimiento fuera de la aplicación antes de
+> que estudiantes de 1.º y 2.º de secundaria creen su cuenta.
+
 # 9. Rangos de calidad
 
 | N.° | Requerimiento no funcional | Métrica verificable | Prioridad |
