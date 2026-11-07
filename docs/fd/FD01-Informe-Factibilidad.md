@@ -9,7 +9,9 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 
 > Lista para revisión de Adriana. Los números entre corchetes remiten a los defectos de `findings.md`.
 
-> **Pendientes de decisión (no resueltos en esta versión):** (a) la meta de ≥ 12 niveles (OS-1/OE-2) se mantiene, pero hoy hay **9 niveles en 4 misiones**; (b) el **flujo de consentimiento de padres** para menores de 14 años (D. S. 016-2024-JUS) aún no está diseñado ni implementado.
+> **Decisiones de alcance (Adriana, 2026-11-07):** (a) **Niveles:** la versión actual publica **9 niveles en 4 misiones**, que es la meta vigente de OS-1/OE-2; llegar a **≥ 12 niveles** pasa a ser una **meta futura** (trabajo futuro). (b) **Consentimiento de padres** para estudiantes menores de 14 años (Ley 29733 y D. S. 016-2024-JUS): queda como **trabajo futuro** y se señala con una **nota importante** en la sección legal; debe implementarse antes de un piloto con estudiantes de 1.º y 2.º de secundaria.
+>
+> **Correcciones de referencias a la implementación:** vista `v_estadisticas_nivel` (no `v_metricas_nivel`), tabla `pista_usada` (no `uso_pista`); desbloqueo de niveles en la API con `nivel.nivel_previo_id`; racha = días con al menos un nivel completado; docentes con código de invitación; el administrador tiene permisos de docente sobre todas las aulas y el contenido se publica con `db/data` + Liquibase; JWT de 7 días con `activo` verificado solo al iniciar sesión (limitación conocida).
 
 1. **[1] Nombre único:** "AtomReactChamber" en todo el documento (antes: Atom React Chamber / Atomic Reactor Chamber / Simulador v2.3).
 2. **[2] Equipo:** una sola integrante (Adriana) con roles rotativos; se eliminó a Antony Solorzano de la portada y la "redistribución entre 3 integrantes" del plan de riesgos.
@@ -79,7 +81,7 @@ en un piloto una tasa de niveles completados ≥ 60 % y una usabilidad SUS ≥ 7
 | ID | Objetivo | Indicador | Meta | Instrumento | Plazo |
 |---|---|---|---|---|---|
 | OE-1 | Diseñar e implementar la BD en 3FN con migraciones versionadas. | Changesets Liquibase aplicados con *rollback* probado | 100 % de tablas, funciones, *triggers* y vistas versionados | Workflow `db.yml` | S4 |
-| OE-2 | Publicar un catálogo de misiones alineadas al CNEB. | Niveles publicados y validados | ≥ 12 niveles en ≥ 4 temas | Vista de catálogo + checklist científico | S10 |
+| OE-2 | Publicar un catálogo de misiones alineadas al CNEB. | Niveles publicados y validados | 9 niveles en 4 temas (meta futura: ≥ 12 niveles) | Vista de catálogo + checklist científico | S10 |
 | OE-3 | Lograr que los estudiantes terminen las misiones. | Completados / iniciados | ≥ 60 % | Vista `v_estadisticas_nivel` | S14 |
 | OE-4 | Mejorar el desempeño en el cuestionario de cierre. | % de aciertos, 1.er vs. último intento | +15 p. p. | Respuestas en BD | S14 |
 | OE-5 | Que Quimi oriente sin resolver por el estudiante. | % de pasos con pista nivel "solución" | ≤ 30 % | Tabla `pista_usada` | S14 |
@@ -98,7 +100,7 @@ El detalle (línea base y objetivos de investigación) está en `docs/investigac
 | 2 | **Arranque en frío del plan gratuito de Render:** el servicio se suspende tras 15 min sin tráfico y tarda hasta ~1 min en despertar (Render, s. f.-a). | Alta | Medio | Modo demo offline del frontend; mensaje "despertando servidor"; ping previo a la clase; plan Starter (US$ 7/mes) si el piloto lo exige. |
 | 3 | **Límites del plan gratuito de Neon** (100 CU-h/mes y 1 GB por proyecto; Neon, 2026). | Media | Medio | Índices y vistas eficientes; limpieza de eventos antiguos; respaldos con `pg_dump` en GitHub Actions; Terraform modular para migrar. |
 | 4 | **Exactitud científica:** la simulación usa energías de activación pedagógicas (no reales). | Media | Alto | Declarar en la UI qué valores son didácticos; usar ΔHf° estándar; revisión de cada misión por un docente de Ciencia y Tecnología. |
-| 5 | **Datos personales de menores de edad.** | Media | Alto | Minimización (alias, sin DNI ni fotos); consentimiento de padres para menores de 14 años (D. S. 016-2024-JUS); contraseñas con *hash*; HTTPS; roles. |
+| 5 | **Datos personales de menores de edad.** | Media | Alto | Minimización (alias, sin DNI ni fotos); consentimiento de padres para menores de 14 años (D. S. 016-2024-JUS) gestionado fuera de la app hasta implementarlo (trabajo futuro); contraseñas con *hash*; HTTPS; roles. |
 | 6 | **Conectividad irregular en IE** (71 % de IE públicas de secundaria con internet en 2022; Minedu, s. f.). | Media | Medio | Frontend liviano y modo demo sin API; sincronización al reconectar como mejora futura. |
 | 7 | **Cambios en precios o condiciones de los planes gratuitos.** | Media | Medio | Infraestructura como código (Terraform) con módulos para Azure/AWS; reporte de costos en CI. |
 
@@ -262,15 +264,25 @@ costo unitario S/ 0 pero total S/ 150.
   003-2013-JUS. Según el Minjus (2024), el tratamiento de datos de niñas, niños y adolescentes requiere el
   consentimiento de quienes ejercen la patria potestad, salvo los mayores de 14 años, que pueden consentir
   por sí mismos; las políticas de privacidad deben usar lenguaje sencillo y adecuado a su edad.
-  *Aplicación:* alias en lugar de nombre completo en el ranking, sin DNI ni fotografías, consentimiento de
-  padres para 1.º–2.º de secundaria (12–13 años), política de privacidad en lenguaje simple, cifrado en
-  tránsito y contraseñas con *hash*.
+  *Aplicación:* datos mínimos (nombre o alias, correo y grado), sin DNI ni fotografías, ranking visible solo
+  para el docente del aula, política de privacidad en lenguaje simple, cifrado en tránsito y contraseñas con
+  *hash*. El consentimiento de padres para 1.º–2.º de secundaria (12–13 años) queda como trabajo futuro
+  (ver nota).
+
+> **⚠ NOTA IMPORTANTE — Consentimiento de padres (trabajo futuro).** La versión actual **no incluye** el
+> flujo de consentimiento de quienes ejercen la patria potestad para estudiantes **menores de 14 años**
+> (1.º y 2.º de secundaria), exigido por la Ley 29733 y el D. S. 016-2024-JUS. Hasta implementarlo, la
+> plataforma solo debe usarse en el piloto con estudiantes de 14 años o más, o con un consentimiento
+> firmado por los padres **fuera de la aplicación** (formulario físico gestionado por la IE). El registro
+> mínimo de datos (nombre o alias, correo y grado) ya está implementado.
+
 - **Decreto Legislativo N.° 822, Ley sobre el Derecho de Autor** (1996): el código, contenidos e
   ilustraciones son obras propias o con licencias compatibles; se citan las fuentes de datos químicos.
 - **Licencias de terceros:** React, Fastify, PostgreSQL y Liquibase son de código abierto (MIT, PostgreSQL
   License, Apache 2.0); se respetan sus condiciones.
 
-**Conclusión:** legalmente factible si se implementan las medidas de protección de datos de menores.
+**Conclusión:** legalmente factible con las medidas de protección de datos ya implementadas, siempre que el
+consentimiento de padres para menores de 14 años se gestione fuera de la aplicación hasta implementarlo.
 
 ## 4.5 Factibilidad social
 

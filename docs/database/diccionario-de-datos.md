@@ -27,9 +27,9 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Dato | Valor |
 |---|---|
 | Motor | PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) |
-| Base de datos | `arc` (esquema `public`) |
-| Fecha de generación | 2026-11-07 00:56 (America/Lima) |
-| *Changesets* Liquibase aplicados | 47 |
+| Base de datos | `arc_docs` (esquema `public`) |
+| Fecha de generación | 2026-11-07 09:10 (America/Lima) |
+| *Changesets* Liquibase | 48 (13 archivos SQL de `db/changelog/`; esta copia se generó aplicando los mismos archivos con `psql`) |
 | Extensiones | `unaccent` 1.1 |
 | Configuraciones de búsqueda de texto | `es_sin_tildes` |
 
@@ -55,7 +55,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Funciones de negocio | 9 | `fn_` |
 | Funciones de *trigger* | 7 | `fn_tg_` / `fn_auditar` |
 | *Triggers* | 10 | `tg_` |
-| Índices (incluye PK y UQ) | 62 | `ix_` / `ux_` / `*_pkey` / `*_key` |
+| Índices (incluye PK y UQ) | 73 | `ix_` / `ux_` / `*_pkey` / `*_key` |
 | Restricciones CHECK | 61 | `ck_` (con nombre) / `*_check` |
 | Claves foráneas | 36 | `*_fkey` |
 
@@ -63,13 +63,13 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 
 | N.° | Tabla | Descripción | Columnas | Filas* |
 |---|---|---|---|---|
-| 1 | [`auditoria`](#t-auditoria) | Registro de cambios (insert/update/delete) en tablas sensibles, llenado por fn_auditar(). | 8 | 113 |
+| 1 | [`auditoria`](#t-auditoria) | Registro de cambios (insert/update/delete) en tablas sensibles, llenado por fn_auditar(). | 8 | 51 |
 | 2 | [`aula`](#t-aula) | Grupo de estudiantes a cargo de un docente. Los estudiantes se unen con el código de 6 caracteres. | 7 | 1 |
 | 3 | [`aula_nivel`](#t-aula_nivel) | Niveles que el docente asigna a un aula, con fecha límite opcional. | 4 | 6 |
 | 4 | [`elemento`](#t-elemento) | Elementos químicos que aparecen como átomos en el simulador (color CPK y radio de dibujo). | 6 | 5 |
 | 5 | [`especie`](#t-especie) | Especies químicas del catálogo con datos termodinámicos estándar (NIST/CRC) y CID de PubChem. | 15 | 13 |
 | 6 | [`especie_atomo`](#t-especie_atomo) | Átomos que componen cada especie y su posición relativa para dibujarla (relación N:M especie–elemento). | 5 | 24 |
-| 7 | [`evento`](#t-evento) | Eventos de telemetría de producto (append-only). Índice BRIN por fecha: tabla grande y ordenada en el tiempo. | 7 | 261 |
+| 7 | [`evento`](#t-evento) | Eventos de telemetría de producto (append-only). Índice BRIN por fecha: tabla grande y ordenada en el tiempo. | 7 | 260 |
 | 8 | [`fotolisis`](#t-fotolisis) | Moléculas que se rompen con fotones de energía ≥ enlace (E = 119 627 / λ kJ/mol). | 6 | 3 |
 | 9 | [`glosario`](#t-glosario) | Términos que Quimi explica. Búsqueda de texto completo en español sin tildes (índice GIN). | 4 | 39 |
 | 10 | [`insignia`](#t-insignia) | Logros desbloqueables. fn_otorgar_insignias evalúa tipo/umbral contra el progreso del usuario. | 6 | 8 |
@@ -90,7 +90,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | 25 | [`reaccion_participante`](#t-reaccion_participante) | Especies que participan en cada reacción como reactivo o producto (máx. 2 por lado). | 4 | 41 |
 | 26 | [`respuesta`](#t-respuesta) | Respuesta elegida en el cuestionario. es_correcta la fija un trigger desde opcion (no confía en el cliente). | 5 | 195 |
 | 27 | [`rol`](#t-rol) | Roles de acceso de la aplicación (estudiante, docente, administrador). | 3 | 3 |
-| 28 | [`sesion`](#t-sesion) | Sesión de uso (anónima o autenticada) desde la web, VS Code, Claude Code o MCP. | 6 | 66 |
+| 28 | [`sesion`](#t-sesion) | Sesión de uso (anónima o autenticada) desde la web, VS Code, Claude Code o MCP. | 6 | 65 |
 | 29 | [`usuario`](#t-usuario) | Cuentas de estudiantes, docentes y administradores, con su experiencia (XP) y racha. | 13 | 15 |
 
 \* Filas en la base de datos local al momento de generar el documento (semilla + datos de demostración, contexto `demo`).
@@ -101,7 +101,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 
 **Descripción:** Registro de cambios (insert/update/delete) en tablas sensibles, llenado por fn_auditar().
 
-**Filas actuales:** 113
+**Filas actuales:** 51
 
 **Columnas**
 
@@ -198,6 +198,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Índice | Método | Único | Definición |
 |---|---|---|---|
 | `aula_nivel_pkey` | btree | PK | `USING btree (aula_id, nivel_id)` |
+| `ix_aula_nivel_nivel` | btree | No | `USING btree (nivel_id)` |
 
 ## 2.4 Tabla `elemento` {#t-elemento}
 
@@ -307,7 +308,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 
 **Descripción:** Eventos de telemetría de producto (append-only). Índice BRIN por fecha: tabla grande y ordenada en el tiempo.
 
-**Filas actuales:** 261
+**Filas actuales:** 260
 
 **Columnas**
 
@@ -335,7 +336,10 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 |---|---|---|---|
 | `evento_pkey` | btree | PK | `USING btree (id)` |
 | `ix_evento_creado` | brin | No | `USING brin (creado_en)` |
+| `ix_evento_nivel` | btree | No | `USING btree (nivel_id) WHERE (nivel_id IS NOT NULL)` |
+| `ix_evento_sesion` | btree | No | `USING btree (sesion_id)` |
 | `ix_evento_tipo_fecha` | btree | No | `USING btree (tipo, creado_en)` |
+| `ix_evento_usuario` | btree | No | `USING btree (usuario_id) WHERE (usuario_id IS NOT NULL)` |
 
 ## 2.8 Tabla `fotolisis` {#t-fotolisis}
 
@@ -367,6 +371,8 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Índice | Método | Único | Definición |
 |---|---|---|---|
 | `fotolisis_pkey` | btree | PK | `USING btree (especie_codigo)` |
+| `ix_fotolisis_producto_1` | btree | No | `USING btree (producto_1)` |
+| `ix_fotolisis_producto_2` | btree | No | `USING btree (producto_2)` |
 
 ## 2.9 Tabla `glosario` {#t-glosario}
 
@@ -530,6 +536,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Índice | Método | Único | Definición |
 |---|---|---|---|
 | `logro_usuario_pkey` | btree | PK | `USING btree (usuario_id, insignia_codigo)` |
+| `ix_logro_insignia` | btree | No | `USING btree (insignia_codigo)` |
 
 ## 2.14 Tabla `matricula` {#t-matricula}
 
@@ -643,6 +650,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 |---|---|---|---|
 | `nivel_pkey` | btree | PK | `USING btree (id)` |
 | `ix_nivel_mision` | btree | No | `USING btree (mision_id)` |
+| `ix_nivel_previo` | btree | No | `USING btree (nivel_previo_id)` |
 | `nivel_codigo_key` | btree | Sí | `USING btree (codigo)` |
 | `nivel_orden_key` | btree | Sí | `USING btree (orden)` |
 | `ux_nivel_casilla` | btree | Sí | `USING btree (casilla_fila, casilla_columna)` |
@@ -805,6 +813,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Índice | Método | Único | Definición |
 |---|---|---|---|
 | `pista_usada_pkey` | btree | PK | `USING btree (intento_id, pista_id)` |
+| `ix_pista_usada_pista` | btree | No | `USING btree (pista_id)` |
 
 **Triggers**
 
@@ -909,6 +918,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Índice | Método | Único | Definición |
 |---|---|---|---|
 | `preset_carga_pkey` | btree | PK | `USING btree (preset_codigo, especie_codigo)` |
+| `ix_preset_carga_especie` | btree | No | `USING btree (especie_codigo)` |
 
 ## 2.24 Tabla `reaccion` {#t-reaccion}
 
@@ -1004,6 +1014,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 | Índice | Método | Único | Definición |
 |---|---|---|---|
 | `respuesta_pkey` | btree | PK | `USING btree (intento_id, pregunta_id)` |
+| `ix_respuesta_opcion` | btree | No | `USING btree (opcion_id)` |
 | `ix_respuesta_pregunta` | btree | No | `USING btree (pregunta_id) WHERE (NOT es_correcta)` |
 
 **Triggers**
@@ -1040,7 +1051,7 @@ Liquibase (`db/changelog/db.changelog-master.yaml`). Es el anexo de datos del FD
 
 **Descripción:** Sesión de uso (anónima o autenticada) desde la web, VS Code, Claude Code o MCP.
 
-**Filas actuales:** 66
+**Filas actuales:** 65
 
 **Columnas**
 

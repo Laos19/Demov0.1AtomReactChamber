@@ -211,7 +211,7 @@
     <rect x="800" y="40" width="360" height="274" rx="12" class="bx" style="fill:#FDF3CF"/>
     <text x="820" y="70" class="tt">PostgreSQL 16 · Neon</text>
     <text x="820" y="92" class="mx">serverless free · PITR 6 h</text>
-    <text x="820" y="122" class="tx">29 tablas en 3FN · 47 changesets</text>
+    <text x="820" y="122" class="tx">29 tablas en 3FN · 48 changesets</text>
     <text x="820" y="144" class="tx">16 funciones PL/pgSQL · 10 triggers</text>
     <text x="820" y="166" class="tx">6 vistas + 1 vista materializada</text>
     <text x="820" y="188" class="tx">FTS español sin tildes (GIN)</text>
@@ -284,7 +284,7 @@
   </div>
   <div class="preguntame"><p><b>Pregúntame</b>¿Guardar <code>usuario.xp</code> rompe la 3FN? ¿Y usar jsonb en una BD relacional?</p></div>
   <aside class="notes">
-    (≈1 min) El modelo tiene 29 tablas en cinco dominios, migradas con 47 changesets de Liquibase, cada uno con su rollback. El diccionario de datos lo genera tbls desde los COMMENT ON de cada tabla y columna.
+    (≈1 min) El modelo tiene 29 tablas en cinco dominios, migradas con 48 changesets de Liquibase, cada uno con su rollback. El diccionario de datos lo genera tbls desde los COMMENT ON de cada tabla y columna.
     Dos decisiones que espero que me discutan. Primera: la entalpía de reacción no se guarda; se calcula en una vista a partir de las entalpías de formación. Si se guardara, al corregir un ΔHf quedaría inconsistente.
     Segunda, al revés: usuario.xp sí es un dato derivado que guardo. Es desnormalización consciente: el ranking del aula se consulta muchísimo y la XP solo la escribe una función transaccional, fn_finalizar_intento. Y uso jsonb para la condición de cada paso, porque es un lenguaje que evoluciona; la BD solo valida su forma con un CHECK.
     ¿Rompe la 3FN? Técnicamente xp es derivable del historial; la pregunta es si el costo de consistencia vale el rendimiento. Me encantaría escuchar su opinión.
@@ -390,7 +390,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
   <div class="casilla" style="--c:#9a7300"><p class="z">10</p><p class="s">Au</p><p class="n">CI/CD</p></div>
   <p class="eyebrow">Automatizaciones · rúbrica → workflow → reporte</p>
   <h2>Cada fila de la rúbrica: un workflow y un reporte</h2>
-  <table class="grande" style="margin-top:6px;">
+  <table class="media" style="margin-top:6px;">
     <thead><tr><th>Fila de la rúbrica</th><th>Workflow</th><th>Reporte que produce</th></tr></thead>
     <tbody>
       <tr><td>Terraform + pruebas + costos</td><td><code>infra.yml</code></td><td>fmt/validate/tflint/checkov · tabla de pruebas superadas (JUnit) · costos USD 0 vs. AWS/Azure (Infracost)</td></tr>
@@ -546,7 +546,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
       <tbody>
         <tr><td>Problemática y objetivos</td><td>diap. 2–3 · docs/investigacion</td></tr>
         <tr><td>FD01–FD04</td><td>docs/fd (FD01/02 en .md, .docx y .pdf)</td></tr>
-        <tr><td>Código y BD en GitHub</td><td>repo · db/changelog (47 changesets)</td></tr>
+        <tr><td>Código y BD en GitHub</td><td>repo · db/changelog (48 changesets)</td></tr>
         <tr><td>Contribuciones</td><td>commits Conventional (<code>feat(db)</code>, <code>ci:</code>…) → CHANGELOG</td></tr>
         <tr><td>Terraform + tests + costos</td><td>diap. 10–11 · <code>infra.yml</code></td></tr>
         <tr><td>Liquibase + reporte</td><td><code>db.yml</code> · Pages /reportes/liquibase</td></tr>
@@ -600,7 +600,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
         <li>Cookie httpOnly + refresh token y revocación.</li>
         <li>Reportes PDF para el docente; monitoreo de disponibilidad (OS-7).</li>
       </ul>
-      <div class="card tinte-calcio" style="margin-top:12px; padding:10px 14px;"><p class="text-sm" style="margin:0;"><strong>Nota visible:</strong> el flujo de <strong>consentimiento de padres o tutores para menores de 14 años</strong> (Ley 29733 y D. S. 016-2024-JUS) es trabajo futuro; hoy el piloto usa cuentas creadas por el docente.</p></div>
+      <div class="card tinte-calcio" style="margin-top:12px; padding:10px 14px;"><p class="text-sm" style="margin:0;"><strong>Nota visible:</strong> el flujo de <strong>consentimiento de padres o tutores para menores de 14 años</strong> (Ley 29733 y D. S. 016-2024-JUS) es trabajo futuro y requisito antes de cualquier piloto con menores reales.</p></div>
       <p class="fuente" style="margin-top:8px;">Complementa al laboratorio físico; no lo reemplaza (Li y Liang, 2024).</p>
     </div>
   </div>

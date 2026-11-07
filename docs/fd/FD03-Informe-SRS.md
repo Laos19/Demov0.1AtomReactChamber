@@ -206,7 +206,7 @@ Los códigos de prueba (PI-xx, PU-xx, PE-xx) se definen en la sección 6.2.
 | RF-04 | Consultar usuario autenticado | Estudiante, docente | Alta | `GET /api/auth/yo` | `usuario`, `rol` | PI-08 | ✔ |
 | RF-05 | Consultar catálogo químico | Todos | Alta | `GET /api/catalogo` | `elemento`, `especie`, `reaccion`, `v_reaccion_entalpia`, `fotolisis`, `preset` | PI-02, PU-01 | ✔ |
 | RF-06 | Consultar contenido del juego sin respuestas | Todos | Alta | `GET /api/juego` | `mision`, `nivel`, `paso`, `pregunta`, `opcion`, `insignia` | PI-03 | ✔ |
-| RF-07 | Ver mapa de misiones con estado de cada nivel | Estudiante | Alta | `GET /api/progreso`; página `mapa` | `intento`, `nivel.nivel_previo_id` | PI-13 | ✔ |
+| RF-07 | Ver mapa de misiones con estado de cada nivel | Estudiante | Alta | `GET /api/progreso`; página `Mapa` (`TablaPeriodica`) | `intento`, `nivel.nivel_previo_id` | PI-13, PE-02 | ✔ |
 | RF-08 | Iniciar un nivel desbloqueado | Estudiante | Alta | `POST /api/intentos` | `intento` | PI-09, PI-10 | ✔ |
 | RF-09 | Simular y verificar la condición de cada paso | Estudiante | Alta | `frontend/src/engine` (`Simulation`, `conditions`) | `paso.condicion` (DSL) | PU-05 a PU-07 | ✔ |
 | RF-10 | Registrar paso completado en orden | Estudiante | Alta | `POST /api/intentos/:id/pasos` | `fn_registrar_paso`, `intento_paso` | PI-10, PI-12 | ✔ |
@@ -217,13 +217,13 @@ Los códigos de prueba (PI-xx, PU-xx, PE-xx) se definen en la sección 6.2.
 | RF-15 | Consultar perfil | Estudiante | Media | `GET /api/perfil`; página `perfil` | `v_progreso_estudiante`, `logro_usuario` | PI-13 | ✔ |
 | RF-16 | Crear aula | Docente | Alta | `POST /api/aulas` | `aula`, `tg_aula_codigo`, `tg_aula_docente` | PI-16 | ✔ |
 | RF-17 | Unirse a un aula con código | Estudiante | Alta | `POST /api/aulas/unirse` | `matricula` | PI-16 | ✔ |
-| RF-18 | Listar mis aulas | Estudiante, docente | Media | `GET /api/aulas` | `aula`, `matricula` | — | ◐ |
-| RF-19 | Asignar nivel a un aula con fecha límite | Docente | Alta | `POST /api/aulas/:id/niveles` | `aula_nivel` | — | ◐ |
+| RF-18 | Listar mis aulas | Estudiante, docente | Media | `GET /api/aulas`; página `Aula` | `aula`, `matricula` | — | ◐ |
+| RF-19 | Asignar nivel a un aula con fecha límite | Docente | Alta | `POST /api/aulas/:id/niveles` (la página `Aula` muestra los niveles asignados; el formulario de asignación está pendiente) | `aula_nivel` | — | ◐ |
 | RF-20 | Ver ranking y matriz de progreso del aula | Docente | Alta | `GET /api/aulas/:id`; página `aula` | `v_ranking_aula`, `intento` | PI-16 | ✔ |
 | RF-21 | Ver tablero de uso | Docente, admin | Media | `GET /api/dashboard`; página `dashboard` | `mv_uso_diario`, `v_estadisticas_nivel`, `v_tiempo_por_paso`, `v_preguntas_dificiles` | PI-17 | ✔ |
 | RF-22 | Registrar telemetría de uso | Todos, integraciones | Media | `POST /api/eventos` | `sesion`, `evento` | PI-17 | ✔ |
-| RF-23 | Usar el laboratorio libre con experimentos predefinidos | Todos | Baja | página `laboratorio`; `GET /api/catalogo` | `preset`, `preset_carga` | PU-01 a PU-04 | ◐ |
-| RF-24 | Usar el modo demo sin conexión | Visitante | Media | `VITE_API_URL` vacío; `contenido.generated.json` | — (semilla `db/data`) | PE-01 | ◐ |
+| RF-23 | Usar el laboratorio libre con experimentos predefinidos | Todos | Baja | página `Laboratorio`; `GET /api/catalogo` | `preset`, `preset_carga` | PU-01 a PU-04, PE-06 (accesibilidad) | ✔ |
+| RF-24 | Usar el modo demo sin conexión | Visitante | Media | `FuenteDemo` (`data/fuente.ts`): `VITE_API_URL` vacío o botón «usar modo demo» si el servidor no responde | — (semilla `db/data`) | PE-01 a PE-07 | ✔ |
 | RF-25 | Consultar estado del servicio | Sistema, GitHub Actions | Media | `GET /api/health` | `SELECT 1` | PI-01 | ✔ |
 | RF-26 | Consultar documentación OpenAPI | Desarrolladores, integraciones | Baja | `GET /api/docs`, `/api/docs/json` | — | PI-04 | ✔ |
 | RF-27 | Auditar cambios en tablas sensibles | Sistema (BD) | Media | — | `fn_auditar`, `auditoria` | — | ◐ |
@@ -424,7 +424,7 @@ Los códigos de prueba (PI-xx, PU-xx, PE-xx) se definen en la sección 6.2.
 | Campo | Detalle |
 |---|---|
 | Descripción | Si `VITE_API_URL` está vacío, el frontend funciona sin API con el contenido generado desde `db/data` (`npm run seed:generate`); el progreso se guarda en el navegador. Es la versión publicada en GitHub Pages. |
-| Trazabilidad | `db/scripts/generate-seed.mjs` → `frontend/src/data/contenido.generated.json`; PE-01 (Playwright sobre el *build* en modo demo, `infra.yml`). |
+| Trazabilidad | `db/scripts/generate-seed.mjs` → `frontend/src/data/contenido.generated.json`; `FuenteDemo` replica en el navegador las reglas de estrellas, XP e insignias y guarda el progreso en `localStorage`; un aviso permanente indica «Modo demostración sin servidor». Pruebas PE-01 a PE-07 (Playwright sobre el *build* en modo demo, `infra.yml`). |
 
 **RF-25 a RF-28**
 
@@ -441,13 +441,13 @@ Los códigos de prueba (PI-xx, PU-xx, PE-xx) se definen en la sección 6.2.
 |---|---|---|---|---|---|
 | RNF-01 | Rendimiento (cliente) | El simulador mantiene una animación fluida en equipos de aula. | ≥ 30 FPS con hasta 900 partículas (`MAX_PARTICULAS`) en equipo de 4 GB de RAM sin GPU dedicada. | Medición con *Performance* de Chrome en el piloto | Alta |
 | RNF-02 | Rendimiento (API) | Respuestas rápidas con el servicio activo. | p95 < 500 ms en `GET /api/juego`, `POST /api/intentos/*`; catálogo en caché 5 min; pool de 5 conexiones. | Prueba de carga ligera (autocannon) — pendiente | Alta |
-| RNF-03 | Disponibilidad | Servicio disponible en horario escolar sobre planes gratuitos. | ≥ 99 % de chequeos `/api/health` OK de 07:00 a 18:00; arranque en frío del plan gratuito de Render ≤ 60 s, mitigado con modo demo y mensaje "despertando servidor" (Render, s. f.). | Workflow programado de monitoreo — pendiente (hoy: *smoke test* en `release.yml`) | Alta |
-| RNF-04 | Seguridad – autenticación | Contraseñas con bcrypt (costo 10); JWT HS256 con secreto ≥ 32 caracteres y expiración de 7 días; mensajes de error genéricos en el login. | Revisión de código; PI-07, PI-08. | Alta |
+| RNF-03 | Disponibilidad | Servicio disponible en horario escolar sobre planes gratuitos. | ≥ 99 % de chequeos `/api/health` OK de 07:00 a 18:00; arranque en frío del plan gratuito de Render ≤ 60 s, mitigado con modo demo y mensaje "despertando servidor" (Render, s. f.). | `salud.yml` (consulta `/api/health` cada 6 h) y *smoke test* de `release.yml` | Alta |
+| RNF-04 | Seguridad – autenticación | Contraseñas con bcrypt (costo 10); JWT HS256 con secreto ≥ 32 caracteres y expiración de 7 días; mensajes de error genéricos en el login. **Limitación conocida:** `usuario.activo` se verifica solo al iniciar sesión; un token emitido sigue vigente hasta su expiración. | Revisión de código; PI-07, PI-08. | Alta |
 | RNF-05 | Seguridad – autorización | Control por rol en cada *endpoint* (`requiereRol`) y verificación de propiedad del intento y del aula. | Estudiante en `GET /api/aulas/:id` → 403 (PI-16); intento ajeno → 403. | Alta |
 | RNF-06 | Seguridad – OWASP Top 10 | Control de acceso roto: RNF-05. Fallas criptográficas: TLS en tránsito (Render/Neon) y *hash* bcrypt. Inyección: solo consultas parametrizadas `$1…` y validación de entrada con esquemas. Diseño inseguro: reglas críticas en la BD (sección 4.3). Configuración insegura: Helmet, CORS restringido a `CORS_ORIGIN`, configuración validada al iniciar (*fail fast*). Componentes y cadena de suministro: Dependabot y CodeQL. Fallas de autenticación: límite de 10 solicitudes/min en `/auth/*` y 300/min global. Registro: *logs* con `authorization` y `password` redactados; errores 500 sin detalles internos. | 0 hallazgos críticos o altos en CodeQL; revisión manual con la lista OWASP Top 10 (OWASP Foundation, 2025). | `codeql.yml`, `dependabot.yml` | Alta |
-| RNF-07 | Privacidad | Minimización de datos de menores: solo nombre/alias, correo y grado; sin DNI ni fotos; ranking visible solo para el docente del aula; telemetría anónima posible (UUID de sesión). Consentimiento de padres para menores de 14 años (D. S. 016-2024-JUS). | Revisión del esquema (diccionario de datos); formulario de consentimiento antes del piloto — pendiente. | Alta |
+| RNF-07 | Privacidad | Minimización de datos de menores: solo nombre/alias, correo y grado; sin DNI ni fotos; ranking visible solo para el docente del aula; telemetría anónima posible (UUID de sesión). **⚠ Pendiente (trabajo futuro):** consentimiento de padres para menores de 14 años (D. S. 016-2024-JUS); mientras tanto se gestiona fuera de la aplicación. | Revisión del esquema (diccionario de datos); RN-17. | Alta |
 | RNF-08 | Usabilidad | Interfaz comprensible para escolares de 12 a 17 años. | SUS ≥ 70 en el piloto (referencia ≈ 68; Bangor et al., 2009); docente crea aula y asigna nivel en ≤ 5 min (OS-9). | Cuestionario SUS; prueba de tarea cronometrada | Alta |
-| RNF-09 | Accesibilidad | Conformidad WCAG 2.2 nivel AA en las vistas principales. | Lighthouse *Accessibility* ≥ 90 en mapa, nivel, Quimi, perfil y aula (OS-6); navegación completa por teclado con foco visible; contraste ≥ 4,5:1; textos alternativos; `prefers-reduced-motion` respetado; controles del simulador con etiqueta accesible. | Lighthouse CI — pendiente; auditoría manual con *skills* de accesibilidad | Alta |
+| RNF-09 | Accesibilidad | Conformidad WCAG 2.2 nivel AA en las vistas principales. | Lighthouse *Accessibility* ≥ 90 en mapa, nivel, Quimi, perfil y aula (OS-6); navegación completa por teclado con foco visible; contraste ≥ 4,5:1; textos alternativos; `prefers-reduced-motion` respetado; controles del simulador con etiqueta accesible. | axe-core en Playwright (`e2e/app.spec.ts`): 0 violaciones graves o críticas WCAG 2.0/2.1/2.2 A y AA en 4 rutas (PE-04 a PE-07); Lighthouse CI pendiente | Alta |
 | RNF-10 | Mantenibilidad | Código tipado y documentado; esquema versionado. | TypeScript `strict`; TSDoc en miembros públicos publicado con TypeDoc; 100 % de objetos de BD en *changesets* Liquibase con *rollback*; cobertura de pruebas del backend ≥ 70 % (OS-8). | `ci.yml`, `db.yml`, `pages.yml`; reporte de cobertura — pendiente | Media |
 | RNF-11 | Portabilidad | Infraestructura reproducible y migrable. | Terraform modular (`database-neon`, `app-render`); referencia de costos para AWS y Azure con Infracost; cliente en cualquier navegador moderno con Canvas 2D y ES2020. | `infra.yml` | Media |
 | RNF-12 | Trazabilidad de datos | Todo intento, paso, ayuda y respuesta queda registrado con marca de tiempo. | 100 % de filas de `intento`, `intento_paso`, `pista_usada`, `respuesta` con `timestamptz` no nulo (por diseño: `NOT NULL DEFAULT now()`). | Diccionario de datos | Alta |
@@ -478,6 +478,11 @@ que ningún cliente —web, VS Code, MCP— puede saltárselas.
 | RN-14 | **Correo único** sin distinguir mayúsculas. | Índice único de expresión `ux_usuario_email` sobre `lower(email)` | PI-06 |
 | RN-15 | **Entalpía derivada.** ΔH de reacción no se almacena: se calcula desde ΔHf° de las especies. | Vista `v_reaccion_entalpia` | PI-02 |
 | RN-16 | **Contenido seguro.** El contenido público del juego nunca incluye el texto de las ayudas ni la alternativa correcta. | `JuegoRepository.contenido` | PI-03 |
+| RN-17 | **⚠ Consentimiento parental (PENDIENTE — trabajo futuro).** Un estudiante menor de 14 años solo debería registrarse con el consentimiento de quien ejerce la patria potestad (Ley 29733, D. S. 016-2024-JUS). No está implementada en esta versión; el consentimiento se recoge fuera de la aplicación. | — | — |
+
+> **⚠ NOTA IMPORTANTE — Consentimiento de padres (trabajo futuro).** RN-17 y la parte correspondiente de
+> RNF-07 **no están implementadas** en esta versión. Para estudiantes menores de 14 años (1.º y 2.º de
+> secundaria) el consentimiento de los padres debe recogerse fuera de la aplicación hasta que se implemente.
 
 ## 4.4 Restricciones
 
@@ -513,13 +518,17 @@ Se mantienen las restricciones RES-01 a RES-10 del FD02 §8. En términos de dis
 ```mermaid
 flowchart TB
   subgraph FE["frontend (React + Vite + TS)"]
-    UI["ui/ y páginas:<br/>landing, mapa, nivel, laboratorio,<br/>perfil, aula, dashboard"]
+    PAG["paginas/<br/>Inicio, Mapa, Nivel, Laboratorio,<br/>Perfil, Aula, Dashboard, Ingresar"]
+    COMP["componentes/<br/>Camara, Controles, TablaPeriodica, Marco, ui"]
+    EST["estado/<br/>AppContext, telemetria"]
     ENG["engine/<br/>Simulation, chemistry, conditions"]
-    REN["render/<br/>canvas 2D"]
-    API_C["cliente API / modo demo"]
-    UI --> ENG
-    UI --> REN
-    UI --> API_C
+    REN["render/dibujar.ts<br/>canvas 2D"]
+    API_C["data/fuente.ts<br/>FuenteApi · FuenteDemo"]
+    PAG --> COMP
+    PAG --> EST
+    COMP --> ENG
+    COMP --> REN
+    EST --> API_C
     REN --> ENG
   end
   subgraph BE["backend (Fastify + TS)"]
@@ -820,13 +829,13 @@ classDiagram
 | Objetivo (FD01/FD02) | Requerimientos | Reglas | Evidencia / prueba |
 |---|---|---|---|
 | OE-1 BD en 3FN con migraciones versionadas | RF-27, RNF-10, RES-07 | RN-15 | `db.yml` (Liquibase `update` + `rollback`); diccionario de datos generado |
-| OE-2 / OS-1 Catálogo de misiones alineadas al CNEB | RF-05, RF-06, RF-07 | RN-07 | PI-02, PI-03, PU-07 (todos los niveles completables). **Hoy: 9 niveles en 4 misiones; meta ≥ 12** |
+| OE-2 / OS-1 Catálogo de misiones alineadas al CNEB | RF-05, RF-06, RF-07 | RN-07 | PI-02, PI-03, PU-07 (los 9 niveles son completables). **Meta vigente: 9 niveles en 4 misiones (cumplida); ≥ 12 niveles es meta futura** |
 | OE-3 / OS-2 Tasa de niveles completados ≥ 60 % | RF-08, RF-10, RF-14, RF-21 | RN-08, RN-11 | Vista `v_estadisticas_nivel.tasa_completado`; KPI `tasa_completado` del tablero |
 | OE-4 / OS-3 +15 p. p. en el cuestionario | RF-13, RF-21 | RN-10 | `respuesta`, `v_preguntas_dificiles`; PI-12 |
 | OS-4 Mediana ≤ 3 min por paso | RF-10, RF-21 | RN-09 | `v_tiempo_por_paso.segundos_mediana` |
 | OE-5 / OS-5 ≤ 30 % de pasos con "solución" | RF-11 | RN-04, RN-01 | `pista_usada` ⋈ `pista` (`nivel_ayuda = 3`); PI-11 |
-| OE-6 / OS-6 Accesibilidad ≥ 90 y SUS ≥ 70 | RNF-08, RNF-09 | — | Lighthouse CI (pendiente); cuestionario SUS |
-| OE-7 / OS-7 Disponibilidad ≥ 99 % | RF-25, RNF-03 | — | PI-01; monitoreo programado (pendiente) |
+| OE-6 / OS-6 Accesibilidad ≥ 90 y SUS ≥ 70 | RNF-08, RNF-09 | — | axe en Playwright (PE-04 a PE-07); Lighthouse CI (pendiente); cuestionario SUS (piloto) |
+| OE-7 / OS-7 Disponibilidad ≥ 99 % | RF-25, RNF-03 | — | PI-01; `salud.yml` cada 6 h |
 | OE-8 / OS-8 Calidad del software | RNF-10, RF-26 | — | 17 pruebas de integración + pruebas del motor; CI en verde |
 | OS-9 Gestión docente en ≤ 5 min | RF-16, RF-17, RF-19, RF-20 | RN-12 | PI-16; prueba de tarea cronometrada |
 | OE-9 / OS-10 Costo S/ 0 | RNF-14, RNF-11 | — | `infra.yml` (Infracost) |
@@ -860,30 +869,40 @@ classDiagram
 **Pruebas unitarias del motor** (`frontend/src/engine/engine.test.ts`): PU-01 ΔH de la combustión del carbono;
 PU-02 Clausius-Clapeyron (agua a 2 atm y 0,5 atm); PU-03 fases del agua a 1 atm; PU-04 energía del fotón
 (240 nm rompe O=O); PU-05 lectura de métricas del DSL; PU-06 operadores incluido `approx`; PU-07 cada uno de los
-9 niveles es completable con su solución.
+9 niveles es completable con su solución (un *solver* aplica la solución de cada paso en el motor; 9 casos).
+En total, 15 pruebas del motor.
 
-**Pruebas extremo a extremo:** PE-01 recorrido en modo demo con Playwright (`infra.yml`).
+**Pruebas extremo a extremo** (`frontend/e2e/app.spec.ts`, Playwright sobre el *build* en modo demo, `infra.yml`):
+PE-01 la página de inicio muestra el laboratorio en vivo; PE-02 un estudiante completa el nivel 1 y gana
+estrellas; PE-03 el docente ve el dashboard de uso; PE-04 a PE-07 accesibilidad WCAG 2.2 AA (axe-core) sin
+violaciones graves en `/`, `/#/mapa`, `/#/laboratorio` y `/#/ingresar`.
+
+**Integraciones:** extensión de VS Code (19 pruebas, `extensions/vscode/test`) y servidor MCP (12 pruebas,
+`integrations/mcp/test`), que verifican RF-28.
+
+**Total:** 17 de integración + 15 del motor + 7 e2e + 19 VS Code + 12 MCP = **70 pruebas automatizadas**.
 
 # Conclusiones
 
 1. Los 28 requerimientos funcionales cubren el alcance del FD02 y cada uno está trazado a un *endpoint*, a un
-   objeto de la base de datos y, en 24 casos, a una prueba automatizada.
+   objeto de la base de datos y, en 24 casos, a una prueba automatizada (70 pruebas en total).
 2. Las 16 reglas de negocio críticas (estrellas, XP, repetición al 25 %, ayudas escalonadas, racha, insignias,
    desbloqueo, corrección) se ejecutan en PostgreSQL, lo que garantiza su cumplimiento desde cualquier cliente y
    es el aporte central para el curso Base de Datos II.
-3. Los requerimientos no funcionales tienen métricas verificables; los de accesibilidad, disponibilidad y
-   cobertura dependen de automatizaciones aún pendientes.
+3. Los requerimientos no funcionales tienen métricas verificables; la accesibilidad se verifica con axe en
+   cada ejecución de CI y la disponibilidad con `salud.yml`; quedan pendientes Lighthouse CI, la cobertura y
+   el consentimiento parental (RN-17).
 
 # Recomendaciones
 
 1. Añadir pruebas de integración para RF-18 (listar aulas) y RF-19 (asignar nivel).
-2. Para medir OI-2 (ganancia pre/post), agregar a `intento` o `respuesta` una columna `momento` (`pre`/`post`)
-   mediante un nuevo *changeset*, o un cuestionario diagnóstico separado.
-3. Completar los niveles faltantes para cumplir OS-1 (≥ 12 niveles) editando `db/data/juego.json`.
-4. Implementar el monitoreo programado de `/api/health`, Lighthouse CI y el reporte de cobertura para cerrar
-   RNF-03, RNF-09 y RNF-10.
-5. Preparar el formulario de consentimiento de padres antes del piloto (RNF-07) y recomendar el uso de alias en
-   el campo nombre.
+2. Medir OI-2 (ganancia pre/post) con un instrumento pre-test/post-test aplicado fuera de la aplicación; en
+   una versión futura, un nuevo *changeset* podría distinguir pre y post en la BD.
+3. Meta futura: ampliar el catálogo a ≥ 12 niveles editando `db/data/juego.json`.
+4. Añadir Lighthouse CI y el reporte de cobertura para cerrar RNF-09 y RNF-10, y el formulario de asignación de
+   niveles en la página `Aula` (RF-19).
+5. Implementar el flujo de consentimiento de padres (RN-17) antes de un piloto con estudiantes de 1.º y 2.º;
+   mientras tanto, gestionarlo fuera de la aplicación y recomendar el uso de alias en el campo nombre.
 
 # Bibliografía
 

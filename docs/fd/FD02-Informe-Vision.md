@@ -9,7 +9,9 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 
 > Lista para revisión de Adriana. Los números entre corchetes remiten a los defectos de `findings.md`.
 
-> **Pendientes de decisión (no resueltos en esta versión):** (a) la meta de ≥ 12 niveles (OS-1/OE-2) se mantiene, pero hoy hay **9 niveles en 4 misiones**; (b) el **flujo de consentimiento de padres** para menores de 14 años (D. S. 016-2024-JUS) aún no está diseñado ni implementado.
+> **Decisiones de alcance (Adriana, 2026-11-07):** (a) **Niveles:** la versión actual publica **9 niveles en 4 misiones**, que es la meta vigente de OS-1/OE-2; llegar a **≥ 12 niveles** pasa a ser una **meta futura** (trabajo futuro). (b) **Consentimiento de padres** para estudiantes menores de 14 años (Ley 29733 y D. S. 016-2024-JUS): queda como **trabajo futuro** y se señala con una **nota importante** en la sección legal; debe implementarse antes de un piloto con estudiantes de 1.º y 2.º de secundaria.
+>
+> **Correcciones de referencias a la implementación:** vista `v_estadisticas_nivel` (no `v_metricas_nivel`), tabla `pista_usada` (no `uso_pista`); desbloqueo de niveles en la API con `nivel.nivel_previo_id`; racha = días con al menos un nivel completado; docentes con código de invitación; el administrador tiene permisos de docente sobre todas las aulas y el contenido se publica con `db/data` + Liquibase; JWT de 7 días con `activo` verificado solo al iniciar sesión (limitación conocida).
 
 1. **[1] Nombre:** "AtomReactChamber" en todo el documento (antes: "QUIMI-K", "Quimi-K", "Simulador de laboratorio virtual v2.2"). **Quimi** es el nombre del asistente, no del sistema.
 2. **[2] Equipo:** solo Adriana Rafaela Laos González. Se eliminaron Antony Solorzano (portada), Gabriela Cohaila, Vincenzo Llanos y Edison Meneses (perfil del equipo) y la mención al curso "Programación III".
@@ -64,6 +66,8 @@ desarrollo en el curso Base de Datos II.
 | 013 | Módulo de números cuánticos. | | ✔ |
 | 014 | Editor de prácticas para docentes. | | ✔ |
 | 015 | Quimi con modelo de lenguaje (LLM) — previsto para la 3.ª unidad. | | ✔ |
+| 016 | Ampliar el catálogo a ≥ 12 niveles (meta futura). | | ✔ |
+| 017 | Flujo de consentimiento de padres para menores de 14 años (Ley 29733, D. S. 016-2024-JUS). | | ✔ |
 
 ### 1.2.1 Objetivos SMART
 
@@ -72,7 +76,7 @@ PostgreSQL, logrando en un piloto una tasa de niveles completados ≥ 60 % y una
 
 | ID | Objetivo | Indicador | Línea base | Meta | Instrumento | Plazo |
 |---|---|---|---|---|---|---|
-| OS-1 | Catálogo de misiones alineadas al CNEB | Niveles publicados y validados | v0.1: 0 niveles guiados | ≥ 12 niveles en ≥ 4 temas | Vista de catálogo + checklist | S10 |
+| OS-1 | Catálogo de misiones alineadas al CNEB | Niveles publicados y validados | v0.1: 0 niveles guiados | 9 niveles en 4 temas (meta futura: ≥ 12) | Vista de catálogo + checklist | S10 |
 | OS-2 | Finalización de misiones | Completados / iniciados | Sistema nuevo | ≥ 60 % | `v_estadisticas_nivel` | S14 |
 | OS-3 | Desempeño en cuestionario | % aciertos 1.er vs. último intento | 1.er intento del piloto | +15 p. p. | Respuestas en BD | S14 |
 | OS-4 | Duración de pasos | Mediana de tiempo por paso | Sistema nuevo | ≤ 3 min | `intento_paso` | S14 |
@@ -311,7 +315,7 @@ Neon (BD), Render (API y sitio) y GitHub Pages (documentación y demo).
 |---|---|
 | Edad típica | 25 a 60 años |
 | Conocimientos previos | Gestión de sistemas web. |
-| Tareas típicas | Gestionar cuentas y roles, publicar misiones validadas, mantener el glosario. |
+| Tareas típicas | Supervisar todas las aulas y el tablero; publicar misiones validadas y mantener el glosario editando `db/data` (migración Liquibase). |
 | Necesidades | Seguridad, auditoría y facilidad de administración. |
 
 ### 5.5.1 Necesidades de los interesados y usuarios
@@ -407,7 +411,7 @@ con el código del aula.
 | RES-05 | Simulación 2D; sin laboratorio 3D en esta versión. |
 | RES-06 | Quimi basado en reglas; sin LLM en esta versión. |
 | RES-07 | Las energías de activación del simulador son didácticas y se declaran como tales. |
-| RES-08 | Datos de menores tratados conforme a la Ley 29733 y el D. S. 016-2024-JUS. |
+| RES-08 | Datos de menores tratados conforme a la Ley 29733 y el D. S. 016-2024-JUS. **⚠ Nota importante:** el flujo de consentimiento de padres para menores de 14 años es **trabajo futuro**; mientras tanto el consentimiento se gestiona fuera de la aplicación (formulario de la IE). |
 | RES-09 | Las misiones deben ser validadas antes de publicarse. |
 | RES-10 | El alcance se limita a lo definido en FD01–FD05. |
 
@@ -459,7 +463,7 @@ con el código del aula.
 - Lenguaje claro y adecuado a estudiantes de 12 a 17 años; mensajes breves orientados a la solución.
 - Quimi responde con texto corto y escalonado; nunca muestra la solución sin que el estudiante la pida.
 - Terminología química consistente con el glosario de la BD.
-- Ranking con alias para no exponer nombres completos.
+- El ranking del aula solo lo ve el docente del aula; se recomienda que el estudiante use un alias en el campo nombre.
 
 ## 11.3 Estándares de cumplimiento de la plataforma
 

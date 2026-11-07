@@ -119,7 +119,7 @@ flowchart TB
 ```mermaid
 flowchart LR
   subgraph Cliente["Navegador del estudiante o docente"]
-    SPA["SPA React 18 + Vite + TS<br/>engine/ · render/ · ui/<br/>modo API o modo demo"]
+    SPA["SPA React 18 + Vite + TS<br/>paginas/ · componentes/ · engine/ · render/<br/>FuenteApi o FuenteDemo"]
   end
   subgraph Render["Render (plan Free)"]
     STATIC["Static Site<br/>frontend/dist (CDN)"]
@@ -130,7 +130,7 @@ flowchart LR
   end
   subgraph GitHub
     PAGES["GitHub Pages<br/>demo offline + docs + TypeDoc + diccionario"]
-    GHA["GitHub Actions<br/>8 workflows"]
+    GHA["GitHub Actions<br/>9 workflows"]
   end
   INTEG["Extensión VS Code ·<br/>servidor MCP · skill Claude Code"]
   SPA -- "carga" --> STATIC
@@ -285,9 +285,15 @@ classDiagram
 | `engine/chemistry.ts` | Construye la química desde el catálogo (pares reactivos, ΔH, fases por Clausius-Clapeyron, energía del fotón). | Ninguna (TypeScript puro) |
 | `engine/Simulation.ts` | Estado y avance de la simulación: partículas, colisiones, reacciones, fotólisis, efectos e instantáneas. Máximo 900 partículas. | `chemistry` |
 | `engine/conditions.ts` | Evaluador del DSL de condiciones de pasos (`todas`/`alguna`, operadores, `durante`). | `chemistry`, `Simulation` (tipos) |
-| `render/` | Dibujo en Canvas 2D de la cámara, partículas y efectos. | `engine` |
-| `ui/` y páginas | Portada, mapa (tabla periódica), nivel guiado (pasos, Quimi, cuestionario), laboratorio libre, perfil, aula, dashboard. | `engine`, `render`, cliente API |
-| Cliente API / demo | Implementa la misma interfaz contra `/api` o contra `contenido.generated.json` y el almacenamiento local. | `fetch`, `localStorage` |
+| `render/dibujar.ts` | Dibujo en Canvas 2D de la cámara, partículas, enlaces y efectos (chispa, fotones). | `engine` |
+| `componentes/Camara.tsx` | Envuelve `Simulation` + `dibujar` en un `<canvas>` con bucle de animación; expone inyectar, chispa, vaciar y la instantánea. | `engine`, `render` |
+| `componentes/Controles.tsx` | Deslizadores accesibles de T, P, V, UV y λ, inyector de especies y chispa, según los controles habilitados del nivel. | `engine` (tipos) |
+| `componentes/TablaPeriodica.tsx` | Mapa de misiones con forma de tabla periódica: casillas bloqueadas, disponibles y completadas (con estrellas). | `data/tipos` |
+| `componentes/Marco.tsx`, `ui.tsx` | Cabecera, navegación por rol, tema claro/oscuro, aviso de modo demo; piezas comunes (estrellas, avisos, insignias). | — |
+| `paginas/` | `Inicio`, `Mapa`, `Nivel` (pasos, panel de Quimi, cuestionario y resultado), `Laboratorio`, `Perfil`, `Aula`, `Dashboard`, `Ingresar` (login, registro, accesos demo). Rutas con `HashRouter`. | `componentes`, `estado` |
+| `estado/AppContext.tsx` | Estado global: fuente de datos, química construida, contenido del juego, usuario, progreso, servidor caído y paso a modo demo. | `data/fuente` |
+| `estado/telemetria.ts` | Cola de eventos enviada por lotes cada 10 s o al ocultar la pestaña (UUID de sesión, sin datos personales). | `data/fuente` |
+| `data/fuente.ts` | Interfaz `Fuente` con dos implementaciones: `FuenteApi` (REST + JWT en `localStorage`) y `FuenteDemo` (contenido incluido en el *bundle*, reglas de estrellas/XP/insignias replicadas y progreso en `localStorage`). | `fetch`, `localStorage` |
 
 El motor no depende de React ni del DOM, por lo que se prueba con Vitest sin navegador.
 
@@ -424,19 +430,20 @@ flowchart LR
 
 | Paquete / carpeta | Artefacto | Construcción | Pruebas |
 |---|---|---|---|
-| `frontend` | `frontend/dist` (sitio estático) | `npm run build -w frontend` | Vitest (`engine.test.ts`); Playwright (e2e, modo demo) |
+| `frontend` | `frontend/dist` (sitio estático) | `npm run build -w frontend` | Vitest (`engine.test.ts`, 15 pruebas); Playwright + axe (`e2e/app.spec.ts`, 7 pruebas) |
 | `backend` | `backend/dist/server.js` | `npm run build -w backend` (`tsc`) | Vitest + `app.inject` contra PostgreSQL (17 pruebas) |
-| `db` | 12 archivos SQL, 47 *changesets* | `npm run seed:generate`; Liquibase | `db.yml`: `update`, `rollback`, re-`update` en BD efímera |
+| `db` | 13 archivos SQL, 48 *changesets* | `npm run seed:generate`; Liquibase | `db.yml`: `update`, `rollback`, re-`update` en BD efímera |
 | `infra/terraform` | Recursos Neon y Render | `terraform plan/apply` (`infra.yml`) | `fmt`, `validate`, `tflint`; Infracost |
-| `extensions/vscode` | `.vsix` | `npm run build -w extensions/vscode` | Vitest |
-| `integrations/mcp` | Servidor MCP (stdio) | `npm run build -w integrations/mcp` | — |
+| `extensions/vscode` | `.vsix` | `npm run build -w extensions/vscode` | Vitest (19 pruebas) |
+| `integrations/mcp` | Servidor MCP (stdio), 5 herramientas + recurso `arc://catalogo` | `npm run build -w integrations/mcp` | Vitest (12 pruebas) |
+| `.claude/` | *Skill* `atomreactchamber` y subagente `tutor-quimi` | — | — |
 | `docs` | Markdown, `.docx`, `.pdf`, sitio | `docs.yml`, `pages.yml` | — |
 
 ## 7.2 Orden de migraciones Liquibase
 
 `db.changelog-master.yaml` incluye, en orden: `001-extensiones` → `002-seguridad` → `003-catalogo` →
 `004-juego` → `005-progreso` → `006-telemetria` → `007-funciones` → `008-triggers` → `009-vistas` →
-`900-semilla-catalogo` → `901-semilla-juego` → `902-datos-demo` (contexto `demo`). Las semillas 9xx se generan
+`010-indices-fk` → `900-semilla-catalogo` → `901-semilla-juego` → `902-datos-demo` (contexto `demo`). Las semillas 9xx se generan
 desde `db/data/*.json` y son idempotentes (`ON CONFLICT … DO UPDATE`).
 
 # 8. Vista de datos
@@ -787,8 +794,8 @@ erDiagram
 
 ## 8.3 Índices y su justificación
 
-Además de las claves primarias y las restricciones únicas, la BD define estos índices (62 en total contando PK y
-UQ):
+Además de las claves primarias y las restricciones únicas, la BD define estos índices (73 en total contando PK y
+UQ; 30 declarados con `CREATE INDEX` en los *changesets*):
 
 | Índice | Tabla (columnas) | Tipo | Justificación |
 |---|---|---|---|
@@ -812,12 +819,13 @@ UQ):
 | `ix_sesion_usuario` | `sesion (usuario_id)` | B-tree | Activos en 7 días; FK con `ON DELETE SET NULL`. |
 | `ux_mv_uso_diario_dia` | `mv_uso_diario (dia)` | Único | Requisito de `REFRESH MATERIALIZED VIEW CONCURRENTLY`. |
 
-**Claves foráneas sin índice propio** (detectadas al generar este documento): `aula_nivel(nivel_id)`,
-`evento(sesion_id)`, `evento(usuario_id)`, `evento(nivel_id)`, `fotolisis(producto_1)`, `fotolisis(producto_2)`,
-`logro_usuario(insignia_codigo)`, `nivel(nivel_previo_id)`, `pista_usada(pista_id)`,
-`preset_carga(especie_codigo)`, `respuesta(opcion_id)`. Con los volúmenes actuales no afectan, pero
-`evento(sesion_id)` debe indexarse antes del piloto porque `sesion → evento` es `ON DELETE CASCADE`
-(ver Recomendaciones).
+**Índices de claves foráneas (`010-indices-fk.sql`).** La revisión con la regla `requireForeignKeyIndex` de
+tbls detectó 11 FK sin índice; el *changeset* 010 los crea: `ix_evento_sesion`, `ix_evento_usuario` y
+`ix_evento_nivel` (estos dos **parciales**, `WHERE … IS NOT NULL`, porque las columnas admiten nulos en uso
+anónimo), `ix_aula_nivel_nivel`, `ix_pista_usada_pista`, `ix_respuesta_opcion`, `ix_logro_insignia`,
+`ix_nivel_previo`, `ix_fotolisis_producto_1`, `ix_fotolisis_producto_2` e `ix_preset_carga_especie`. El más
+importante es `ix_evento_sesion`: `sesion → evento` es `ON DELETE CASCADE` y, sin índice, borrar una sesión
+recorría toda la tabla de eventos.
 
 ## 8.4 Vistas, vista materializada y funciones
 
@@ -848,7 +856,7 @@ flowchart TB
     IDE["VS Code / Claude Code /<br/>cliente MCP"]
   end
   subgraph RenderCloud["Render — plan Free"]
-    SS["Static Site<br/>frontend/dist · CDN · reescritura SPA"]
+    SS["Static Site<br/>frontend/dist · CDN · HashRouter"]
     WS["Web Service · Node 22<br/>node backend/dist/server.js · PORT 8080<br/>health check /api/health"]
   end
   subgraph NeonCloud["Neon — plan Free"]
@@ -856,7 +864,7 @@ flowchart TB
   end
   subgraph GitHubCloud["GitHub"]
     REPO[("Repositorio")]
-    ACT["GitHub Actions<br/>ci · infra · db · backup · release ·<br/>docs · pages · codeql"]
+    ACT["GitHub Actions<br/>ci · infra · db · backup · release ·<br/>docs · pages · codeql · salud"]
     GP["GitHub Pages<br/>demo offline · docs · TypeDoc ·<br/>diccionario · reportes"]
     SEC["GitHub Secrets<br/>DATABASE_URL, LIQUIBASE_*,<br/>NEON_API_KEY, RENDER_API_KEY,<br/>TF_API_TOKEN, BACKUP_PASSPHRASE…"]
   end
@@ -881,14 +889,15 @@ flowchart TB
 | Nodo | Configuración | Variables |
 |---|---|---|
 | Render Web Service | Node 22; `npm ci && npm run build -w backend`; inicio `node backend/dist/server.js`; health check `/api/health`. | `DATABASE_URL`, `JWT_SECRET` (≥ 32), `CORS_ORIGIN`, `DOCENTE_CODIGO`, `PORT`, `NODE_ENV=production` |
-| Render Static Site | `npm run build -w frontend` → `frontend/dist`; reescritura de rutas a `index.html`. | `VITE_API_URL` |
+| Render Static Site | `npm run build -w frontend` → `frontend/dist`; las rutas usan `HashRouter` (`/#/mapa`), por lo que no se necesitan reglas de reescritura. | `VITE_API_URL` |
 | Neon | PostgreSQL 16, BD `atomreactchamber`, rol propietario de la aplicación; conexión TLS. | — |
 | GitHub Pages | Sitio generado por `pages.yml`: demo (frontend con `VITE_API_URL` vacío), documentación, TypeDoc, diccionario (tbls) y reportes de pruebas. | — |
 
 **Pipeline de entrega:** un *push* a `main` ejecuta `ci.yml` (tipos, *lint*, unitarias), `infra.yml`
 (Terraform, pruebas con PostgreSQL de servicio, e2e, costos), `db.yml` (Liquibase en BD efímera y luego en
 producción si existe el *secret*), `release.yml` (release-please con Conventional Commits, *build*, *deploy hooks*
-y *smoke test*), `docs.yml` y `pages.yml`. Todos los *workflows* terminan en verde aunque falten *secrets*: los
+y *smoke test*), `docs.yml` y `pages.yml`; además, `salud.yml` consulta `/api/health` cada 6 horas (OS-7) y
+mantiene despierto el servicio gratuito. Todos los *workflows* terminan en verde aunque falten *secrets*: los
 pasos de despliegue se omiten.
 
 # 10. Seguridad
@@ -921,7 +930,7 @@ pasos de despliegue se omiten.
 | Mantenibilidad | Capas explícitas; TypeScript `strict`; TSDoc + TypeDoc; un solo contrato zod; contenido como datos; Liquibase con *rollback*. |
 | Portabilidad | Terraform modular; PostgreSQL estándar; Node sin dependencias nativas (`bcryptjs`). |
 | Usabilidad y accesibilidad | Pasos breves, ayudas graduadas, retroalimentación inmediata; WCAG 2.2 AA como criterio de diseño (FD03 RNF-09). |
-| Verificabilidad | Pruebas de integración contra BD real; motor puro probado sin navegador; e2e en modo demo. |
+| Verificabilidad | 70 pruebas: integración contra BD real (17), motor puro sin navegador (15, con *solver* de los 9 niveles), e2e + axe en modo demo (7), VS Code (19) y MCP (12). |
 
 ## 11.2 Escenarios de atributos de calidad
 
@@ -953,13 +962,14 @@ pasos de despliegue se omiten.
 
 # Recomendaciones
 
-1. Crear un *changeset* con índices para las claves foráneas sin índice, empezando por `evento(sesion_id)`.
+1. *(Hecho en `010-indices-fk.sql`.)* Mantener la regla de tbls `requireForeignKeyIndex` en CI para que toda FK
+   nueva tenga índice.
 2. Registrar con `COMMENT ON` las descripciones de columnas y funciones que hoy solo están en el diccionario
    (marcadas con †), porque Liquibase elimina los comentarios del cuerpo de las funciones.
 3. Reducir la vigencia del JWT e introducir *refresh tokens* para que la desactivación de una cuenta tenga efecto
    inmediato.
-4. Añadir monitoreo programado de `/api/health`, Lighthouse CI y cobertura para cerrar los escenarios EC-03 y los
-   RNF de accesibilidad y mantenibilidad.
+4. Añadir Lighthouse CI y cobertura (el monitoreo de `/api/health` ya existe en `salud.yml` y la accesibilidad
+   se verifica con axe en Playwright).
 5. Particionar `evento` por mes si la telemetría supera el millón de filas.
 
 # Bibliografía
