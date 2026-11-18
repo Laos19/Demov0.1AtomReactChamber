@@ -37,7 +37,7 @@ Lleva las misiones, el catálogo químico y el asistente **Quimi** al editor, co
 | Ajuste | Por defecto | Descripción |
 |---|---|---|
 | `atomreactchamber.apiUrl` | `http://localhost:8080` | URL base de la API (sin `/api`). En la nube: `https://atomreactchamber-api.onrender.com`. |
-| `atomreactchamber.webUrl` | `https://laos19.github.io/demov0.1atomreactchamber/` | Laboratorio web que abre «Abrir laboratorio». |
+| `atomreactchamber.webUrl` | `https://laos19.github.io/Demov0.1AtomReactChamber/` | Laboratorio web que abre «Abrir laboratorio». |
 | `atomreactchamber.telemetria` | `true` | Enviar eventos de uso anónimos (`origen: "vscode"`). |
 
 Cuentas de demostración: `estudiante@demo.arc.pe` y `docente@demo.arc.pe` (contraseña `quimica2026`).

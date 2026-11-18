@@ -12,7 +12,8 @@ progreso en un dashboard calculado en PostgreSQL.
 | | Enlace |
 |---|---|
 | Aplicación (Render) | _se publica al ejecutar `infra.yml` + `release.yml` con los secrets configurados_ |
-| Demo sin servidor + documentación técnica (GitHub Pages) | `https://laos19.github.io/demov0.1atomreactchamber/` |
+| Aplicación pública (GitHub Pages, modo demostración) | https://laos19.github.io/Demov0.1AtomReactChamber/ |
+| Documentación técnica · presentación · documentos | [/docs/api/](https://laos19.github.io/Demov0.1AtomReactChamber/docs/api/) · [/presentacion/](https://laos19.github.io/Demov0.1AtomReactChamber/presentacion/) · [/documentos/](https://laos19.github.io/Demov0.1AtomReactChamber/documentos/) |
 | API (Swagger) | `<url-api>/api/docs` |
 | Cuentas de demostración | `estudiante@demo.arc.pe` · `docente@demo.arc.pe` — contraseña `quimica2026` |
 
