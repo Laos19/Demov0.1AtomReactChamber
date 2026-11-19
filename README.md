@@ -12,8 +12,9 @@ progreso en un dashboard calculado en PostgreSQL.
 | | Enlace |
 |---|---|
 | **Aplicación en producción (Render + Neon)** | https://atomreactchamber-web.onrender.com |
-| Aplicación pública (GitHub Pages, modo demostración) | https://laos19.github.io/Demov0.1AtomReactChamber/ |
-| Documentación técnica · presentación · documentos | [/docs/api/](https://laos19.github.io/Demov0.1AtomReactChamber/docs/api/) · [/presentacion/](https://laos19.github.io/Demov0.1AtomReactChamber/presentacion/) · [/documentos/](https://laos19.github.io/Demov0.1AtomReactChamber/documentos/) |
+| Portal de documentación (GitHub Pages, generado por `pages.yml`) | https://laos19.github.io/Demov0.1AtomReactChamber/ |
+| Demo sin servidor (GitHub Pages) | https://laos19.github.io/Demov0.1AtomReactChamber/app/ |
+| Documentación técnica (TypeDoc) · presentación · documentos PDF | [/api/](https://laos19.github.io/Demov0.1AtomReactChamber/api/) · [/presentacion/](https://laos19.github.io/Demov0.1AtomReactChamber/presentacion/) · [/documentos/](https://laos19.github.io/Demov0.1AtomReactChamber/documentos/) |
 | API REST y Swagger | https://atomreactchamber-api.onrender.com/api/health · https://atomreactchamber-api.onrender.com/api/docs |
 | Cuentas de demostración | `estudiante@demo.arc.pe` · `docente@demo.arc.pe` — contraseña `quimica2026` |
 

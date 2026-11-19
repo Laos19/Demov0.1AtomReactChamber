@@ -52,6 +52,18 @@ const sections = [
     tag: 'Calidad',
   },
   {
+    path: 'presentacion/',
+    title: 'Presentación',
+    desc: 'Diapositivas de la exposición (reveal.js). Tecla S para la vista del orador con notas.',
+    tag: 'Exposición',
+  },
+  {
+    path: 'documentos/',
+    title: 'Documentos en PDF',
+    desc: 'FD01–FD05, diccionario de datos, estándar de programación y manuales en formato UPT.',
+    tag: 'Entrega',
+  },
+  {
     path: 'docs/',
     title: 'Documentos del proyecto',
     desc: 'Documentos FD, estándar de programación, manuales y guía de automatizaciones.',

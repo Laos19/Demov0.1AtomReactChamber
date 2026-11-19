@@ -154,7 +154,7 @@
         },
         "atomreactchamber.webUrl": {
           "type": "string",
-          "default": "https://laos19.github.io/Demov0.1AtomReactChamber/",
+          "default": "https://atomreactchamber-web.onrender.com",
           "description": "URL del laboratorio web que abre el comando «Abrir laboratorio»."
         },
         "atomreactchamber.telemetria": {

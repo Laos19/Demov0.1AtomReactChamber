@@ -155,6 +155,16 @@ jobs:
           rm -rf "$SITE/app"
           cp -r frontend/dist "$SITE/app"
 
+      - name: Presentación y documentos PDF (→ site/presentacion, site/documentos)
+        run: |
+          mkdir -p "$SITE/presentacion" "$SITE/documentos"
+          cp -r docs/presentacion/index.html docs/presentacion/styles.css docs/presentacion/vendor docs/presentacion/img "$SITE/presentacion/" 2>/dev/null || true
+          cp docs/presentacion/*.pdf "$SITE/presentacion/" 2>/dev/null || true
+          for f in docs/entrega/*.pdf docs/fd/*.pdf docs/database/*.pdf docs/estandares/*.pdf docs/manuales/*.pdf; do
+            [ -f "$f" ] && cp "$f" "$SITE/documentos/"
+          done
+          node scripts/pages/build-documentos.mjs "$SITE/documentos"
+
       - name: Portada (scripts/pages/build-index.mjs)
         run: node scripts/pages/build-index.mjs "$SITE"
 

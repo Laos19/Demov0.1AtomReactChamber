@@ -242,7 +242,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
   });
 
   comando('abrirLaboratorio', async () => {
-    const url = vscode.workspace.getConfiguration(SECCION).get<string>('webUrl', 'https://laos19.github.io/Demov0.1AtomReactChamber/');
+    const url = vscode.workspace.getConfiguration(SECCION).get<string>('webUrl', 'https://atomreactchamber-web.onrender.com');
     estado.registrar({ tipo: 'pagina_vista', datos: { vista: 'abrir_laboratorio' } });
     await vscode.env.openExternal(vscode.Uri.parse(url));
   });

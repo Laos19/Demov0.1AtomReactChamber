@@ -22,7 +22,10 @@ date: "Noviembre 2026"
 | **Aplicación en producción** (Render + Neon PostgreSQL) | https://atomreactchamber-web.onrender.com |
 | API REST — estado | https://atomreactchamber-api.onrender.com/api/health |
 | API REST — documentación Swagger | https://atomreactchamber-api.onrender.com/api/docs |
-| Documentación técnica, demo sin servidor y presentación (GitHub Pages) | https://laos19.github.io/Demov0.1AtomReactChamber/ |
+| Portal de documentación generado por `pages.yml` (GitHub Pages) | https://laos19.github.io/Demov0.1AtomReactChamber/ |
+| Documentación técnica: cada clase, método y propiedad (TypeDoc) | https://laos19.github.io/Demov0.1AtomReactChamber/api/ |
+| Presentación y documentos PDF | https://laos19.github.io/Demov0.1AtomReactChamber/presentacion/ · https://laos19.github.io/Demov0.1AtomReactChamber/documentos/ |
+| Demo sin servidor | https://laos19.github.io/Demov0.1AtomReactChamber/app/ |
 | Release v2.1.0 (artefactos + extensión VS Code) | https://github.com/Laos19/Demov0.1AtomReactChamber/releases |
 | Ejecuciones y reportes de las automatizaciones | https://github.com/Laos19/Demov0.1AtomReactChamber/actions |
 
