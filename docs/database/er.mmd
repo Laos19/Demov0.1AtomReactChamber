@@ -1,0 +1,374 @@
+erDiagram
+
+"public.usuario" }o--|| "public.rol" : "FOREIGN KEY (rol_id) REFERENCES rol(id)"
+"public.especie_atomo" }o--|| "public.elemento" : "FOREIGN KEY (simbolo) REFERENCES elemento(simbolo)"
+"public.especie_atomo" }o--|| "public.especie" : "FOREIGN KEY (especie_codigo) REFERENCES especie(codigo) ON DELETE CASCADE"
+"public.reaccion_participante" }o--|| "public.especie" : "FOREIGN KEY (especie_codigo) REFERENCES especie(codigo)"
+"public.reaccion_participante" }o--|| "public.reaccion" : "FOREIGN KEY (reaccion_codigo) REFERENCES reaccion(codigo) ON DELETE CASCADE"
+"public.fotolisis" |o--|| "public.especie" : "FOREIGN KEY (especie_codigo) REFERENCES especie(codigo)"
+"public.fotolisis" }o--|| "public.especie" : "FOREIGN KEY (producto_1) REFERENCES especie(codigo)"
+"public.fotolisis" }o--|| "public.especie" : "FOREIGN KEY (producto_2) REFERENCES especie(codigo)"
+"public.preset_carga" }o--|| "public.especie" : "FOREIGN KEY (especie_codigo) REFERENCES especie(codigo)"
+"public.preset_carga" }o--|| "public.preset" : "FOREIGN KEY (preset_codigo) REFERENCES preset(codigo) ON DELETE CASCADE"
+"public.nivel" }o--|| "public.mision" : "FOREIGN KEY (mision_id) REFERENCES mision(id)"
+"public.nivel" }o--o| "public.nivel" : "FOREIGN KEY (nivel_previo_id) REFERENCES nivel(id)"
+"public.paso" }o--|| "public.nivel" : "FOREIGN KEY (nivel_id) REFERENCES nivel(id) ON DELETE CASCADE"
+"public.pista" }o--|| "public.paso" : "FOREIGN KEY (paso_id) REFERENCES paso(id) ON DELETE CASCADE"
+"public.pregunta" }o--|| "public.nivel" : "FOREIGN KEY (nivel_id) REFERENCES nivel(id) ON DELETE CASCADE"
+"public.opcion" }o--|| "public.pregunta" : "FOREIGN KEY (pregunta_id) REFERENCES pregunta(id) ON DELETE CASCADE"
+"public.aula" }o--|| "public.usuario" : "FOREIGN KEY (docente_id) REFERENCES usuario(id)"
+"public.matricula" }o--|| "public.usuario" : "FOREIGN KEY (estudiante_id) REFERENCES usuario(id) ON DELETE CASCADE"
+"public.matricula" }o--|| "public.aula" : "FOREIGN KEY (aula_id) REFERENCES aula(id) ON DELETE CASCADE"
+"public.aula_nivel" }o--|| "public.nivel" : "FOREIGN KEY (nivel_id) REFERENCES nivel(id)"
+"public.aula_nivel" }o--|| "public.aula" : "FOREIGN KEY (aula_id) REFERENCES aula(id) ON DELETE CASCADE"
+"public.intento" }o--|| "public.usuario" : "FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE"
+"public.intento" }o--|| "public.nivel" : "FOREIGN KEY (nivel_id) REFERENCES nivel(id)"
+"public.intento_paso" }o--|| "public.paso" : "FOREIGN KEY (paso_id) REFERENCES paso(id)"
+"public.intento_paso" }o--|| "public.intento" : "FOREIGN KEY (intento_id) REFERENCES intento(id) ON DELETE CASCADE"
+"public.pista_usada" }o--|| "public.pista" : "FOREIGN KEY (pista_id) REFERENCES pista(id)"
+"public.pista_usada" }o--|| "public.intento" : "FOREIGN KEY (intento_id) REFERENCES intento(id) ON DELETE CASCADE"
+"public.respuesta" }o--|| "public.pregunta" : "FOREIGN KEY (pregunta_id) REFERENCES pregunta(id)"
+"public.respuesta" }o--|| "public.opcion" : "FOREIGN KEY (opcion_id) REFERENCES opcion(id)"
+"public.respuesta" }o--|| "public.intento" : "FOREIGN KEY (intento_id) REFERENCES intento(id) ON DELETE CASCADE"
+"public.logro_usuario" }o--|| "public.usuario" : "FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE"
+"public.logro_usuario" }o--|| "public.insignia" : "FOREIGN KEY (insignia_codigo) REFERENCES insignia(codigo)"
+"public.sesion" }o--o| "public.usuario" : "FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE SET NULL"
+"public.evento" }o--o| "public.usuario" : "FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE SET NULL"
+"public.evento" }o--o| "public.nivel" : "FOREIGN KEY (nivel_id) REFERENCES nivel(id)"
+"public.evento" }o--|| "public.sesion" : "FOREIGN KEY (sesion_id) REFERENCES sesion(id) ON DELETE CASCADE"
+
+"public.databasechangelog" {
+  varchar_255_ id
+  varchar_255_ author
+  varchar_255_ filename
+  timestamp_without_time_zone dateexecuted
+  integer orderexecuted
+  varchar_10_ exectype
+  varchar_35_ md5sum
+  varchar_255_ description
+  varchar_255_ comments
+  varchar_255_ tag
+  varchar_20_ liquibase
+  varchar_255_ contexts
+  varchar_255_ labels
+  varchar_10_ deployment_id
+}
+"public.databasechangeloglock" {
+  integer id
+  boolean locked
+  timestamp_without_time_zone lockgranted
+  varchar_255_ lockedby
+}
+"public.rol" {
+  smallint id
+  varchar_20_ codigo
+  varchar_40_ nombre
+}
+"public.usuario" {
+  bigint id
+  varchar_120_ email
+  varchar_80_ nombre
+  varchar_100_ password_hash
+  smallint rol_id
+  smallint grado
+  integer xp
+  smallint racha_actual
+  smallint racha_maxima
+  date ultimo_dia_activo
+  boolean activo
+  timestamp_with_time_zone creado_en
+  timestamp_with_time_zone actualizado_en
+}
+"public.auditoria" {
+  bigint id
+  varchar_63_ tabla
+  character_1_ operacion
+  text registro_id
+  varchar_63_ usuario_bd
+  jsonb datos_antes
+  jsonb datos_despues
+  timestamp_with_time_zone ocurrido_en
+}
+"public.elemento" {
+  varchar_3_ simbolo
+  varchar_30_ nombre
+  smallint numero_atomico
+  character_7_ color_hex
+  character_7_ brillo_hex
+  numeric_4_1_ radio_px
+}
+"public.especie" {
+  varchar_10_ codigo
+  varchar_12_ formula
+  varchar_60_ nombre
+  numeric_9_3_ masa_molar
+  numeric_8_2_ dhf_kj_mol
+  numeric_7_2_ punto_fusion_k
+  numeric_7_2_ punto_ebull_k
+  numeric_7_2_ dhvap_kj_mol
+  numeric_6_2_ p_triple_atm
+  numeric_7_2_ t_triple_k
+  numeric_7_2_ dhvap_triple
+  integer pubchem_cid
+  boolean es_radical
+  boolean inyectable
+  smallint orden
+}
+"public.especie_atomo" {
+  varchar_10_ especie_codigo
+  smallint posicion
+  varchar_3_ simbolo
+  numeric_5_1_ x
+  numeric_5_1_ y
+}
+"public.reaccion" {
+  varchar_12_ codigo
+  varchar_40_ etiqueta
+  numeric_6_2_ ea_kj_mol
+  numeric_4_3_ factor_esterico
+  varchar_8_ enlace
+}
+"public.reaccion_participante" {
+  varchar_12_ reaccion_codigo
+  varchar_9_ papel
+  smallint posicion
+  varchar_10_ especie_codigo
+}
+"public.fotolisis" {
+  varchar_10_ especie_codigo
+  numeric_6_1_ enlace_kj_mol
+  numeric_7_5_ seccion_eficaz
+  varchar_8_ etiqueta
+  varchar_10_ producto_1
+  varchar_10_ producto_2
+}
+"public.preset" {
+  varchar_20_ codigo
+  varchar_60_ nombre
+  varchar_40_ ecuacion
+  varchar_20_ sobre_flecha
+  varchar_30_ etiqueta
+  text pista
+  jsonb parametros
+  jsonb pasos
+  smallint orden
+}
+"public.preset_carga" {
+  varchar_20_ preset_codigo
+  varchar_10_ especie_codigo
+  smallint cantidad
+}
+"public.mision" {
+  smallint id
+  varchar_20_ codigo
+  varchar_60_ titulo
+  text descripcion
+  text competencia
+  varchar_20_ color
+  smallint orden
+}
+"public.nivel" {
+  smallint id
+  varchar_30_ codigo
+  smallint mision_id
+  smallint orden
+  varchar_80_ titulo
+  text resumen
+  text objetivo
+  smallint grado
+  smallint xp_base
+  smallint minutos_estim
+  varchar_3_ casilla_simbolo
+  smallint casilla_fila
+  smallint casilla_columna
+  text casilla_nota
+  jsonb inicio
+  text__ controles
+  text__ especies
+  smallint nivel_previo_id
+}
+"public.paso" {
+  integer id
+  smallint nivel_id
+  smallint orden
+  varchar_60_ titulo
+  text instruccion
+  text concepto
+  jsonb condicion
+}
+"public.pista" {
+  integer id
+  integer paso_id
+  smallint nivel_ayuda
+  text texto
+  smallint costo_xp
+}
+"public.pregunta" {
+  integer id
+  smallint nivel_id
+  smallint orden
+  text enunciado
+  text explicacion
+}
+"public.opcion" {
+  integer id
+  integer pregunta_id
+  smallint orden
+  text texto
+  boolean es_correcta
+}
+"public.insignia" {
+  varchar_30_ codigo
+  varchar_40_ nombre
+  text descripcion
+  varchar_20_ icono
+  varchar_30_ tipo
+  integer umbral
+}
+"public.glosario" {
+  smallint id
+  varchar_60_ termino
+  text definicion
+  tsvector busqueda
+}
+"public.aula" {
+  integer id
+  character_6_ codigo
+  varchar_60_ nombre
+  smallint grado
+  varchar_3_ seccion
+  bigint docente_id
+  timestamp_with_time_zone creado_en
+}
+"public.matricula" {
+  integer aula_id
+  bigint estudiante_id
+  timestamp_with_time_zone unido_en
+}
+"public.aula_nivel" {
+  integer aula_id
+  smallint nivel_id
+  date fecha_limite
+  timestamp_with_time_zone asignado_en
+}
+"public.intento" {
+  bigint id
+  bigint usuario_id
+  smallint nivel_id
+  varchar_12_ estado
+  timestamp_with_time_zone iniciado_en
+  timestamp_with_time_zone finalizado_en
+  smallint pasos_completados
+  smallint pistas_usadas
+  smallint xp_pistas
+  smallint aciertos
+  smallint estrellas
+  integer xp_obtenido
+}
+"public.intento_paso" {
+  bigint intento_id
+  integer paso_id
+  integer segundos
+  timestamp_with_time_zone completado_en
+}
+"public.pista_usada" {
+  bigint intento_id
+  integer pista_id
+  timestamp_with_time_zone usada_en
+}
+"public.respuesta" {
+  bigint intento_id
+  integer pregunta_id
+  integer opcion_id
+  boolean es_correcta
+  timestamp_with_time_zone respondida_en
+}
+"public.logro_usuario" {
+  bigint usuario_id
+  varchar_30_ insignia_codigo
+  timestamp_with_time_zone obtenido_en
+}
+"public.sesion" {
+  uuid id
+  bigint usuario_id
+  varchar_10_ origen
+  varchar_10_ dispositivo
+  timestamp_with_time_zone iniciada_en
+  timestamp_with_time_zone ultima_actividad
+}
+"public.evento" {
+  bigint id
+  uuid sesion_id
+  bigint usuario_id
+  varchar_30_ tipo
+  smallint nivel_id
+  jsonb datos
+  timestamp_with_time_zone creado_en
+}
+"public.v_reaccion_entalpia" {
+  varchar_12_ codigo
+  varchar_40_ etiqueta
+  numeric_6_2_ ea_kj_mol
+  numeric_4_3_ factor_esterico
+  varchar_8_ enlace
+  text ecuacion
+  numeric_8_2_ delta_h_kj_mol
+  text tipo
+}
+"public.v_progreso_estudiante" {
+  bigint usuario_id
+  varchar_80_ nombre
+  smallint grado
+  integer xp
+  smallint racha_actual
+  smallint racha_maxima
+  integer niveles_completados
+  integer estrellas_totales
+  integer insignias
+  timestamp_with_time_zone ultima_actividad
+}
+"public.v_ranking_aula" {
+  integer aula_id
+  bigint usuario_id
+  varchar_80_ nombre
+  integer xp
+  integer estrellas_totales
+  integer niveles_completados
+  bigint puesto
+}
+"public.v_estadisticas_nivel" {
+  smallint nivel_id
+  varchar_30_ codigo
+  varchar_80_ titulo
+  smallint orden
+  integer intentos
+  integer completados
+  numeric tasa_completado
+  numeric estrellas_promedio
+  numeric pistas_promedio
+  numeric minutos_promedio
+}
+"public.v_tiempo_por_paso" {
+  integer paso_id
+  varchar_30_ nivel_codigo
+  smallint orden
+  varchar_60_ titulo
+  integer veces
+  numeric segundos_promedio
+  double_precision segundos_mediana
+}
+"public.v_preguntas_dificiles" {
+  integer pregunta_id
+  varchar_30_ nivel_codigo
+  text enunciado
+  integer respuestas
+  numeric porcentaje_error
+}
+"public.mv_uso_diario" {
+  date dia
+  integer sesiones
+  integer usuarios_activos
+  integer eventos
+  integer niveles_completados
+  integer pistas_usadas
+}
