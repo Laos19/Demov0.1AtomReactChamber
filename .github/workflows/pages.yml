@@ -210,11 +210,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh api "repos/${{ github.repository }}/pages" > /dev/null 2>&1; then
+          # Solo publica si Pages usa "GitHub Actions" como fuente. Si publica desde una rama
+          # (p. ej. gh-pages con la demo), el sitio se construye igual como artefacto pero no se reemplaza.
+          tipo=$(gh api "repos/${{ github.repository }}/pages" --jq .build_type 2>/dev/null || echo "none")
+          if [ "$tipo" = "workflow" ]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "- omitido: GitHub Pages no está habilitado (Settings → Pages → Source: GitHub Actions)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- omitido: GitHub Pages publica desde una rama (build_type=$tipo); el sitio quedó como artefacto. Para publicarlo con Actions: Settings → Pages → Source: GitHub Actions" >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - uses: actions/deploy-pages@v4
