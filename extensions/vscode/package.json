@@ -2,7 +2,7 @@
   "name": "atomreactchamber-vscode",
   "displayName": "AtomReactChamber",
   "description": "Misiones, catálogo químico y el asistente Quimi de AtomReactChamber dentro de VS Code.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "publisher": "adriana-laos",
   "author": "Adriana Rafaela Laos González",
   "license": "MIT",
@@ -16,8 +16,17 @@
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": ["Education", "Other"],
-  "keywords": ["química", "chemistry", "educación", "secundaria", "gamificación"],
+  "categories": [
+    "Education",
+    "Other"
+  ],
+  "keywords": [
+    "química",
+    "chemistry",
+    "educación",
+    "secundaria",
+    "gamificación"
+  ],
   "main": "./dist/extension.js",
   "activationEvents": [],
   "contributes": {
@@ -32,8 +41,16 @@
     },
     "views": {
       "atomreactchamber": [
-        { "id": "atomreactchamber.misiones", "name": "Misiones", "icon": "media/atom.svg" },
-        { "id": "atomreactchamber.catalogo", "name": "Catálogo", "icon": "media/atom.svg" }
+        {
+          "id": "atomreactchamber.misiones",
+          "name": "Misiones",
+          "icon": "media/atom.svg"
+        },
+        {
+          "id": "atomreactchamber.catalogo",
+          "name": "Catálogo",
+          "icon": "media/atom.svg"
+        }
       ]
     },
     "viewsWelcome": [
@@ -43,25 +60,88 @@
       }
     ],
     "commands": [
-      { "command": "atomreactchamber.preguntarQuimi", "title": "Preguntar a Quimi", "category": "AtomReactChamber", "icon": "$(comment-discussion)" },
-      { "command": "atomreactchamber.verEspecie", "title": "Ver ficha de especie", "category": "AtomReactChamber", "icon": "$(symbol-constant)" },
-      { "command": "atomreactchamber.explicarReaccion", "title": "Explicar reacción", "category": "AtomReactChamber", "icon": "$(flame)" },
-      { "command": "atomreactchamber.iniciarSesion", "title": "Iniciar sesión", "category": "AtomReactChamber", "icon": "$(account)" },
-      { "command": "atomreactchamber.cerrarSesion", "title": "Cerrar sesión", "category": "AtomReactChamber" },
-      { "command": "atomreactchamber.miProgreso", "title": "Mi progreso", "category": "AtomReactChamber", "icon": "$(star-full)" },
-      { "command": "atomreactchamber.abrirLaboratorio", "title": "Abrir laboratorio", "category": "AtomReactChamber", "icon": "$(link-external)" },
-      { "command": "atomreactchamber.refrescar", "title": "Refrescar", "category": "AtomReactChamber", "icon": "$(refresh)" }
+      {
+        "command": "atomreactchamber.preguntarQuimi",
+        "title": "Preguntar a Quimi",
+        "category": "AtomReactChamber",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "atomreactchamber.verEspecie",
+        "title": "Ver ficha de especie",
+        "category": "AtomReactChamber",
+        "icon": "$(symbol-constant)"
+      },
+      {
+        "command": "atomreactchamber.explicarReaccion",
+        "title": "Explicar reacción",
+        "category": "AtomReactChamber",
+        "icon": "$(flame)"
+      },
+      {
+        "command": "atomreactchamber.iniciarSesion",
+        "title": "Iniciar sesión",
+        "category": "AtomReactChamber",
+        "icon": "$(account)"
+      },
+      {
+        "command": "atomreactchamber.cerrarSesion",
+        "title": "Cerrar sesión",
+        "category": "AtomReactChamber"
+      },
+      {
+        "command": "atomreactchamber.miProgreso",
+        "title": "Mi progreso",
+        "category": "AtomReactChamber",
+        "icon": "$(star-full)"
+      },
+      {
+        "command": "atomreactchamber.abrirLaboratorio",
+        "title": "Abrir laboratorio",
+        "category": "AtomReactChamber",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "atomreactchamber.refrescar",
+        "title": "Refrescar",
+        "category": "AtomReactChamber",
+        "icon": "$(refresh)"
+      }
     ],
     "menus": {
       "view/title": [
-        { "command": "atomreactchamber.refrescar", "when": "view == atomreactchamber.misiones || view == atomreactchamber.catalogo", "group": "navigation@9" },
-        { "command": "atomreactchamber.preguntarQuimi", "when": "view == atomreactchamber.misiones || view == atomreactchamber.catalogo", "group": "navigation@1" },
-        { "command": "atomreactchamber.miProgreso", "when": "view == atomreactchamber.misiones", "group": "navigation@2" },
-        { "command": "atomreactchamber.abrirLaboratorio", "when": "view == atomreactchamber.misiones", "group": "navigation@3" }
+        {
+          "command": "atomreactchamber.refrescar",
+          "when": "view == atomreactchamber.misiones || view == atomreactchamber.catalogo",
+          "group": "navigation@9"
+        },
+        {
+          "command": "atomreactchamber.preguntarQuimi",
+          "when": "view == atomreactchamber.misiones || view == atomreactchamber.catalogo",
+          "group": "navigation@1"
+        },
+        {
+          "command": "atomreactchamber.miProgreso",
+          "when": "view == atomreactchamber.misiones",
+          "group": "navigation@2"
+        },
+        {
+          "command": "atomreactchamber.abrirLaboratorio",
+          "when": "view == atomreactchamber.misiones",
+          "group": "navigation@3"
+        }
       ],
       "view/item/context": [
-        { "command": "atomreactchamber.verEspecie", "when": "view == atomreactchamber.catalogo && viewItem == especie", "group": "inline" },
-        { "command": "atomreactchamber.explicarReaccion", "when": "view == atomreactchamber.catalogo && viewItem == reaccion", "group": "inline" }
+        {
+          "command": "atomreactchamber.verEspecie",
+          "when": "view == atomreactchamber.catalogo && viewItem == especie",
+          "group": "inline"
+        },
+        {
+          "command": "atomreactchamber.explicarReaccion",
+          "when": "view == atomreactchamber.catalogo && viewItem == reaccion",
+          "group": "inline"
+        }
       ]
     },
     "configuration": {
