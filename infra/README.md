@@ -140,6 +140,7 @@ pasos que dependen de ellos se omiten y el reporte muestra `omitido: falta secre
 | Nombre | Usado en | Valor |
 |---|---|---|
 | `TF_CLOUD_ORGANIZATION` | `infra.yml` | Organización de HCP Terraform |
+| `NEON_ORG_ID` | `infra.yml` | ID de la organización de Neon (`org-…`), en *Organization settings* de Neon; obligatorio en cuentas nuevas |
 | `TF_WORKSPACE` | `infra.yml` | *(opcional)* por defecto `atomreactchamber-prod` |
 | `API_URL` | `release.yml` | salida `api_url`, p. ej. `https://atomreactchamber-api.onrender.com` (build del frontend y smoke test) |
 | `WEB_URL` | `release.yml` | salida `web_url` |

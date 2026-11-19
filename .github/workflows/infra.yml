@@ -333,6 +333,8 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      # ID de la organización de Neon (org-…): obligatorio en cuentas nuevas de Neon.
+      TF_VAR_neon_org_id: ${{ vars.NEON_ORG_ID }}
       TF_WORKSPACE: ${{ vars.TF_WORKSPACE || 'atomreactchamber-prod' }}
       PG_CONN_STR: ${{ secrets.TF_STATE_PG_CONN_STR }}
       ACTION: ${{ github.event_name == 'workflow_dispatch' && inputs.action || 'apply' }}
@@ -344,6 +346,7 @@ jobs:
         run: |
           # Limpia espacios y saltos de línea accidentales al pegar las claves en GitHub Secrets.
           for v in NEON_API_KEY RENDER_API_KEY RENDER_OWNER_ID TF_API_TOKEN TF_TOKEN_app_terraform_io; do export "$v=$(printf %s "${!v}" | tr -d '[:space:]')"; done
+          if [ -z "${TF_VAR_neon_org_id// /}" ]; then unset TF_VAR_neon_org_id; else export TF_VAR_neon_org_id="$(printf %s "$TF_VAR_neon_org_id" | tr -d '[:space:]')"; fi
           mkdir -p "$REPORTS"
           missing=()
           [ -n "$NEON_API_KEY" ] || missing+=(NEON_API_KEY)
@@ -382,6 +385,7 @@ jobs:
         run: |
           # Limpia espacios y saltos de línea accidentales al pegar las claves en GitHub Secrets.
           for v in NEON_API_KEY RENDER_API_KEY RENDER_OWNER_ID TF_API_TOKEN TF_TOKEN_app_terraform_io; do export "$v=$(printf %s "${!v}" | tr -d '[:space:]')"; done
+          if [ -z "${TF_VAR_neon_org_id// /}" ]; then unset TF_VAR_neon_org_id; else export TF_VAR_neon_org_id="$(printf %s "$TF_VAR_neon_org_id" | tr -d '[:space:]')"; fi
           cat > backend_override.tf <<'HCL'
           terraform {
             backend "pg" {
@@ -395,6 +399,7 @@ jobs:
         run: |
           # Limpia espacios y saltos de línea accidentales al pegar las claves en GitHub Secrets.
           for v in NEON_API_KEY RENDER_API_KEY RENDER_OWNER_ID TF_API_TOKEN TF_TOKEN_app_terraform_io; do export "$v=$(printf %s "${!v}" | tr -d '[:space:]')"; done
+          if [ -z "${TF_VAR_neon_org_id// /}" ]; then unset TF_VAR_neon_org_id; else export TF_VAR_neon_org_id="$(printf %s "$TF_VAR_neon_org_id" | tr -d '[:space:]')"; fi
           if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
           terraform init -no-color
 
@@ -404,6 +409,7 @@ jobs:
         run: |
           # Limpia espacios y saltos de línea accidentales al pegar las claves en GitHub Secrets.
           for v in NEON_API_KEY RENDER_API_KEY RENDER_OWNER_ID TF_API_TOKEN TF_TOKEN_app_terraform_io; do export "$v=$(printf %s "${!v}" | tr -d '[:space:]')"; done
+          if [ -z "${TF_VAR_neon_org_id// /}" ]; then unset TF_VAR_neon_org_id; else export TF_VAR_neon_org_id="$(printf %s "$TF_VAR_neon_org_id" | tr -d '[:space:]')"; fi
           if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
           flags=()
           [ "$ACTION" = "destroy" ] && flags+=(-destroy)
@@ -426,6 +432,7 @@ jobs:
         run: |
           # Limpia espacios y saltos de línea accidentales al pegar las claves en GitHub Secrets.
           for v in NEON_API_KEY RENDER_API_KEY RENDER_OWNER_ID TF_API_TOKEN TF_TOKEN_app_terraform_io; do export "$v=$(printf %s "${!v}" | tr -d '[:space:]')"; done
+          if [ -z "${TF_VAR_neon_org_id// /}" ]; then unset TF_VAR_neon_org_id; else export TF_VAR_neon_org_id="$(printf %s "$TF_VAR_neon_org_id" | tr -d '[:space:]')"; fi
           if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
           terraform apply -no-color -auto-approve tfplan | tee "$REPORTS/apply.txt"
 
@@ -434,6 +441,7 @@ jobs:
         run: |
           # Limpia espacios y saltos de línea accidentales al pegar las claves en GitHub Secrets.
           for v in NEON_API_KEY RENDER_API_KEY RENDER_OWNER_ID TF_API_TOKEN TF_TOKEN_app_terraform_io; do export "$v=$(printf %s "${!v}" | tr -d '[:space:]')"; done
+          if [ -z "${TF_VAR_neon_org_id// /}" ]; then unset TF_VAR_neon_org_id; else export TF_VAR_neon_org_id="$(printf %s "$TF_VAR_neon_org_id" | tr -d '[:space:]')"; fi
           if [ "${{ steps.check.outputs.backend }}" = "pg" ]; then unset TF_WORKSPACE; fi
           summary_line=$(grep -E '^(Plan:|No changes\.)' "$REPORTS/plan.txt" | head -1 || true)
           {
