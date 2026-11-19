@@ -2,7 +2,7 @@
 title: "AtomReactChamber — Documento de Visión"
 version: "2.0"
 fecha: "2026-11-07"
-autora: "Adriana Rafaela Laos González (2023077474)"
+autores: "Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696)"
 ---
 
 # Cambios respecto a v0.1
@@ -14,7 +14,7 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 > **Correcciones de referencias a la implementación:** vista `v_estadisticas_nivel` (no `v_metricas_nivel`), tabla `pista_usada` (no `uso_pista`); desbloqueo de niveles en la API con `nivel.nivel_previo_id`; racha = días con al menos un nivel completado; docentes con código de invitación; el administrador tiene permisos de docente sobre todas las aulas y el contenido se publica con `db/data` + Liquibase; JWT de 7 días con `activo` verificado solo al iniciar sesión (limitación conocida).
 
 1. **[1] Nombre:** "AtomReactChamber" en todo el documento (antes: "QUIMI-K", "Quimi-K", "Simulador de laboratorio virtual v2.2"). **Quimi** es el nombre del asistente, no del sistema.
-2. **[2] Equipo:** solo Adriana Rafaela Laos González. Se eliminaron Antony Solorzano (portada), Gabriela Cohaila, Vincenzo Llanos y Edison Meneses (perfil del equipo) y la mención al curso "Programación III".
+2. **[2] Equipo:** Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696). Se eliminaron Gabriela Cohaila, Vincenzo Llanos y Edison Meneses (perfil del equipo) y la mención al curso "Programación III".
 3. **[3] Stack real:** React + Vite + TypeScript, Node 22 + Fastify, PostgreSQL (Neon), Liquibase, Terraform, GitHub Actions; simulador **2D molecular** (se elimina "2D isométrico").
 4. **[4] Objetivos SMART** añadidos (sección 1.2.1), idénticos a los del FD01 v2.0.
 5. **[5] Problema con fuentes** (PISA 2022, ECE 2019 Tacna, Defensoría, metaanálisis).
@@ -32,8 +32,8 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
-| 0.1 | Adriana Laos | — | — | 2026 | Primera versión del proyecto |
-| 2.0 | Adriana Laos | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Corrección integral: nombre, equipo, alcance, gamificación, roles, objetivos SMART y fuentes |
+| 0.1 | Adriana Laos y Antony Solorzano | — | — | 2026 | Primera versión del proyecto |
+| 2.0 | Adriana Laos y Antony Solorzano | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Corrección integral: nombre, equipo, alcance, gamificación, roles, objetivos SMART y fuentes |
 
 ---
 
@@ -185,7 +185,7 @@ Neon (BD), Render (API y sitio) y GitHub Pages (documentación y demo).
 | Interesado | Descripción |
 |---|---|
 | Docente del curso | Ing. Patrick Cuadros Quiroga. Orienta, supervisa y evalúa el proyecto en Base de Datos II. |
-| Desarrolladora | Adriana Rafaela Laos González: análisis, BD, desarrollo, pruebas, despliegue y documentación (roles rotativos). |
+| Equipo de desarrollo | Adriana Rafaela Laos González y Antony Piero Solorzano Zegarra: análisis, BD, desarrollo, pruebas, despliegue y documentación (roles rotativos). |
 | Institución educativa | IE de secundaria que usa la plataforma como complemento de Ciencia y Tecnología. |
 | Docente de Ciencia y Tecnología | Crea aulas, asigna misiones y revisa el progreso. |
 | Estudiantes | Usuarios principales (1.º–5.º de secundaria). |
@@ -238,13 +238,13 @@ Neon (BD), Render (API y sitio) y GitHub Pages (documentación y demo).
 | Participación | Semanal |
 | Comunicación | Clases, correo institucional, GitHub |
 
-**Interesado 2: Desarrolladora**
+**Interesado 2: Equipo de desarrollo**
 
 | Atributo | Descripción |
 |---|---|
-| Rol | Desarrolladora única con roles rotativos |
-| Integrante | **Laos González, Adriana Rafaela (2023077474)** — gestora, analista, diseñadora de BD, desarrolladora backend y frontend, DevOps, QA y documentadora |
-| Organización | UPT – Estudiante de Ingeniería de Sistemas |
+| Rol | Equipo de desarrollo de dos integrantes con roles rotativos |
+| Integrantes | **Laos González, Adriana Rafaela (2023077474)** y **Solorzano Zegarra, Antony Piero (2023078696)** — gestión, análisis, diseño de BD, desarrollo backend y frontend, DevOps, QA y documentación |
+| Organización | UPT – Estudiantes de Ingeniería de Sistemas |
 | Responsabilidades | Diseñar, implementar, probar, desplegar y documentar AtomReactChamber. |
 | Expectativas | Aplicar los contenidos de **Base de Datos II** (modelado, SQL avanzado, migraciones, respaldos) en un producto real. |
 | Influencia | Alta |
@@ -407,7 +407,7 @@ con el código del aula.
 | RES-01 | Plataforma web; sin instalación local. |
 | RES-02 | Stack fijado: React + Vite + TS, Node 22 + Fastify + TS, PostgreSQL, Liquibase, Terraform, GitHub Actions. |
 | RES-03 | Infraestructura en planes gratuitos (Neon, Render, GitHub Pages) durante desarrollo y piloto. |
-| RES-04 | Desarrollo por una sola integrante en 16 semanas. |
+| RES-04 | Desarrollo por dos integrantes en 16 semanas. |
 | RES-05 | Simulación 2D; sin laboratorio 3D en esta versión. |
 | RES-06 | Quimi basado en reglas; sin LLM en esta versión. |
 | RES-07 | Las energías de activación del simulador son didácticas y se declaran como tales. |

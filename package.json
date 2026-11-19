@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "private": true,
   "description": "AtomReactChamber v2 — laboratorio virtual de química gamificado para secundaria (UPT · Base de Datos II)",
-  "author": "Adriana Rafaela Laos González",
+  "author": "Adriana Rafaela Laos González y Antony Piero Solorzano Zegarra",
   "license": "MIT",
   "type": "module",
   "workspaces": [

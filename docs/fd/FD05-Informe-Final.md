@@ -2,14 +2,14 @@
 title: "AtomReactChamber — Informe Final"
 version: "1.0"
 fecha: "2026-11-07"
-autora: "Adriana Rafaela Laos González (2023077474)"
+autores: "Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696)"
 ---
 
 # Control de versiones
 
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
-| 1.0 | Adriana Laos | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Informe final de la versión 2.0 del producto, antes del piloto con estudiantes |
+| 1.0 | Adriana Laos y Antony Solorzano | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Informe final de la versión 2.0 del producto, antes del piloto con estudiantes |
 
 ---
 
@@ -20,7 +20,7 @@ aplicación web que convierte la tabla periódica en un mapa de misiones. Cada c
 pasos se verifican con un simulador molecular 2D; el asistente **Quimi** da ayudas escalonadas que cuestan XP;
 la base de datos calcula estrellas, XP, rachas e insignias; y el docente sigue el avance de su aula en un tablero.
 
-La versión 2.0, desarrollada por una sola integrante en el curso **Base de Datos II** (UPT – FAING – EPIS),
+La versión 2.0, desarrollada por dos integrantes en el curso **Base de Datos II** (UPT – FAING – EPIS),
 reemplaza a la v0.1 (un simulador en un único componente React, sin base de datos, usuarios ni pruebas). El
 resultado entregado es:
 
@@ -184,10 +184,11 @@ historial completo está en `git log`.
 
 | Integrante | Roles | Contribución |
 |---|---|---|
-| Laos González, Adriana Rafaela (2023077474) | Gestora, analista, diseñadora de BD, desarrolladora backend y frontend, DevOps, QA y documentadora | **100 %** |
+| Laos González, Adriana Rafaela (2023077474) | Gestión, análisis, diseño de BD, desarrollo backend y frontend, DevOps, QA y documentación (roles rotativos) | **50 %** |
+| Solorzano Zegarra, Antony Piero (2023078696) | Gestión, análisis, diseño de BD, desarrollo backend y frontend, DevOps, QA y documentación (roles rotativos) | **50 %** |
 
-Se usaron asistentes de IA (Claude Code y sus *skills*) como herramienta de apoyo, bajo dirección y revisión de la
-integrante; las decisiones de alcance y de diseño constan en `task_plan.md`.
+Se usaron asistentes de IA (Claude Code y sus *skills*) como herramienta de apoyo, bajo dirección y revisión de los
+integrantes; las decisiones de alcance y de diseño constan en `task_plan.md`.
 
 # 10. Costos
 

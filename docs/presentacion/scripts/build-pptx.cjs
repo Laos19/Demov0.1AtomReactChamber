@@ -16,7 +16,7 @@ const H = 'Arial'; const B = 'Calibri'; const M = 'Consolas';
 
 const pres = new pptxgen();
 pres.layout = 'LAYOUT_WIDE'; // 13.33 × 7.5
-pres.author = 'Adriana Rafaela Laos González';
+pres.author = 'Adriana Rafaela Laos González y Antony Piero Solorzano Zegarra';
 pres.title = 'AtomReactChamber v2';
 pres.company = 'Universidad Privada de Tacna';
 pres.theme = { headFontFace: H, bodyFontFace: B };
@@ -62,8 +62,9 @@ function tabla(s, head, rows, o, fs = 12) {
   txt(s, 'Universidad Privada de Tacna · Facultad de Ingeniería\nEscuela Profesional de Ingeniería de Sistemas · Base de Datos II', { x: 0.7, y: 0.6, w: 7, h: 0.6, fontFace: M, fontSize: 11, color: '9DB0C7' });
   txt(s, 'AtomReactChamber', { x: 0.7, y: 1.9, w: 7.5, h: 0.9, fontFace: H, bold: true, fontSize: 42, color: K.claro });
   txt(s, 'Laboratorio virtual gamificado de química para estudiantes de secundaria del Perú', { x: 0.7, y: 2.9, w: 6.6, h: 0.9, fontSize: 20, color: K.claro });
-  txt(s, [{ text: 'Expone: ', options: { color: '9DB0C7' } }, { text: 'Adriana Rafaela Laos González', options: { bold: true, color: K.claro } }, { text: ' · 2023077474', options: { color: '9DB0C7' } }], { x: 0.7, y: 4.4, w: 7, h: 0.35, fontSize: 15 });
-  txt(s, 'Docente: Ing. Patrick Cuadros Quiroga · Tacna, noviembre de 2026', { x: 0.7, y: 4.8, w: 7, h: 0.35, fontSize: 15, color: '9DB0C7' });
+  txt(s, [{ text: 'Exponen: ', options: { color: '9DB0C7' } }, { text: 'Adriana Rafaela Laos González', options: { bold: true, color: K.claro } }, { text: ' · 2023077474', options: { color: '9DB0C7' } }], { x: 0.7, y: 4.2, w: 7, h: 0.35, fontSize: 15 });
+  txt(s, [{ text: 'Antony Piero Solorzano Zegarra', options: { bold: true, color: K.claro } }, { text: ' · 2023078696', options: { color: '9DB0C7' } }], { x: 1.62, y: 4.58, w: 6.1, h: 0.35, fontSize: 15 });
+  txt(s, 'Docente: Ing. Patrick Cuadros Quiroga · Tacna, noviembre de 2026', { x: 0.7, y: 5.05, w: 7, h: 0.35, fontSize: 15, color: '9DB0C7' });
   const tiles = [['1', 'H', K.cobre], null, null, ['18', 'Ar', K.potasio], null, ['6', 'C', K.calcio], ['8', 'O', K.calcio], null, ['11', 'Na', K.litio], null, ['17', 'Cl', K.litio], ['★', 'v2', K.sodio]];
   tiles.forEach((t, i) => {
     const x = 8.3 + (i % 4) * 1.15; const y = 0.8 + Math.floor(i / 4) * 1.2;
@@ -331,7 +332,7 @@ function tabla(s, head, rows, o, fs = 12) {
     txt(s, c[0], { x: x + 0.2, y: y + 0.12, w: 3.4, h: 0.3, bold: true, fontSize: 13, color: c[2] });
     txt(s, c[1], { x: x + 0.2, y: y + 0.45, w: 3.4, h: 0.8, fontSize: 15, color: K.claro });
   });
-  txt(s, 'Repositorio: github.com/Laos19/Demov0.1AtomReactChamber · Adriana Rafaela Laos González · 2023077474', { x: 0.7, y: 6.75, w: 11, h: 0.3, fontSize: 12, color: '9DB0C7' });
+  txt(s, 'Repositorio: github.com/Laos19/Demov0.1AtomReactChamber · Adriana Rafaela Laos González (2023077474) · Antony Piero Solorzano Zegarra (2023078696)', { x: 0.7, y: 6.75, w: 11, h: 0.3, fontSize: 12, color: '9DB0C7' });
   s.addNotes(notas[16]);
 }
 

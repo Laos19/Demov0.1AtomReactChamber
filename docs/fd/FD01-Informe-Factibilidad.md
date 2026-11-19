@@ -2,7 +2,7 @@
 title: "AtomReactChamber — Informe de Factibilidad"
 version: "2.0"
 fecha: "2026-11-07"
-autora: "Adriana Rafaela Laos González (2023077474)"
+autores: "Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696)"
 ---
 
 # Cambios respecto a v0.1
@@ -14,7 +14,7 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 > **Correcciones de referencias a la implementación:** vista `v_estadisticas_nivel` (no `v_metricas_nivel`), tabla `pista_usada` (no `uso_pista`); desbloqueo de niveles en la API con `nivel.nivel_previo_id`; racha = días con al menos un nivel completado; docentes con código de invitación; el administrador tiene permisos de docente sobre todas las aulas y el contenido se publica con `db/data` + Liquibase; JWT de 7 días con `activo` verificado solo al iniciar sesión (limitación conocida).
 
 1. **[1] Nombre único:** "AtomReactChamber" en todo el documento (antes: Atom React Chamber / Atomic Reactor Chamber / Simulador v2.3).
-2. **[2] Equipo:** una sola integrante (Adriana) con roles rotativos; se eliminó a Antony Solorzano de la portada y la "redistribución entre 3 integrantes" del plan de riesgos.
+2. **[2] Equipo:** dos integrantes, Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696), con roles rotativos; se eliminó la "redistribución entre 3 integrantes" del plan de riesgos.
 3. **[3] Stack real:** React + Vite + TypeScript, Node 22 + Fastify, PostgreSQL (Neon), Liquibase, Terraform, GitHub Actions (antes: Java / Spring Boot / 2.5D).
 4. **[4] Objetivos SMART** con indicador, meta, instrumento y plazo (antes: objetivos no medibles).
 5. **[5] Problema con fuentes** (PISA 2022, ECE, Defensoría, metaanálisis) en la sección 3.1.
@@ -33,7 +33,7 @@ autora: "Adriana Rafaela Laos González (2023077474)"
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
 | 0.1 | Adriana Laos y Antony Solorzano | — | — | 2026 | Versión original |
-| 2.0 | Adriana Laos | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Corrección integral: nombre, equipo, stack, alcance, costos, análisis financiero, objetivos SMART y fuentes |
+| 2.0 | Adriana Laos y Antony Solorzano | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Corrección integral: nombre, equipo, stack, alcance, costos, análisis financiero, objetivos SMART y fuentes |
 
 ---
 
@@ -96,7 +96,7 @@ El detalle (línea base y objetivos de investigación) está en `docs/investigac
 
 | N.° | Riesgo | Probabilidad | Impacto | Plan de contingencia |
 |---|---|---|---|---|
-| 1 | **Desarrolladora única:** enfermedad o sobrecarga en semanas de exámenes detiene el proyecto. | Alta | Alto | Alcance priorizado (MVP: mapa + 3 misiones + Quimi + aula); tablero de tareas; automatización de pruebas y despliegue para reducir trabajo manual; documentación continua. |
+| 1 | **Equipo de dos integrantes:** enfermedad o sobrecarga de uno de ellos en semanas de exámenes detiene el proyecto. | Alta | Alto | Alcance priorizado (MVP: mapa + 3 misiones + Quimi + aula); tablero de tareas; automatización de pruebas y despliegue para reducir trabajo manual; documentación continua. |
 | 2 | **Arranque en frío del plan gratuito de Render:** el servicio se suspende tras 15 min sin tráfico y tarda hasta ~1 min en despertar (Render, s. f.-a). | Alta | Medio | Modo demo offline del frontend; mensaje "despertando servidor"; ping previo a la clase; plan Starter (US$ 7/mes) si el piloto lo exige. |
 | 3 | **Límites del plan gratuito de Neon** (100 CU-h/mes y 1 GB por proyecto; Neon, 2026). | Media | Medio | Índices y vistas eficientes; limpieza de eventos antiguos; respaldos con `pg_dump` en GitHub Actions; Terraform modular para migrar. |
 | 4 | **Exactitud científica:** la simulación usa energías de activación pedagógicas (no reales). | Media | Alto | Declarar en la UI qué valores son didácticos; usar ΔHf° estándar; revisión de cada misión por un docente de Ciencia y Tecnología. |
@@ -153,7 +153,7 @@ desarrollo en el curso y un piloto con al menos un aula de secundaria.
   (auditoría, corrección del cuestionario, contadores) y vistas de métricas; el desbloqueo de niveles lo
   controla la API a partir de `nivel.nivel_previo_id`.
 - **Hardware mínimo del cliente:** navegador moderno y 4 GB de RAM; no requiere GPU dedicada.
-- **Competencias:** la integrante domina React (v0.1 funcional) y PostgreSQL (curso Base de Datos II).
+- **Competencias:** el equipo domina React (v0.1 funcional) y PostgreSQL (curso Base de Datos II).
   El riesgo de aprendizaje está en Fastify y Terraform, mitigado con documentación oficial y plantillas.
 
 **Conclusión:** técnicamente factible con herramientas libres o con plan gratuito.
@@ -189,7 +189,7 @@ Se elimina el alquiler de oficina: el trabajo se realiza en casa y en los labora
 
 ### 4.2.3 Costos de personal
 
-Una sola integrante con **roles rotativos**. Dedicación honesta: **16 h por semana × 16 semanas = 256 h**.
+Dos integrantes con **roles rotativos**. Dedicación honesta: **8 h por semana por integrante × 2 integrantes × 16 semanas = 256 h**.
 Tarifa de costo de oportunidad: **S/ 15,00/h** *(supuesto de practicante de ingeniería; como referencia, la
 RMV de S/ 1 130 fijada por el D. S. 006-2024-TR equivale a unos S/ 5,40/h)*.
 
@@ -371,7 +371,7 @@ estaba actualizado ni consideraba los 3 años.
 
 1. AtomReactChamber es **técnicamente factible** con un stack TypeScript + PostgreSQL desplegado en planes
    gratuitos (Neon, Render, GitHub Pages) y migrable a Azure/AWS con Terraform.
-2. El costo real de desarrollo es **S/ 4 253,98** (una integrante, 256 h, depreciación de equipo y
+2. El costo real de desarrollo es **S/ 4 253,98** (dos integrantes, 256 h en total, depreciación de equipo y
    servicios gratuitos), y el costo de infraestructura durante el desarrollo y piloto es **S/ 0**.
 3. En el escenario base (sustitución del 25 % de una licencia comercial de referencia), el proyecto tiene
    **VAN = S/ 4 514,41, B/C = 1,727 y TIR = 64,14 %**; su punto de equilibrio es el 14,5 % de dicha licencia.

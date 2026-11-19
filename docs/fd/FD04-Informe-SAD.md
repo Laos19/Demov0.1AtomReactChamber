@@ -2,14 +2,14 @@
 title: "AtomReactChamber — Documento de Arquitectura de Software"
 version: "1.0"
 fecha: "2026-11-07"
-autora: "Adriana Rafaela Laos González (2023077474)"
+autores: "Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696)"
 ---
 
 # Control de versiones
 
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
-| 1.0 | Adriana Laos | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Primera versión del SAD de AtomReactChamber v2, documentada a partir del código, la BD migrada y la infraestructura reales |
+| 1.0 | Adriana Laos y Antony Solorzano | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Primera versión del SAD de AtomReactChamber v2, documentada a partir del código, la BD migrada y la infraestructura reales |
 
 ---
 
@@ -85,8 +85,8 @@ referencias.
 
 ## 2.3 Restricciones
 
-Se aplican RES-01 a RES-09 del FD03 §4.4. Las más influyentes son el *stack* fijo, los planes gratuitos, una sola
-desarrolladora y el tratamiento de datos de menores.
+Se aplican RES-01 a RES-09 del FD03 §4.4. Las más influyentes son el *stack* fijo, los planes gratuitos, un equipo de
+dos integrantes y el tratamiento de datos de menores.
 
 # 3. Contexto del sistema (C4 – nivel 1 y 2)
 

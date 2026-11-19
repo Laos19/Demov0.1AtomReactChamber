@@ -2,14 +2,14 @@
 title: "AtomReactChamber — Documento de Especificación de Requerimientos de Software"
 version: "1.0"
 fecha: "2026-11-07"
-autora: "Adriana Rafaela Laos González (2023077474)"
+autores: "Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696)"
 ---
 
 # Control de versiones
 
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
-| 1.0 | Adriana Laos | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Primera versión del SRS de AtomReactChamber v2, trazada contra la implementación real (BD, API y pruebas) |
+| 1.0 | Adriana Laos y Antony Solorzano | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Primera versión del SRS de AtomReactChamber v2, trazada contra la implementación real (BD, API y pruebas) |
 
 ---
 
@@ -102,20 +102,20 @@ sobre una base de datos sólida y una infraestructura de costo cero durante el d
 
 ## 1.4 Organigrama del proyecto
 
-El proyecto tiene una **sola integrante con roles rotativos** (FD01 §4.2.3).
+El proyecto tiene **dos integrantes con roles rotativos** (FD01 §4.2.3).
 
 ```mermaid
 flowchart TB
   D["Docente del curso<br/>Ing. Patrick Cuadros Quiroga<br/>(supervisa y evalúa)"]
-  A["Adriana Rafaela Laos González<br/>(2023077474)"]
-  R["Roles rotativos:<br/>analista y gestora · diseñadora de BD ·<br/>desarrolladora backend · desarrolladora frontend ·<br/>DevOps · QA y documentación"]
+  A["Adriana Rafaela Laos González (2023077474)<br/>Antony Piero Solorzano Zegarra (2023078696)"]
+  R["Roles rotativos:<br/>análisis y gestión · diseño de BD ·<br/>desarrollo backend · desarrollo frontend ·<br/>DevOps · QA y documentación"]
   V["Validador de contenido científico<br/>(docente de química, externo)"]
   D --> A
   A --> R
   V -. "revisa misiones" .-> A
 ```
 
-*Figura 1. Organigrama del proyecto (una integrante con roles rotativos).*
+*Figura 1. Organigrama del proyecto (dos integrantes con roles rotativos).*
 
 # 2. Visión general del proyecto
 
@@ -493,7 +493,7 @@ Se mantienen las restricciones RES-01 a RES-10 del FD02 §8. En términos de dis
 | RES-01 | Aplicación web sin instalación; navegadores modernos con Canvas 2D y ES2020. |
 | RES-02 | Stack fijo: React 18 + Vite + TypeScript; Node 22 + Fastify 5 + TypeScript; PostgreSQL 16; Liquibase; Terraform; GitHub Actions. |
 | RES-03 | Planes gratuitos: Neon (100 CU-h/mes y 1 GB por proyecto; Neon, 2026), Render Free (suspensión tras 15 min sin tráfico) y GitHub Pages. |
-| RES-04 | Una sola desarrolladora; 16 semanas. |
+| RES-04 | Dos integrantes; 16 semanas. |
 | RES-05 | Simulación 2D; energías de activación didácticas declaradas como tales (`reaccion.ea_kj_mol`). |
 | RES-06 | Quimi sin LLM en esta versión. |
 | RES-07 | Cambios de esquema solo mediante *changesets* Liquibase con *rollback*; ningún cambio manual en producción. |

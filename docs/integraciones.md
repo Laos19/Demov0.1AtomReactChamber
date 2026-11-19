@@ -1,6 +1,6 @@
 # Integraciones de AtomReactChamber
 
-> Reto de integraciones · Base de Datos II · UPT Tacna — Adriana Rafaela Laos González (2023077474)
+> Reto de integraciones · Base de Datos II · UPT Tacna — Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696)
 
 AtomReactChamber no vive solo en el navegador: la misma **API REST** (Fastify + PostgreSQL, contrato en
 [`backend/src/routes/index.ts`](../backend/src/routes/index.ts)) alimenta a un editor de código, a agentes

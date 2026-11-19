@@ -11,7 +11,7 @@ PostgreSQL, API, automatizaciones GitHub Actions y documentación FD01–FD05, l
 | Tema | Decisión |
 |---|---|
 | Nombre | **AtomReactChamber**; el asistente se llama **Quimi** |
-| Equipo | Solo **Adriana Rafaela Laos González (2023077474)** |
+| Equipo | **Adriana Rafaela Laos González (2023077474)** y **Antony Piero Solorzano Zegarra (2023078696)** |
 | Backend | **Node 22 + TypeScript + Fastify** |
 | Público | Secundaria 1.º–5.º, Ciencia y Tecnología (CNEB – MINEDU) |
 | Quimi | **Basado en reglas + BD** (pistas escalonadas + glosario con búsqueda de texto completo). LLM queda para la 3.ª unidad |

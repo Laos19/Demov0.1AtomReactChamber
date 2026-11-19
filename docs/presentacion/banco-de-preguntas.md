@@ -1,6 +1,6 @@
 # Banco de preguntas: sustentación de AtomReactChamber v2
 
-> Base de Datos II · UPT · Ing. Patrick Cuadros Quiroga · Expone: Adriana Rafaela Laos González (2023077474)
+> Base de Datos II · UPT · Ing. Patrick Cuadros Quiroga · Exponen: Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696)
 >
 > Respuestas modelo **basadas en el código real**. Cada una cita el archivo o la función para que puedas
 > abrirlo en vivo si te repreguntan. Formato para responder en la exposición:
@@ -37,7 +37,7 @@ rutas (`routes/index.ts`), servicios (`IntentoService`, `QuimiService`, `AulaSer
 `buildApp()`. Las reglas de negocio críticas están en la BD.
 
 **2. ¿Por qué no microservicios?**
-Una sola desarrolladora, un dominio pequeño y un plan gratuito con 512 MB de RAM. Microservicios añadirían
+Un equipo de dos integrantes, un dominio pequeño y un plan gratuito con 512 MB de RAM. Microservicios añadirían
 red, despliegues y consistencia distribuida sin beneficio. El monolito es *modular*: si un día Quimi pasa a
 LLM y necesita escalar aparte, `QuimiService` ya tiene una interfaz propia que se puede extraer.
 

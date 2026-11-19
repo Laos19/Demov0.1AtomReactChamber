@@ -1,6 +1,6 @@
 # Guion de la demo en vivo: AtomReactChamber v2
 
-> Expone: Adriana Rafaela Laos González (2023077474) · Base de Datos II · UPT · 15 minutos en total.
+> Exponen: Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696) · Base de Datos II · UPT · 15 minutos en total.
 > La demo ocupa unos 6 minutos y entra después de la diapositiva 4 («La solución»).
 > Abre este guion en el celular o en un segundo monitor; la vista del orador de reveal.js (tecla **S**)
 > también muestra las notas de cada diapositiva.

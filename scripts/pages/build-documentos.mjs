@@ -31,7 +31,7 @@ writeFileSync(join(dir, 'index.html'), `<!doctype html>
 body{margin:0;background:var(--p);color:var(--t);font:17px/1.6 system-ui,sans-serif}main{max-width:46rem;margin:0 auto;padding:3rem 1rem}
 a{color:var(--c);font-weight:700}li{margin:.5rem 0}</style></head>
 <body><main><h1>AtomReactChamber · Documentos del proyecto</h1>
-<p>Universidad Privada de Tacna · Base de Datos II · Adriana Rafaela Laos González (2023077474)</p>
+<p>Universidad Privada de Tacna · Base de Datos II · Adriana Rafaela Laos González (2023077474) · Antony Piero Solorzano Zegarra (2023078696)</p>
 <ul>
 ${li}
 </ul>

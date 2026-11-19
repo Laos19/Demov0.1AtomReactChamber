@@ -3,7 +3,7 @@
 Extensión oficial del laboratorio virtual de química gamificado **AtomReactChamber** (UPT · Base de Datos II).
 Lleva las misiones, el catálogo químico y el asistente **Quimi** al editor, consumiendo la misma API REST que la web.
 
-> Proyecto académico de Adriana Rafaela Laos González (2023077474) — Universidad Privada de Tacna.
+> Proyecto académico de Adriana Rafaela Laos González (2023077474) y Antony Piero Solorzano Zegarra (2023078696) — Universidad Privada de Tacna.
 
 ## Funciones
 
@@ -70,4 +70,4 @@ Para depurar: abre `extensions/vscode` en VS Code y pulsa `F5` (*Run Extension*)
 
 ## Licencia
 
-[MIT](LICENSE) © 2026 Adriana Rafaela Laos González
+[MIT](LICENSE) © 2026 Adriana Rafaela Laos González y Antony Piero Solorzano Zegarra

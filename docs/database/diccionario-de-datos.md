@@ -2,7 +2,7 @@
 
 > **Proyecto:** AtomReactChamber: laboratorio virtual gamificado de química para estudiantes de secundaria del Perú
 > **Curso:** Base de Datos II · **Docente:** Ing. Patrick Cuadros Quiroga
-> **Integrante:** Laos González, Adriana Rafaela (2023077474) · UPT – FAING – EPIS · Tacna, 2026
+> **Integrantes:** Laos González, Adriana Rafaela (2023077474) · Solorzano Zegarra, Antony Piero (2023078696) · UPT – FAING – EPIS · Tacna, 2026
 > **Documento generado automáticamente** con `docs/database/generar-diccionario.sql` a partir del catálogo de
 > PostgreSQL (`pg_catalog`, `information_schema` y `COMMENT ON`). **No editar a mano:** volver a ejecutar el script.
 
@@ -10,7 +10,7 @@
 
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
-| 1.0 | Adriana Laos | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Primera versión, generada desde la BD migrada |
+| 1.0 | Adriana Laos y Antony Solorzano | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | 2026-11-07 | Primera versión, generada desde la BD migrada |
 
 ---
 

@@ -4,7 +4,7 @@
   "description": "Misiones, catálogo químico y el asistente Quimi de AtomReactChamber dentro de VS Code.",
   "version": "2.1.0",
   "publisher": "adriana-laos",
-  "author": "Adriana Rafaela Laos González",
+  "author": "Adriana Rafaela Laos González y Antony Piero Solorzano Zegarra",
   "license": "MIT",
   "private": true,
   "type": "commonjs",

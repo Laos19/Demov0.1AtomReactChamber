@@ -1,7 +1,7 @@
 # Problema y objetivos — AtomReactChamber v2
 
 > **Proyecto:** AtomReactChamber · **Curso:** Base de Datos II · **Docente:** Ing. Patrick Cuadros Quiroga
-> **Integrante:** Adriana Rafaela Laos González (2023077474) · **UPT – FAING – EPIS** · Tacna, 2026
+> **Integrantes:** Adriana Rafaela Laos González (2023077474) · Antony Piero Solorzano Zegarra (2023078696) · **UPT – FAING – EPIS** · Tacna, 2026
 > **Versión:** 1.0 (2026-11-07)
 
 ## Nota de verificación de fuentes (leer primero)

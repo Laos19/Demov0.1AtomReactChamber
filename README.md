@@ -649,4 +649,4 @@ _Secciones generadas automáticamente el 2026-11-19 por `scripts/docs/build-read
 
 ## Licencia
 
-MIT © 2026 Adriana Rafaela Laos González.
+MIT © 2026 Adriana Rafaela Laos González y Antony Piero Solorzano Zegarra.

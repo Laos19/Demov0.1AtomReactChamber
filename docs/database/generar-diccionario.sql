@@ -217,7 +217,7 @@ SELECT format($h$# Diccionario de datos — AtomReactChamber
 
 | Versión | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |---|---|---|---|---|---|
-| 1.0 | Adriana Laos | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | %s | Primera versión, generada desde la BD migrada |
+| 1.0 | Adriana Laos y Antony Solorzano | Ing. Patrick Cuadros Quiroga (pendiente) | (pendiente) | %s | Primera versión, generada desde la BD migrada |
 
 ---
 

@@ -1,7 +1,9 @@
 ---
 title: "AtomReactChamber — Entrega del Proyecto de Unidad II"
 subtitle: "SI-783 Base de Datos II · Universidad Privada de Tacna · FAING · EPIS"
-author: "Adriana Rafaela Laos González (2023077474)"
+author:
+  - "Adriana Rafaela Laos González (2023077474)"
+  - "Antony Piero Solorzano Zegarra (2023078696)"
 date: "Noviembre 2026"
 ---
 
@@ -10,7 +12,7 @@ date: "Noviembre 2026"
 | | |
 |---|---|
 | Curso | SI-783 Base de Datos II — Docente: Ing. Patrick Cuadros Quiroga |
-| Integrante | Adriana Rafaela Laos González (2023077474) |
+| Integrantes | Adriana Rafaela Laos González (2023077474) · Antony Piero Solorzano Zegarra (2023078696) |
 | Proyecto | **AtomReactChamber**: laboratorio virtual de química gamificado para estudiantes de secundaria del Perú |
 | Repositorio de entrega (Classroom) | https://github.com/UPT-FAING-EPIS/si783-2026-ii-si783-2026-ii-proyecto-group-11 |
 | Repositorio de desarrollo y despliegue | https://github.com/Laos19/Demov0.1AtomReactChamber |
@@ -63,7 +65,7 @@ El servidor gratuito se suspende tras 15 minutos sin uso: la primera carga puede
 | Problemática detallada y sustentada · objetivos medibles | `docs/investigacion/problema-y-objetivos.md` (fuentes APA con URL, objetivos SMART con indicador y meta) |
 | Formatos FD01, FD02, FD03, FD04 | `docs/fd/` (md, docx y pdf, formato UPT) |
 | Código fuente de aplicación y base de datos en GitHub | `frontend/`, `backend/`, `db/changelog/` (48 changesets Liquibase: 29 tablas, 7 vistas, 16 funciones, 10 triggers) |
-| Contribuciones al proyecto | Historial de commits del repositorio (integrante única) |
+| Contribuciones al proyecto | Historial de commits del repositorio y sección 9.2 del FD05 (dos integrantes) |
 | Automatización Terraform + reporte de pruebas + reporte de costos | `infra.yml`: pruebas (API 17, motor 15, e2e 7) en JUnit, costos free tier vs. AWS/Azure, `terraform apply` en Neon y Render |
 | Automatización Liquibase + reporte de ejecuciones | `db.yml`: validate, status, update-sql, update, rollback probado, history |
 | Copias de seguridad + reporte | `backup.yml`: `pg_dump` diario cifrado, restauración verificada por conteo de filas, retención 7/4/3 |
