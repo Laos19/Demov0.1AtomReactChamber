@@ -7,7 +7,7 @@ cuestionario final otorga estrellas, experiencia e insignias. El docente crea au
 progreso en un dashboard calculado en PostgreSQL.
 
 > Proyecto del curso **Base de Datos II** — Universidad Privada de Tacna, Facultad de Ingeniería, EPIS.
-> Docente: Ing. Patrick Cuadros Quiroga · Autora: **Adriana Rafaela Laos González** (2023077474) · 2026.
+> Docente: Ing. Patrick Cuadros Quiroga · Autores: **Adriana Rafaela Laos González** (2023077474) - **Antony Piero Solorzano Zegarra** (2023078696) · 2026.
 
 | | Enlace |
 |---|---|
