@@ -37,5 +37,5 @@ variable "render_region" {
 variable "repo_url" {
   description = "URL HTTPS del repositorio de GitHub que Render construye."
   type        = string
-  default     = "https://github.com/laos19/demov0.1atomreactchamber"
+  default     = "https://github.com/Laos19/Demov0.1AtomReactChamber"
 }
