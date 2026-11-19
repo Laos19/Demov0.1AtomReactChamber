@@ -31,6 +31,16 @@ progreso en un dashboard calculado en PostgreSQL.
 - **Laboratorio libre**: el simulador completo (presets, inyector, consola de eventos, fichas de PubChem).
 - **Modo demostración** sin servidor (contenido incluido + localStorage) para GitHub Pages o si el servidor gratuito duerme.
 
+## Requisitos no funcionales: sesiones, historiales, caché, logs y telemetría
+
+| Requisito | Cómo se implementa | Evidencia |
+|---|---|---|
+| **Sesiones** | Autenticación con JWT firmado (vigencia 7 días) y roles estudiante/docente/admin. Además, cada visita abre una **sesión de uso** (UUID) registrada en la tabla `sesion` con origen (web, VS Code, Claude Code, MCP) y dispositivo. | `backend/src/app.ts`, `backend/src/auth/AuthService.ts`, `db/changelog/sql/006-telemetria.sql` |
+| **Historiales** | Historial de aprendizaje: cada intento, paso (con tiempo), ayuda usada y respuesta queda en `intento`, `intento_paso`, `pista_usada` y `respuesta`; se muestra en *Mi progreso*. Historial de cambios: la tabla `auditoria` guarda antes/después de usuarios, aulas, niveles y pasos (trigger `fn_auditar`). Historial de esquema: `DATABASECHANGELOG` de Liquibase. | `db/changelog/sql/005-progreso.sql`, `008-triggers.sql`, `frontend/src/paginas/Perfil.tsx` |
+| **Caché** | Caché en memoria del catálogo químico en la API (TTL 5 min) y cabecera `Cache-Control: max-age=300` en `/api/catalogo`; recursos del frontend con caché inmutable de 1 año en el CDN de Render; vista materializada `mv_uso_diario` como caché de las métricas del dashboard (`REFRESH CONCURRENTLY`). | `backend/src/repositories/CatalogoRepository.ts`, `backend/src/routes/index.ts`, `infra/terraform/modules/app-render/main.tf`, `009-vistas.sql` |
+| **Logs** | Logs estructurados en JSON (pino, vía Fastify) con datos sensibles ocultos (`authorization`, `password`); errores 500 registrados sin exponer detalles al cliente; consola de eventos del simulador; reportes de cada automatización en GitHub Actions. | `backend/src/app.ts`, `frontend/src/engine/Simulation.ts` |
+| **Telemetría** | El frontend agrupa eventos de uso (página vista, nivel iniciado, paso completado, ayuda, chispa, consulta a Quimi…) y los envía en lotes a `POST /api/eventos` (con límite de tasa). Se guardan en `evento` (índice BRIN por fecha) y alimentan el **dashboard de utilización**. Las integraciones envían su propio origen. | `frontend/src/estado/telemetria.ts`, `backend/src/repositories/DashboardRepository.ts`, `frontend/src/paginas/Dashboard.tsx` |
+
 ## Arquitectura
 
 ```

@@ -224,3 +224,10 @@ La raíz `envs/prod` solo depende del **contrato de salidas** de los módulos. P
 `cost-reference/aws` y `cost-reference/azure` ya contienen los recursos equivalentes y son el punto de
 partida de esos módulos (hay que quitar la salvaguarda `terraform_data.guard` y parametrizar la red).
 Liquibase, las pruebas y la documentación no cambian, porque el motor sigue siendo PostgreSQL 16.
+
+### Variables de entorno del servicio de la API
+
+Terraform crea las variables de entorno de la API una sola vez (`lifecycle.ignore_changes = [env_vars]`). Después se
+administran en Render (*atomreactchamber-api → Environment*). Ahí se define `DOCENTE_CODIGO`, el código de invitación
+para registrarse como docente, que nunca pasa por el repositorio. Para cambiar `DATABASE_URL` o `CORS_ORIGIN`,
+edítelas en Render o quite temporalmente el `ignore_changes`.

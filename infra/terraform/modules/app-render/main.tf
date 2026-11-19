@@ -28,6 +28,14 @@ resource "render_web_service" "api" {
     # Render genera un valor aleatorio; nunca pasa por el repositorio.
     JWT_SECRET = { generate_value = true }
   }
+
+  lifecycle {
+    # Las variables se crean una sola vez. Después se administran en Render
+    # (p. ej. DOCENTE_CODIGO, que no debe pasar por el repositorio). Sin esto,
+    # cada apply intenta borrar las agregadas a mano y regenerar JWT_SECRET, y
+    # el provider envía maintenance_mode, que Render rechaza en el plan free.
+    ignore_changes = [env_vars]
+  }
 }
 
 # Frontend React (Vite) como Static Site de Render (CDN global, gratuito).
