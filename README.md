@@ -11,10 +11,10 @@ progreso en un dashboard calculado en PostgreSQL.
 
 | | Enlace |
 |---|---|
-| Aplicación (Render) | _se publica al ejecutar `infra.yml` + `release.yml` con los secrets configurados_ |
+| **Aplicación en producción (Render + Neon)** | https://atomreactchamber-web.onrender.com |
 | Aplicación pública (GitHub Pages, modo demostración) | https://laos19.github.io/Demov0.1AtomReactChamber/ |
 | Documentación técnica · presentación · documentos | [/docs/api/](https://laos19.github.io/Demov0.1AtomReactChamber/docs/api/) · [/presentacion/](https://laos19.github.io/Demov0.1AtomReactChamber/presentacion/) · [/documentos/](https://laos19.github.io/Demov0.1AtomReactChamber/documentos/) |
-| API (Swagger) | `<url-api>/api/docs` |
+| API REST y Swagger | https://atomreactchamber-api.onrender.com/api/health · https://atomreactchamber-api.onrender.com/api/docs |
 | Cuentas de demostración | `estudiante@demo.arc.pe` · `docente@demo.arc.pe` — contraseña `quimica2026` |
 
 ## Qué hace
