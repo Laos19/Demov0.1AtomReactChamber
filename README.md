@@ -644,7 +644,7 @@ Clausius-Clapeyron. **Las energías de activación son valores pedagógicos** el
 observen en segundos; las entalpías y puntos de cambio de fase son datos estándar (NIST/PubChem).
 
 <!-- AUTO:fecha:inicio -->
-_Secciones generadas automáticamente el 2026-11-19 por `scripts/docs/build-readme.mjs`._
+_Secciones generadas automáticamente el 2026-11-20 por `scripts/docs/build-readme.mjs`._
 <!-- AUTO:fecha:fin -->
 
 ## Licencia
