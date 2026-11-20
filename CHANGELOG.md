@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.1.1](https://github.com/Laos19/Demov0.1AtomReactChamber/compare/v2.1.0...v2.1.1) (2026-11-20)
+
+
+### 🐛 Correcciones
+
+* **infra:** Terraform deja de reescribir las variables de entorno de la API ([08bd937](https://github.com/Laos19/Demov0.1AtomReactChamber/commit/08bd937c58c3b3cf6e436e057a6900dd44723625))
+
+
+### 📚 Documentación
+
+* actualizar documentación generada [skip ci] ([57cc749](https://github.com/Laos19/Demov0.1AtomReactChamber/commit/57cc749a0bf4ad21fe985afdf9234d46a4418057))
+* agrega al integrante Antony Piero Solorzano Zegarra (2023078696) ([bfaf948](https://github.com/Laos19/Demov0.1AtomReactChamber/commit/bfaf948120d5206b07d3432f9e891611407c1c3a))
+* **entrega:** documento de entrega de la Unidad II con enlaces y evidencia por criterio ([ac6909d](https://github.com/Laos19/Demov0.1AtomReactChamber/commit/ac6909d2eefb4f3643cd5e308c885599ebb5861b))
+* **pages:** presentación y PDF en el sitio automático; enlaces actualizados ([a8f936c](https://github.com/Laos19/Demov0.1AtomReactChamber/commit/a8f936c3edd341ced5b551af7b34e0c29cd05ca5))
+* **presentacion:** diapositiva de requisitos no funcionales y evidencias FD05, diccionario y estándar ([35f4301](https://github.com/Laos19/Demov0.1AtomReactChamber/commit/35f4301cea7d43289953ee853452a6c73e7ffe62))
+* **presentacion:** guía de código para repasar la exposición ([08cedb3](https://github.com/Laos19/Demov0.1AtomReactChamber/commit/08cedb3898089ee80814f4890e68e4c339e1ef64))
+
 ## [2.1.0](https://github.com/Laos19/Demov0.1AtomReactChamber/compare/v2.0.0...v2.1.0) (2026-11-19)
 
 
