@@ -7,7 +7,7 @@ const DIR = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(DIR, 'index.html'), 'utf8');
 const notas = [...html.matchAll(/<aside class="notes">([\s\S]*?)<\/aside>/g)].map((m) =>
   m[1].replace(/<[^>]+>/g, '').split('\n').map((l) => l.trim()).filter(Boolean).join('\n\n'));
-if (notas.length !== 17) throw new Error('se esperaban 17 notas, hay ' + notas.length);
+if (notas.length !== 18) throw new Error('se esperaban 18 notas, hay ' + notas.length);
 
 const K = { papel: 'F4F7FB', cuad: 'DCE5F0', tinta: '13233A', suave: '4A5B73', pizarra: '0E1A2B', sup: '15253B',
   cobre: '0F8C7E', calcio: 'E8590C', calcioO: 'C84C0A', litio: 'C2255C', potasio: '7048E8', sodio: 'F2B705', oro: '9A7300',
@@ -37,7 +37,7 @@ function base(n, sym, label, color, eyebrow, title, pregunta, symColor = K.blanc
     s.addText([{ text: 'Pregúntame  ', options: { bold: true, fontFace: H, fontSize: 11 } }, { text: pregunta, options: { fontSize: 13 } }],
       { x: 0.85, y: 6.75, w: 11.2, h: 0.48, fontFace: B, color: K.tinta, valign: 'middle', margin: 0, isTextBox: true });
   }
-  s.addText(`${n} / 17`, { x: W - 1.2, y: 6.85, w: 0.9, h: 0.3, fontFace: M, fontSize: 10, color: K.suave, align: 'right', margin: 0, isTextBox: true });
+  s.addText(`${n} / 18`, { x: W - 1.2, y: 6.85, w: 0.9, h: 0.3, fontFace: M, fontSize: 10, color: K.suave, align: 'right', margin: 0, isTextBox: true });
   s.addNotes(notas[n - 1]);
   return s;
 }
@@ -224,9 +224,21 @@ function tabla(s, head, rows, o, fs = 12) {
   txt(s, [{ text: 'Lo que todavía falta: ', options: { bold: true } }, { text: 'el JWT vive en localStorage (riesgo ante XSS), no hay refresh token ni revocación, y el consentimiento de padres para menores de 14 años (D. S. 016-2024-JUS) es trabajo futuro.' }], { x: 0.8, y: 5.15, w: 11.2, h: 0.9, fontSize: 13, valign: 'middle' });
 }
 
-/* 10 · Automatizaciones */
+/* 10 · Requisitos no funcionales */
 {
-  const s = base(10, 'Au', 'CI/CD', K.oro, 'Automatizaciones · rúbrica → workflow → reporte', 'Cada fila de la rúbrica: un workflow y un reporte', '¿Cómo sé que un respaldo sirve? ¿Qué pasa si el despliegue falla a la mitad?');
+  const s = base(10, 'Nf', 'no funcionales', K.potasio, 'Requisitos no funcionales · indicación del Aula Virtual', 'Sesiones, historiales, caché, logs y telemetría: dónde está cada uno', 'Si un docente corrige un dato del catálogo, ¿cuánto tarda en verse? ¿Por qué no es un problema?');
+  tabla(s, ['Requisito', 'Cómo funciona', 'Dónde está'], [
+    ['Sesiones', 'JWT de 7 días y roles. Cada visita abre una sesión de uso (UUID) con origen y dispositivo.', 'app.ts · AuthService.ts · tabla sesion'],
+    ['Historiales', 'Aprendizaje (intentos, pasos con tiempo, ayudas, respuestas) · cambios en auditoria (trigger fn_auditar) · esquema en databasechangelog.', '005-progreso.sql · 008-triggers.sql · Mi progreso'],
+    ['Caché', 'Catálogo 5 min en memoria de la API + Cache-Control max-age=300 · vista materializada mv_uso_diario.', 'CatalogoRepository.ts · 009-vistas.sql'],
+    ['Logs', 'JSON estructurado (pino) que oculta contraseñas y tokens; errores 500 sin detalles al usuario; reportes de cada workflow.', 'app.ts · GitHub Actions'],
+    ['Telemetría', 'Eventos de uso en lotes a POST /api/eventos → tabla evento (BRIN) → dashboard.', 'telemetria.ts · DashboardRepository.ts']],
+  { x: 0.6, y: 1.6, w: 11.6, colW: [1.7, 6.6, 3.3] }, 13);
+}
+
+/* 11 · Automatizaciones */
+{
+  const s = base(11, 'Au', 'CI/CD', K.oro, 'Automatizaciones · rúbrica → workflow → reporte', 'Cada fila de la rúbrica: un workflow y un reporte', '¿Cómo sé que un respaldo sirve? ¿Qué pasa si el despliegue falla a la mitad?');
   tabla(s, ['Fila de la rúbrica', 'Workflow', 'Reporte que produce'], [
     ['Terraform + pruebas + costos', 'infra.yml', 'fmt/validate/tflint/checkov · pruebas superadas (JUnit) · costos USD 0 vs. AWS/Azure'],
     ['Base de datos (Liquibase)', 'db.yml', 'validate · status · update-sql · update · update-testing-rollback · history'],
@@ -241,7 +253,7 @@ function tabla(s, head, rows, o, fs = 12) {
 
 /* 11 · Costos */
 {
-  const s = base(11, 'In', 'infra y costos', K.cobre, 'Infraestructura como código y costos', 'Producción a USD 0 hoy, migrable a AWS o Azure mañana', '¿Cuál es el costo oculto del plan gratuito? (pista: el primer estudiante espera ~1 min)');
+  const s = base(12, 'In', 'infra y costos', K.cobre, 'Infraestructura como código y costos', 'Producción a USD 0 hoy, migrable a AWS o Azure mañana', '¿Cuál es el costo oculto del plan gratuito? (pista: el primer estudiante espera ~1 min)');
   [['Producción actual', 'USD 0/mes', 'Neon Free + Render Free + GitHub Pages + HCP Terraform Free', K.tCobre, K.cobre], ['Referencia AWS', '≈ 38 USD/mes', 'RDS t4g.micro + ECS Fargate + ALB + S3/CloudFront', K.blanco, K.tinta], ['Referencia Azure', '≈ 38 USD/mes', 'Flexible Server B1ms + App Service B1 + Static Web Apps', K.blanco, K.tinta]].forEach((c, i) => {
     const x = 0.6 + i * 3.9; card(s, x, 1.65, 3.7, 1.95, c[3]);
     txt(s, c[0], { x: x + 0.2, y: 1.75, w: 3.3, h: 0.3, fontFace: M, fontSize: 11, color: K.suave });
@@ -257,7 +269,7 @@ function tabla(s, head, rows, o, fs = 12) {
 
 /* 12 · Integraciones */
 {
-  const s = base(12, 'I', 'integraciones', K.potasio, 'Reto de integraciones', 'El laboratorio fuera del navegador: editor, agentes de IA y GitHub', '¿Qué es MCP y en qué se diferencia de llamar a la API con curl?');
+  const s = base(13, 'I', 'integraciones', K.potasio, 'Reto de integraciones', 'El laboratorio fuera del navegador: editor, agentes de IA y GitHub', '¿Qué es MCP y en qué se diferencia de llamar a la API con curl?');
   [['VS Code', 'Árboles de misiones y catálogo, «Preguntar a Quimi», ficha con PubChem, perfil de energía en SVG. JWT en SecretStorage; CSP estricta.', 'extensions/vscode · .vsix · 19 pruebas', K.tCobre],
     ['Servidor MCP', '5 herramientas (buscar_especie, explicar_reaccion, listar_niveles, preguntar_quimi, resumen_dashboard) + recurso arc://catalogo.', 'integrations/mcp · stdio · 12 pruebas', K.tPotasio],
     ['Claude Code', 'Skill atomreactchamber (curl + Node) y subagente tutor-quimi: explica en 3 capas y no revela respuestas.', '.claude/skills · .claude/agents', K.tCalcio],
@@ -275,7 +287,7 @@ function tabla(s, head, rows, o, fs = 12) {
 
 /* 13 · Dashboard */
 {
-  const s = base(13, 'Dy', 'dashboard', K.cobre, 'Dashboard de uso', 'El docente ve dónde se traban sus estudiantes', '¿Por qué una vista materializada para el uso diario y vistas normales para lo demás?');
+  const s = base(14, 'Dy', 'dashboard', K.cobre, 'Dashboard de uso', 'El docente ve dónde se traban sus estudiantes', '¿Por qué una vista materializada para el uso diario y vistas normales para lo demás?');
   s.addImage({ path: path.join(DIR, 'img/dashboard-recorte.png'), x: 0.6, y: 1.5, w: 5.0, h: 5.08, altText: 'Dashboard de uso', sizing: { type: 'crop', w: 5.0, h: 5.08 } });
   tabla(s, ['Bloque', 'Fuente en la BD'], [['KPIs', 'consulta en DashboardRepository'], ['Uso diario (30 días)', 'mv_uso_diario'], ['Embudo por nivel', 'v_estadisticas_nivel'], ['Pasos más lentos', 'v_tiempo_por_paso'], ['Preguntas con más errores', 'v_preguntas_dificiles'], ['Origen y dispositivo', 'sesion'], ['Ranking del aula', 'v_ranking_aula (RANK)']],
     { x: 6.0, y: 1.55, w: 6.2, colW: [2.7, 3.5] }, 13);
@@ -284,7 +296,7 @@ function tabla(s, head, rows, o, fs = 12) {
 
 /* 14 · Calidad */
 {
-  const s = base(14, 'Qa', 'calidad', K.litio, 'Calidad', '63 pruebas automáticas, y una que juega los 9 niveles', '¿Por qué pruebas de integración con BD real y no mocks? ¿Qué no cubren?');
+  const s = base(15, 'Qa', 'calidad', K.litio, 'Calidad', '63 pruebas automáticas, y una que juega los 9 niveles', '¿Por qué pruebas de integración con BD real y no mocks? ¿Qué no cubren?');
   [['17', 'API · integración', 'Contra PostgreSQL real: orden de pasos, ayudas, 25 %, aulas, telemetría.', K.potasio], ['15', 'Motor', 'ΔH, Clausius-Clapeyron, fases, fotón, DSL… y 9 pruebas que resuelven cada nivel.', K.cobre], ['19', 'Extensión', 'Formato, SVG del perfil de energía, CSP y escape de las vistas.', K.calcioO], ['12', 'MCP', 'Herramientas y servidor MCP en memoria con fetch simulado.', K.litio]].forEach((c, i) => {
     const x = 0.6 + i * 2.95; card(s, x, 1.65, 2.8, 2.6);
     txt(s, c[0], { x: x + 0.15, y: 1.75, w: 2.5, h: 0.65, fontFace: H, bold: true, fontSize: 32, color: c[3] });
@@ -299,16 +311,16 @@ function tabla(s, head, rows, o, fs = 12) {
 
 /* 15 · Evidencias */
 {
-  const s = base(15, 'Ev', 'evidencias', K.calcio, 'Dónde está cada cosa', 'Mapa de evidencias para la evaluación', '¿Qué genera el README automáticamente y qué escribí a mano?');
-  tabla(s, ['Rúbrica', 'Evidencia'], [['Problemática y objetivos', 'diap. 2–3 · docs/investigacion'], ['FD01–FD04', 'docs/fd (FD01/02 en .md, .docx y .pdf)'], ['Código y BD en GitHub', 'repo · db/changelog (48 changesets)'], ['Contribuciones', 'commits Conventional → CHANGELOG'], ['Terraform + tests + costos', 'diap. 10–11 · infra.yml'], ['Liquibase + reporte', 'db.yml · Pages /reportes/liquibase'], ['Backups + reporte', 'backup.yml · Pages /reportes/backup']],
+  const s = base(16, 'Ev', 'evidencias', K.calcio, 'Dónde está cada cosa', 'Mapa de evidencias para la evaluación', '¿Qué genera el README automáticamente y qué escribí a mano?');
+  tabla(s, ['Rúbrica', 'Evidencia'], [['Problemática y objetivos', 'diap. 2–3 · docs/investigacion'], ['FD01–FD05 · diccionario · estándar', 'docs/fd · docs/database · docs/estandares'], ['Código y BD en GitHub', 'repo · db/changelog (48 changesets)'], ['Contribuciones', 'commits → CHANGELOG · FD05 §9.2'], ['Terraform + tests + costos', 'diap. 11–12 · infra.yml'], ['Liquibase + reporte', 'db.yml · Pages /reportes/liquibase'], ['Backups + reporte', 'backup.yml · Pages /reportes/backup']],
     { x: 0.6, y: 1.55, w: 5.65, colW: [2.4, 3.25] }, 14);
-  tabla(s, ['Rúbrica', 'Evidencia'], [['Release + despliegue', 'release.yml · página Releases'], ['README: diccionario, ER, clases, componentes, despliegue', 'docs.yml (tbls + Mermaid) · docs/database'], ['GitHub Pages', '/api · /db · /diagramas · /reportes · /app'], ['Dashboard de uso', 'diap. 13 · demo como docente'], ['Integraciones', 'diap. 12 · docs/integraciones.md'], ['Presentación', 'docs/presentacion (HTML, PDF, PPTX)'], ['Preguntas', 'ahora mismo · banco-de-preguntas.md']],
+  tabla(s, ['Rúbrica', 'Evidencia'], [['Release + despliegue', 'release.yml · página Releases'], ['README: diccionario, ER, clases, componentes, despliegue', 'docs.yml (tbls + Mermaid) · docs/database'], ['GitHub Pages', '/api · /db · /diagramas · /reportes · /app'], ['No funcionales (sesiones, caché, logs…)', 'diap. 10 · README'], ['Dashboard de uso', 'diap. 14 · demo como docente'], ['Integraciones', 'diap. 13 · docs/integraciones.md'], ['Presentación', 'docs/presentacion (HTML, PDF, PPTX)'], ['Preguntas', 'ahora mismo · banco-de-preguntas.md']],
     { x: 6.55, y: 1.55, w: 5.65, colW: [2.6, 3.05] }, 14);
 }
 
 /* 16 · Limitaciones */
 {
-  const s = base(16, 'Li', 'limitaciones', K.litio, 'Limitaciones honestas y trabajo futuro', 'Lo que el sistema NO hace (todavía)', 'Si yo fuera su docente de química, ¿por qué debería confiar en lo que muestra el simulador?');
+  const s = base(17, 'Li', 'limitaciones', K.litio, 'Limitaciones honestas y trabajo futuro', 'Lo que el sistema NO hace (todavía)', 'Si yo fuera su docente de química, ¿por qué debería confiar en lo que muestra el simulador?');
   txt(s, 'Límites conocidos', { x: 0.6, y: 1.5, w: 5.6, h: 0.32, fontFace: H, bold: true, fontSize: 14 });
   bullets(s, ['Eₐ pedagógicas: ΔHf° son datos NIST, pero las Eₐ están escaladas para verse en segundos.', '2D y pocas partículas: discos rígidos + termostato de Berendsen.', 'La verificación física corre en el cliente; la BD exige orden y pertenencia de pasos.', 'Arranque en frío: la API gratuita tarda ~1 min tras 15 min sin uso.', 'Esta versión trae 9 niveles; ≥ 12 (OS-1) es meta futura. El piloto aún no se hizo.', 'Sin índice único parcial de intentos en curso; sin Lighthouse CI todavía.'], { x: 0.6, y: 1.88, w: 5.8, h: 4.6, fontSize: 12.5 });
   txt(s, 'Trabajo futuro', { x: 6.7, y: 1.5, w: 5.5, h: 0.32, fontFace: H, bold: true, fontSize: 14 });
@@ -333,7 +345,7 @@ function tabla(s, head, rows, o, fs = 12) {
     txt(s, c[1], { x: x + 0.2, y: y + 0.45, w: 3.4, h: 0.8, fontSize: 15, color: K.claro });
   });
   txt(s, 'Repositorio: github.com/Laos19/Demov0.1AtomReactChamber · Adriana Rafaela Laos González (2023077474) · Antony Piero Solorzano Zegarra (2023078696)', { x: 0.7, y: 6.75, w: 11, h: 0.3, fontSize: 12, color: '9DB0C7' });
-  s.addNotes(notas[16]);
+  s.addNotes(notas[17]);
 }
 
 pres.writeFile({ fileName: path.join(DIR, 'AtomReactChamber-presentacion.pptx') }).then((f) => console.log('ok', f));

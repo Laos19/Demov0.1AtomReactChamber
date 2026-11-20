@@ -385,9 +385,34 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
   </aside>
 </section>
 
-<!-- 10 · AUTOMATIZACIONES -->
+<!-- 10 · REQUISITOS NO FUNCIONALES -->
+<section id="no-funcionales">
+  <div class="casilla" style="--c:var(--potasio)"><p class="z">10</p><p class="s">Nf</p><p class="n">no funcionales</p></div>
+  <p class="eyebrow">Requisitos no funcionales · indicación del Aula Virtual</p>
+  <h2>Sesiones, historiales, caché, logs y telemetría: dónde está cada uno</h2>
+  <table class="compacta" style="margin-top:8px;">
+    <thead><tr><th style="width:15%">Requisito</th><th>Cómo funciona</th><th style="width:30%">Dónde está</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Sesiones</strong></td><td>Inicio de sesión con JWT de 7 días y roles. Además, cada visita abre una <em>sesión de uso</em> (UUID) con su origen y dispositivo.</td><td><code>app.ts</code> · <code>AuthService.ts</code> · tabla <code>sesion</code></td></tr>
+      <tr><td><strong>Historiales</strong></td><td>De aprendizaje: cada intento, paso con su tiempo, ayuda y respuesta. De cambios: la tabla <code>auditoria</code> guarda el antes y el después (trigger <code>fn_auditar</code>). Del esquema: <code>databasechangelog</code> de Liquibase.</td><td><code>005-progreso.sql</code> · <code>008-triggers.sql</code> · pantalla <em>Mi progreso</em></td></tr>
+      <tr><td><strong>Caché</strong></td><td>El catálogo químico se guarda 5 min en memoria de la API y el navegador lo reutiliza (<code>Cache-Control: max-age=300</code>). El dashboard usa la vista materializada <code>mv_uso_diario</code>.</td><td><code>CatalogoRepository.ts</code> · <code>009-vistas.sql</code></td></tr>
+      <tr><td><strong>Logs</strong></td><td>Registro estructurado en JSON (pino) que oculta contraseñas y tokens; los errores 500 se registran sin mostrar detalles al usuario. Cada workflow deja su reporte.</td><td><code>app.ts</code> · GitHub Actions</td></tr>
+      <tr><td><strong>Telemetría</strong></td><td>La web y las integraciones envían eventos de uso en lotes a <code>POST /api/eventos</code>; se guardan en <code>evento</code> (índice BRIN) y alimentan el dashboard.</td><td><code>telemetria.ts</code> · <code>DashboardRepository.ts</code></td></tr>
+    </tbody>
+  </table>
+  <div class="preguntame"><p><b>Pregúntame</b>Si un docente corrige un dato del catálogo, ¿cuánto tarda en verse? ¿Por qué no es un problema?</p></div>
+  <aside class="notes">
+    (≈1 min) Esta diapositiva responde a la indicación del Aula Virtual: sesiones, historiales, caché, logs y telemetría.
+    Sesiones: el inicio de sesión es con JWT de 7 días y roles; además cada visita abre una sesión de uso con un identificador, su origen y su dispositivo, guardada en la tabla sesion.
+    Historiales: hay tres. El de aprendizaje, con cada intento, paso, ayuda y respuesta; el de cambios, en la tabla auditoria, que llena un trigger; y el del esquema, que lleva Liquibase.
+    Caché: el catálogo químico casi no cambia, así que la API lo guarda cinco minutos en memoria y el navegador también; el dashboard usa una vista materializada.
+    Logs: registro en JSON que oculta contraseñas y tokens. Telemetría: los eventos de uso llegan en lotes y alimentan el dashboard que veremos en la diapositiva 14.
+  </aside>
+</section>
+
+<!-- 11 · AUTOMATIZACIONES -->
 <section id="automatizaciones">
-  <div class="casilla" style="--c:#9a7300"><p class="z">10</p><p class="s">Au</p><p class="n">CI/CD</p></div>
+  <div class="casilla" style="--c:#9a7300"><p class="z">11</p><p class="s">Au</p><p class="n">CI/CD</p></div>
   <p class="eyebrow">Automatizaciones · rúbrica → workflow → reporte</p>
   <h2>Cada fila de la rúbrica: un workflow y un reporte</h2>
   <table class="media" style="margin-top:6px;">
@@ -413,7 +438,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
 
 <!-- 11 · INFRA Y COSTOS -->
 <section id="costos">
-  <div class="casilla" style="--c:var(--cobre)"><p class="z">11</p><p class="s">In</p><p class="n">infra y costos</p></div>
+  <div class="casilla" style="--c:var(--cobre)"><p class="z">12</p><p class="s">In</p><p class="n">infra y costos</p></div>
   <p class="eyebrow">Infraestructura como código y costos</p>
   <h2>Producción a USD 0 hoy, migrable a AWS o Azure mañana</h2>
   <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:10px;">
@@ -447,7 +472,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
 
 <!-- 12 · INTEGRACIONES -->
 <section id="integraciones">
-  <div class="casilla" style="--c:var(--potasio)"><p class="z">12</p><p class="s">I</p><p class="n">integraciones</p></div>
+  <div class="casilla" style="--c:var(--potasio)"><p class="z">13</p><p class="s">I</p><p class="n">integraciones</p></div>
   <p class="eyebrow">Reto de integraciones</p>
   <h2>El laboratorio fuera del navegador: editor, agentes de IA y GitHub</h2>
   <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:10px;">
@@ -472,7 +497,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
 
 <!-- 13 · DASHBOARD -->
 <section id="dashboard">
-  <div class="casilla" style="--c:var(--cobre)"><p class="z">13</p><p class="s">Dy</p><p class="n">dashboard</p></div>
+  <div class="casilla" style="--c:var(--cobre)"><p class="z">14</p><p class="s">Dy</p><p class="n">dashboard</p></div>
   <p class="eyebrow">Dashboard de uso</p>
   <h2>El docente ve dónde se traban sus estudiantes</h2>
   <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:24px; margin-top:4px;">
@@ -504,7 +529,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
 
 <!-- 14 · CALIDAD -->
 <section id="calidad">
-  <div class="casilla" style="--c:var(--litio)"><p class="z">14</p><p class="s">Qa</p><p class="n">calidad</p></div>
+  <div class="casilla" style="--c:var(--litio)"><p class="z">15</p><p class="s">Qa</p><p class="n">calidad</p></div>
   <p class="eyebrow">Calidad</p>
   <h2>63 pruebas automáticas, y una que juega los 9 niveles</h2>
   <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:10px;">
@@ -537,7 +562,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
 
 <!-- 15 · EVIDENCIAS DE LA RÚBRICA -->
 <section id="evidencias">
-  <div class="casilla" style="--c:var(--calcio)"><p class="z">15</p><p class="s">Ev</p><p class="n">evidencias</p></div>
+  <div class="casilla" style="--c:var(--calcio)"><p class="z">16</p><p class="s">Ev</p><p class="n">evidencias</p></div>
   <p class="eyebrow">Dónde está cada cosa</p>
   <h2>Mapa de evidencias para la evaluación</h2>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:6px;">
@@ -545,10 +570,10 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
       <thead><tr><th>Rúbrica</th><th>Evidencia</th></tr></thead>
       <tbody>
         <tr><td>Problemática y objetivos</td><td>diap. 2–3 · docs/investigacion</td></tr>
-        <tr><td>FD01–FD04</td><td>docs/fd (FD01/02 en .md, .docx y .pdf)</td></tr>
+        <tr><td>FD01–FD05 · diccionario · estándar</td><td>docs/fd · docs/database · docs/estandares (.md, .docx, .pdf)</td></tr>
         <tr><td>Código y BD en GitHub</td><td>repo · db/changelog (48 changesets)</td></tr>
-        <tr><td>Contribuciones</td><td>commits Conventional (<code>feat(db)</code>, <code>ci:</code>…) → CHANGELOG</td></tr>
-        <tr><td>Terraform + tests + costos</td><td>diap. 10–11 · <code>infra.yml</code></td></tr>
+        <tr><td>Contribuciones</td><td>commits Conventional → CHANGELOG · FD05 §9.2 (50 % / 50 %)</td></tr>
+        <tr><td>Terraform + tests + costos</td><td>diap. 11–12 · <code>infra.yml</code></td></tr>
         <tr><td>Liquibase + reporte</td><td><code>db.yml</code> · Pages /reportes/liquibase</td></tr>
         <tr><td>Backups + reporte</td><td><code>backup.yml</code> · Pages /reportes/backup</td></tr>
       </tbody>
@@ -559,8 +584,9 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
         <tr><td>Release + despliegue</td><td><code>release.yml</code> · página Releases</td></tr>
         <tr><td>README: diccionario, ER, clases, componentes, despliegue</td><td><code>docs.yml</code> (tbls + Mermaid) · docs/database</td></tr>
         <tr><td>GitHub Pages</td><td>/api (TypeDoc) · /db · /diagramas · /reportes · /app</td></tr>
-        <tr><td>Dashboard de uso</td><td>diap. 13 · demo como docente</td></tr>
-        <tr><td>Integraciones</td><td>diap. 12 · docs/integraciones.md</td></tr>
+        <tr><td>Sesiones, historiales, caché, logs, telemetría</td><td>diap. 10 · README «Requisitos no funcionales»</td></tr>
+        <tr><td>Dashboard de uso</td><td>diap. 14 · demo como docente</td></tr>
+        <tr><td>Integraciones</td><td>diap. 13 · docs/integraciones.md</td></tr>
         <tr><td>Presentación</td><td>docs/presentacion (HTML, PDF, PPTX)</td></tr>
         <tr><td>Preguntas</td><td>ahora mismo · banco-de-preguntas.md</td></tr>
       </tbody>
@@ -575,7 +601,7 @@ v_racha := fn_actualizar_racha(v_i.usuario_id);
 
 <!-- 16 · LIMITACIONES -->
 <section id="limitaciones">
-  <div class="casilla" style="--c:var(--litio)"><p class="z">16</p><p class="s">Li</p><p class="n">limitaciones</p></div>
+  <div class="casilla" style="--c:var(--litio)"><p class="z">17</p><p class="s">Li</p><p class="n">limitaciones</p></div>
   <p class="eyebrow">Limitaciones honestas y trabajo futuro</p>
   <h2>Lo que el sistema NO hace (todavía)</h2>
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-top:8px;">
