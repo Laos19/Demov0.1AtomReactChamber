@@ -55,9 +55,9 @@ jobs:
       RAW: ${{ github.workspace }}/.site-raw
       SITE_DEPTH: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -189,18 +189,18 @@ jobs:
           } | tee "$RUNNER_TEMP/reporte-pages.md" >> "$GITHUB_STEP_SUMMARY"
           mkdir -p "$SITE/reportes" && cp "$RUNNER_TEMP/reporte-pages.md" "$SITE/reportes/reporte-pages.md"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reporte-pages
           path: ${{ runner.temp }}/reporte-pages.md
           retention-days: 30
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
         id: pages
         continue-on-error: true
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
@@ -230,7 +230,7 @@ jobs:
             echo "- omitido: GitHub Pages publica desde una rama (build_type=$tipo); el sitio quedó como artefacto. Para publicarlo con Actions: Settings → Pages → Source: GitHub Actions" >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment
         if: steps.check.outputs.enabled == 'true'
 

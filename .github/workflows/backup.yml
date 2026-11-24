@@ -66,7 +66,7 @@ jobs:
       DEMO_URL: postgres://postgres:postgres@localhost:5432/atomreactchamber
       RESTORE_URL: postgres://postgres:postgres@localhost:5433/restore_check
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Determinar modo y política de retención (GFS)
         id: mode
@@ -211,7 +211,7 @@ jobs:
 
       - name: Subir respaldo (artefacto)
         if: steps.meta.outputs.upload == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backup-${{ steps.mode.outputs.tier }}-${{ steps.mode.outputs.stamp }}
           path: backup/
@@ -221,7 +221,7 @@ jobs:
 
       - name: Subir reporte (artefacto)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: reporte-backup-${{ steps.mode.outputs.stamp }}
           path: reports/

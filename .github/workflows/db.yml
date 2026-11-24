@@ -55,7 +55,7 @@ jobs:
       LIQUIBASE_COMMAND_PASSWORD: postgres
       PGPASSWORD: postgres
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Preparar carpeta de reportes
         run: mkdir -p "$REPORTS"
@@ -149,7 +149,7 @@ jobs:
             echo "</details>"
           } | tee "$REPORTS/reporte-liquibase.md" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reporte-liquibase-efimera
@@ -174,7 +174,7 @@ jobs:
       LIQUIBASE_COMMAND_USERNAME: ${{ secrets.LIQUIBASE_USER }}
       LIQUIBASE_COMMAND_PASSWORD: ${{ secrets.LIQUIBASE_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Comprobar secrets
         id: check
@@ -235,7 +235,7 @@ jobs:
             echo "</details>"
           } | tee "$REPORTS/reporte-liquibase-prod.md" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reporte-liquibase-produccion

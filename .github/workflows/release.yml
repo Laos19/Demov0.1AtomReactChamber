@@ -36,7 +36,7 @@ jobs:
       tag_name: ${{ steps.rp.outputs.tag_name }}
       version: ${{ steps.rp.outputs.version }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         id: rp
         continue-on-error: true
         with:
@@ -70,9 +70,9 @@ jobs:
       VITE_API_URL: ${{ vars.API_URL }}
       TAG: ${{ needs.release-please.outputs.tag_name || (github.ref_type == 'tag' && github.ref_name) || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -133,7 +133,7 @@ jobs:
             [ -n "$VITE_API_URL" ] || echo "> VITE_API_URL vacío (variable API_URL no definida): el frontend se construyó en modo demo."
           } | tee "$REPORTS/reporte-build.md" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ steps.pkg.outputs.version }}
           path: |
@@ -161,7 +161,7 @@ jobs:
       API_URL: ${{ vars.API_URL }}
       WEB_URL: ${{ vars.WEB_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Preparar reporte
         run: |
@@ -236,7 +236,7 @@ jobs:
           } >> "$REPORTS/reporte-deploy.md"
           cat "$REPORTS/reporte-deploy.md" >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: reporte-despliegue
